@@ -1,0 +1,16 @@
+v3.0.2 
+* Changed AddonID and Repo name
+
+v2.0.0 
+* Changed Host to Offshoregit 
+
+v1.0.2
+* Repo name - added color
+
+v1.0.1
+* Updated Disclaimer
+
+v1.0.0
+* Initial Release (1136 downloads)
+
+
