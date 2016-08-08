@@ -119,14 +119,30 @@ def fichas(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         if scrapedtitle.startswith('<span class="year">'):
             scrapedtitle = scrapedtitle[19:]
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="episodios",
-                     title=scrapedtitle,
-                     fulltitle=scrapedtitle,
-                     url=scrapedurl.replace('"', ''),
-                     show=scrapedtitle,
-                     thumbnail=scrapedthumbnail))
+        try:
+           plot, fanart, poster, extrameta = info_tv(scrapedtitle)
+
+           itemlist.append(
+               Item(channel=__channel__,
+                    thumbnail=poster,
+                    fanart=fanart if fanart != "" else poster,
+                    extrameta=extrameta,
+                    plot=str(plot),
+                    action="episodios",
+                    title=scrapedtitle,
+                    url=scrapedurl.replace('"', ''),
+                    fulltitle=scrapedtitle,
+                    show=scrapedtitle,
+                    folder=True))
+        except:
+           itemlist.append(
+               Item(channel=__channel__,
+                    action="episodios",
+                    title=scrapedtitle,
+                    fulltitle=scrapedtitle,
+                    url=scrapedurl.replace('"', ''),
+                    show=scrapedtitle,
+                    thumbnail=scrapedthumbnail))
 
     patron = '<a class="nextpostslink" rel="next" href="([^"]+)">»</a>'
     next_page = scrapertools.find_single_match(data, patron)
@@ -205,7 +221,6 @@ def findvid_serie(item):
 
     return itemlist
 
-
 def anti_cloudflare(url):
     # global headers
 
@@ -216,9 +231,30 @@ def anti_cloudflare(url):
         resp_headers = e.headers
 
     if 'refresh' in resp_headers:
-        import time
         time.sleep(int(resp_headers['refresh'][:1]))
 
-        scrapertools.get_headers_from_response(host + "/" + resp_headers['refresh'][7:], headers=headers)
+        urlsplit = urlparse.urlsplit(url)
+        h = urlsplit.netloc
+        s = urlsplit.scheme
+        scrapertools.get_headers_from_response(s + '://' + h + "/" + resp_headers['refresh'][7:], headers=headers)
 
     return scrapertools.cache_page(url, headers=headers)
+
+def info_tv(title):
+    logger.info("streamondemand.vediserie info")
+    try:
+        from core.tmdb import Tmdb
+        oTmdb= Tmdb(texto_buscado=title, tipo= "tv", include_adult="true", idioma_busqueda="it")
+        count = 0
+        if oTmdb.total_results > 0:
+           extrameta = {}
+           extrameta["Year"] = oTmdb.result["release_date"][:4]
+           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
+           extrameta["Rating"] = float(oTmdb.result["vote_average"])
+           fanart=oTmdb.get_backdrop()
+           poster=oTmdb.get_poster()
+           plot=oTmdb.get_sinopsis()
+           return plot, fanart, poster, extrameta
+    except:
+        pass	
+

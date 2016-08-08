@@ -4,9 +4,9 @@
     <id>abysstream</id>
     <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/abysstream.py</update_url>
     <active>true</active>
-    <version>4</version>
-    <date>12/09/2015</date>
-    <changes>Prima versione di Pelisalacarta 4</changes>
+    <version>6</version>
+    <date>05/04/2016</date>
+    <changes>Aggiornamento server</changes>
 </server>
 
 <server>
@@ -31,7 +31,7 @@
     <id>akstream</id>
     <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/akstream.py</update_url>
     <active>true</active>
-    <version>4</version>
+    <version>5</version>
     <date>12/09/2015</date>
     <changes>Prima versione di Pelisalacarta 4</changes>
 </server>
@@ -661,9 +661,9 @@
     <id>nowvideo</id>
     <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/nowvideo.py</update_url>
     <active>true</active>
-    <version>6</version>
-    <date>20/11/2015</date>
-    <changes>Merged with Pelis</changes>
+    <version>10</version>
+    <date>15/06/2016</date>
+    <changes>re-coded by costaplus</changes>
 </server>
 
 <server>
@@ -715,9 +715,9 @@
     <id>openload</id>
     <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/openload.py</update_url>
     <active>true</active>
-    <version>8</version>
-    <date>12/09/2015</date>
-    <changes>Prima versione di Pelisalacarta 4</changes>
+    <version>13</version>
+    <date>26/06/2016</date>
+    <changes>Fixed by cmos</changes>
 </server>
 
 <server>
@@ -769,9 +769,9 @@
     <id>rapidgator</id>
     <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/rapidgator.py</update_url>
     <active>true</active>
-    <version>1</version>
-    <date>12/09/2015</date>
-    <changes>Prima versione di Pelisalacarta 4</changes>
+    <version>2</version>
+    <date>4/6/16</date>
+    <changes>Update</changes>
 </server>
 
 <server>
@@ -805,8 +805,8 @@
     <id>realdebrid</id>
     <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/realdebrid.py</update_url>
     <active>true</active>
-    <version>1</version>
-    <date>12/09/2015</date>
+    <version>2</version>
+    <date>16/05/2016</date>
     <changes>Prima versione di Pelisalacarta 4</changes>
 </server>
 
@@ -1219,7 +1219,7 @@
     <id>videowood</id>
     <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videowood.py</update_url>
     <active>true</active>
-    <version>2</version>
+    <version>3</version>
     <date>12/09/2015</date>
     <changes>Prima versione di Pelisalacarta 4</changes>
 </server>
@@ -1399,7 +1399,7 @@
     <id>youwatch</id>
     <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/youwatch.py</update_url>
     <active>true</active>
-    <version>2</version>
+    <version>3</version>
     <date>12/09/2015</date>
     <changes>Prima versione di Pelisalacarta 4</changes>
 </server>

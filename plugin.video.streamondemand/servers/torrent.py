@@ -20,6 +20,9 @@ def get_video_url( page_url , premium = False , user="" , password="" , video_pa
         'torrenter' : {
             'url' : "plugin://plugin.video.torrenter/?action=playSTRM&url=%s" % link
         },
+        'quasar' : {
+            'url' : "plugin://plugin.video.quasar/play?uri=%s" % link
+        },
         'pulsar' : {
             'url' : "plugin://plugin.video.pulsar/play?uri=%s" % link
         },

@@ -1493,3 +1493,31 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
     logger.info("read_body_and_headers body="+data)
 
     return data,returnheaders
+
+
+def internet(host="8.8.8.8", port=53, timeout=3):
+    """
+   Host: 8.8.8.8 (google-public-dns-a.google.com)
+   OpenPort: 53/tcp
+   Service: domain (DNS/TCP)
+   """
+    try:
+        deftimeout = socket.getdefaulttimeout()
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        socket.setdefaulttimeout(deftimeout)
+        return True
+    except:
+        pass
+    return False
+
+
+def wait_for_internet(wait=30, retry=5):
+    count = 0
+    while True:
+        if internet():
+            return True
+        count += 1
+        if count >= retry:
+            return False
+        time.sleep(wait)

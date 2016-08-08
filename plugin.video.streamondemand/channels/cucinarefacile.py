@@ -40,15 +40,11 @@ def peliculas(item):
     data = scrapertools.cache_page(item.url)
 
     # Extrae las entradas (carpetas)
-    patron  = '<div class="recipe-list-thumb">\s*'
-    patron  += '<a href="(.*?)"><img[^=]+=[^=]+=[^=]+="(.*?)"[^>]+></a>\s*'
-    patron  += '</div>\s*'
-    patron  += '<div[^>]+>\s*'
-    patron  += '<h2>[^>]+>(.*?)</a>'
+    patron = '<div class="recipe-list-thumb">.*?<img.*?src="(.*?)".*?<h2><a href="(.*?)">(.*?)</a></h2>'
     matches = re.compile(patron,re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
 
-    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
+    for scrapedthumbnail,scrapedurl,scrapedtitle in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         scrapedplot = ""
         if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")

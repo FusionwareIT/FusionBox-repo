@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
-# Sito hdgratis.net  by SchisM
+# Sito hdgratis.org  by SchisM
 # http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
 # ------------------------------------------------------------
 import re
 import urllib2
+import sys
+import time
+import urlparse
 
 from core import config
 from core import logger
@@ -19,14 +22,13 @@ __type__ = "generic"
 __title__ = "HDGratis"
 __language__ = "IT"
 
-host = "http://hdgratis.net"
+host = "http://hdgratis.org"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
     ['Accept-Encoding', 'gzip, deflate'],
     ['Referer', host]
 ]
-
 
 def isGeneric():
     return True
@@ -39,14 +41,15 @@ def mainlist(item):
         Item(channel=__channel__,
              title="[COLOR azure]Al Cinema[/COLOR]",
              action="fichas",
-             url=host + "/in-sala/",
+             url=host + "/category/in-sala/",
              thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
 
         Item(channel=__channel__,
              title="[COLOR azure]Ultimi Film Inseriti[/COLOR]",
              action="fichas",
-             url=host + "/nuove-uscite/",
+             url=host + "/category/nuove-uscite/",
              thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
+
         Item(channel=__channel__,
              title="[COLOR azure]Film per Genere[/COLOR]",
              action="genere",
@@ -56,7 +59,7 @@ def mainlist(item):
         Item(channel=__channel__,
              title="[COLOR azure]Film Sub-Ita[/COLOR]",
              action="fichas",
-             url=host + "/sub-ita/",
+             url=host + "/category/sub-ita/",
              thumbnail="http://i.imgur.com/qUENzxl.png"),			 
 			 
 
@@ -90,7 +93,9 @@ def genere(item):
 
     data = anti_cloudflare(item.url)
 
-    patron = '<a href="http://hdgratis.net/film/">Film</a>(.+?)</ul>'
+    patron = '<ul>(.+?)</ul>'
+    #patron = '<li class="cat-item cat-item.*?"><a href="([^"]+)">([^"]+)</a>.*?</li>'
+
     data = scrapertools.find_single_match(data, patron)
     
     patron = '<li class=".*?'
@@ -101,7 +106,7 @@ def genere(item):
     scrapertools.printMatches(matches)
 
     for scrapedurl, scrapedtitle in matches:
-        scrapedtitle = scrapedtitle.replace('&amp;','-')
+        #scrapedtitle = scrapedtitle.replace('&amp;','-')
         itemlist.append(
                 Item(channel=__channel__,
                      action="fichas",
@@ -123,7 +128,7 @@ def getsearch(item):
 
     # ------------------------------------------------
     cookies = ""
-    matches = re.compile('(.italiafilm.video.*?)\n', re.DOTALL).findall(config.get_cookie_data())
+    matches = re.compile('(.hdgratis.org.*?)\n', re.DOTALL).findall(config.get_cookie_data())
     for cookie in matches:
         name = cookie.split('\t')[5]
         value = cookie.split('\t')[6]
@@ -154,14 +159,30 @@ def getsearch(item):
         scrapedthumbnail += "|" + _headers
         # ------------------------------------------------
 
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="findvideos",
-                     title=title,
-                     url=scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     fulltitle=title,
-                     show=scrapedtitle))
+        try:
+           plot, fanart, poster, extrameta = info(title)
+
+           itemlist.append(
+               Item(channel=__channel__,
+                    thumbnail=poster,
+                    fanart=fanart if fanart != "" else poster,
+                    extrameta=extrameta,
+                    plot=str(plot),
+                    action="findvideos",
+                    title="[COLOR azure]" + title + "[/COLOR]",
+                    url=scrapedurl,
+                    fulltitle=title,
+                    show=scrapedtitle,
+                    folder=True))
+        except:
+           itemlist.append(
+               Item(channel=__channel__,
+                    action="findvideos",
+                    title=title,
+                    url=scrapedurl,
+                    thumbnail=scrapedthumbnail,
+                    fulltitle=title,
+                    show=scrapedtitle))
 
     # Paginación
 	next_page = re.compile('<link rel="next" href="(.+?)"/>', re.DOTALL).findall(data)
@@ -188,7 +209,7 @@ def fichas(item):
 
     # ------------------------------------------------
     cookies = ""
-    matches = re.compile('(.italiafilm.video.*?)\n', re.DOTALL).findall(config.get_cookie_data())
+    matches = re.compile('(.hdgratis.org.*?)\n', re.DOTALL).findall(config.get_cookie_data())
     for cookie in matches:
         name = cookie.split('\t')[5]
         value = cookie.split('\t')[6]
@@ -219,19 +240,36 @@ def fichas(item):
         scrapedthumbnail += "|" + _headers
         # ------------------------------------------------
 
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="findvideos",
-                     title=title,
-                     url=scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     fulltitle=title,
-                     show=scrapedtitle))
+        try:
+           plot, fanart, poster, extrameta = info(title)
+
+           itemlist.append(
+               Item(channel=__channel__,
+                    thumbnail=poster,
+                    fanart=fanart if fanart != "" else poster,
+                    extrameta=extrameta,
+                    plot=str(plot),
+                    action="findvideos",
+                    title="[COLOR azure]" + title + "[/COLOR]",
+                    url=scrapedurl,
+                    fulltitle=title,
+                    show=scrapedtitle,
+                    folder=True))
+        except:
+           itemlist.append(
+               Item(channel=__channel__,
+                    action="findvideos",
+                    title=title,
+                    url=scrapedurl,
+                    thumbnail=scrapedthumbnail,
+                    fulltitle=title,
+                    show=scrapedtitle))
 
     # Paginación
-	next_page = re.compile('<link rel="next" href="(.+?)"/>', re.DOTALL).findall(data)
-	for page in next_page:
-		next_page = page
+    next_page = re.compile('<link rel="next" href="(.+?)"/>', re.DOTALL).findall(data)
+    for page in next_page:
+        next_page = page
+        
     if next_page != "":
         itemlist.append(
                 Item(channel=__channel__,
@@ -255,40 +293,43 @@ def findvideos(item):
 
     url = scrapertools.find_single_match(data, patron)
 
-    if 'hdpass.link' in url:
+    if 'hdpass.xyz' in url:
         data = scrapertools.cache_page(url, headers=headers)
 
         start = data.find('<ul id="mirrors">')
         end = data.find('</ul>', start)
         data = data[start:end]
 
-        patron = '<form method="get" action="">\s*'
-        patron += '<input type="hidden" name="([^"]+)" value="([^"]+)"/>\s*'
-        patron += '<input type="hidden" name="([^"]+)" value="([^"]+)"/>\s*'
-        patron += '(?:<input type="hidden" name="([^"]+)" value="([^"]+)"/>\s*)?'
-        patron += '<input type="submit" class="[^"]*" name="([^"]+)" value="([^"]+)"/>\s*'
-        patron += '</form>'
+        patron = '<form method="get" action="">\s*<input type="hidden" name="([^"]+)" value="([^"]+)"/>\s*<input type="hidden" name="([^"]+)" value="([^"]+)"/>\s*<input type="hidden" name="([^"]+)" value="(.*?)"/><input type="hidden" name="([^"]+)" value="([^"]+)"/> <input type="submit" class="[^"]*" name="([^"]+)" value="([^"]+)"/>\s*</form>'
+
+        #patron = '<form method="get" action="">\s*'
+        #patron += '<input type="hidden" name="([^"]+)" value="([^"]+)"/>\s*'
+        #patron += '<input type="hidden" name="([^"]+)" value="([^"]+)"/>\s*'
+        #patron += '(?:<input type="hidden" name="([^"]+)" value="([^"]+)"/>\s*)?'
+        #patron += '<input type="submit" class="[^"]*" name="([^"]+)" value="([^"]+)"/>\s*'
+        #patron += '</form>'
 
         html = []
-        for name1, val1, name2, val2, name3, val3, name4, val4 in re.compile(patron).findall(data):
+        for name1, val1, name2, val2, name3, val3, name4, val4, name5, val5 in re.compile(patron).findall(data):
             if name3 == '' and val3 == '':
-                get_data = '%s=%s&%s=%s&%s=%s' % (name1, val1, name2, val2, name4, val4)
+                get_data = '%s=%s&%s=%s&%s=%s&%s=%s' % (name1, val1, name2, val2, name4, val4, name5, val5)
             else:
-                get_data = '%s=%s&%s=%s&%s=%s&%s=%s' % (name1, val1, name2, val2, name3, val3, name4, val4)
-            tmp_data = scrapertools.cache_page('http://hdpass.link/film.php?randid=0&' + get_data, headers=headers)
+                get_data = '%s=%s&%s=%s&%s=%s&%s=%s&%s=%s' % (name1, val1, name2, val2, name3, val3, name4, val4, name5, val5)
+            tmp_data = scrapertools.cache_page('http://hdpass.xyz/film.php?' + get_data, headers=headers)
 
             patron = r'; eval\(unescape\("(.*?)",(\[".*?;"\]),(\[".*?\])\)\);'
             try:
                 [(par1, par2, par3)] = re.compile(patron, re.DOTALL).findall(tmp_data)
             except:
-                patron = r'<source src="([^"]+)"\s*type="video/mp4"(?:\s*data-res="([^"]+)")?'
-                for media_url, media_label in re.compile(patron).findall(tmp_data):
+                patron = r'<input type="hidden" name="urlEmbed" data-mirror="([^"]+)" id="urlEmbed" value="([^"]+)"/>'
+                for media_label, media_url in re.compile(patron).findall(tmp_data):
+                    media_label=scrapertools.decodeHtmlentities(media_label.replace("hosting","hdload"))
                     itemlist.append(
-                            Item(server='directo',
-                                 action="play",
-                                 title=' - [Player]' if media_label == '' else ' - [Player: quality %s]' % media_label,
-                                 url=media_url,
-                                 folder=False))
+                        Item(server=media_label,
+                             action="play",
+                             title=' - [Player]' if media_label == '' else ' - [Player @%s]' % media_label,
+                             url=media_url,
+                             folder=False))
                 continue
 
             par2 = eval(par2, {'__builtins__': None}, {})
@@ -310,8 +351,9 @@ def findvideos(item):
 
     return itemlist
 
-
 def anti_cloudflare(url):
+    # global headers
+
     try:
         resp_headers = scrapertools.get_headers_from_response(url, headers=headers)
         resp_headers = dict(resp_headers)
@@ -319,13 +361,14 @@ def anti_cloudflare(url):
         resp_headers = e.headers
 
     if 'refresh' in resp_headers:
-        import time
         time.sleep(int(resp_headers['refresh'][:1]))
 
-        scrapertools.get_headers_from_response(host + "/" + resp_headers['refresh'][7:], headers=headers)
+        urlsplit = urlparse.urlsplit(url)
+        h = urlsplit.netloc
+        s = urlsplit.scheme
+        scrapertools.get_headers_from_response(s + '://' + h + "/" + resp_headers['refresh'][7:], headers=headers)
 
     return scrapertools.cache_page(url, headers=headers)
-
 
 def unescape(par1, par2, par3):
     var1 = par1
@@ -335,3 +378,21 @@ def unescape(par1, par2, par3):
     var1 = re.sub("%26", "&", var1)
     var1 = re.sub("%3B", ";", var1)
     return var1.replace('<!--?--><?', '<!--?-->')
+
+def info(title):
+    logger.info("streamondemand.hdgratis info")
+    try:
+        from core.tmdb import Tmdb
+        oTmdb= Tmdb(texto_buscado=title, tipo= "movie", include_adult="false", idioma_busqueda="it")
+        count = 0
+        if oTmdb.total_results > 0:
+           extrameta = {}
+           extrameta["Year"] = oTmdb.result["release_date"][:4]
+           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
+           extrameta["Rating"] = float(oTmdb.result["vote_average"])
+           fanart=oTmdb.get_backdrop()
+           poster=oTmdb.get_poster()
+           plot=oTmdb.get_sinopsis()
+           return plot, fanart, poster, extrameta
+    except:
+        pass	

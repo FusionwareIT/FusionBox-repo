@@ -5,8 +5,7 @@
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import urllib2,urllib,re
 
 from core import scrapertools
 from core import logger
@@ -14,11 +13,13 @@ from core import config
 
 # Returns an array of possible video url's from the page_url
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
-    logger.info("[realdebrid.py] get_video_url( page_url='%s' , user='%s' , password='%s', video_password=%s)" % (page_url , user , "**************************"[0:len(password)] , video_password) )
+    logger.info("pelisalacarta.servers.realdebrid get_video_url( page_url='%s' , user='%s' , password='%s', video_password=%s)" % (page_url , user , "**************************"[0:len(password)] , video_password) )
     page_url = correct_url(page_url)
-    url = 'http://real-debrid.com/lib/api/account.php'
-    data = scrapertools.cache_page(url)
-    logger.info(data)
+    # Hace el login y consigue la cookie
+    post = urllib.urlencode({'user' : user, 'pass' : password})
+    login_url = 'https://real-debrid.com/ajax/login.php?'+post
+    
+    data = scrapertools.cache_page(url=login_url)
     if data is None or not re.search('expiration', data) or not re.search(user, data):
         
         # Hace el login y consigue la cookie
@@ -26,37 +27,34 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
         login_url = 'https://real-debrid.com/ajax/login.php?'+post
     
         data = scrapertools.cache_page(url=login_url)
-        #print data
         if re.search('OK', data):
             logger.info("Se ha logueado correctamente en Real-Debrid ")
         else:
-            logger.info(data)
             patron = 'message":"(.+?)"'
             matches = re.compile(patron).findall(data)
             if len(matches)>0:
-                server_error = "REAL-DEBRID: "+urllib.unquote_plus(matches[0].replace("\\u00","%"))
+                server_error = "REAL-DEBRID: "+urllib.unquote_plus(matches[-1].replace("\\u00","%"))
             else:
                 server_error = "REAL-DEBRID: Ha ocurrido un error con tu login"
             return server_error
     else:
         logger.info("Ya estas logueado en Real-Debrid")
-    
-    #url = 'http://real-debrid.com/lib/ajax/generator.php?lang=es&sl=1&link=%s' % page_url
-    url = 'https://real-debrid.com/ajax/unrestrict.php?link=%s' % page_url
-    data = scrapertools.cache_page(url)
-        
+
+    url = 'https://real-debrid.com/ajax/unrestrict.php?link=%s&password=%s' % (urllib.quote(page_url), video_password)
+    req = urllib2.Request(url)
+    req.add_header('Cookie',"cookie_accept=y; https=1; lang=es; auth="+scrapertools.find_single_match(data,'auth=(.*?);'))
+    response = urllib2.urlopen(req)
+    data=response.read()
+    response.close()
+
+    data = data.replace('{"error":-1,"message":"Old API used, please upgrade: https:\/\/api.real-debrid.com"}',"")
     listaDict=load_json(data)
-    if 'generated_links' in listaDict :
-        generated_links = listaDict['generated_links']
-        for link in generated_links :
-            return link[2].encode('utf-8')
-    elif 'main_link' in listaDict :
+    if 'main_link' in listaDict :
         return listaDict['main_link'].encode('utf-8')
     else :
-        if 'message' in listaDict :    
-            msg = listaDict['message'].encode('utf-8')        
+        if 'message' in listaDict :
+            msg = listaDict['message'].decode('utf-8','ignore')
             server_error = "REAL-DEBRID: " + msg
-            logger.info(msg)
             return server_error
         else :
             return "REAL-DEBRID: No generated_link and no main_link"
@@ -75,10 +73,8 @@ def load_json(data):
     def to_utf8(dct):
         
         rdct = {}
-        for k, v in dct.items() :
-            
-        
-            if isinstance(v, (str, unicode)) :
+        for k, v in dct.items() :			
+            if isinstance(v, (str, unicode)):
                 rdct[k] = v.encode('utf8', 'ignore')
             else :
                 rdct[k] = v

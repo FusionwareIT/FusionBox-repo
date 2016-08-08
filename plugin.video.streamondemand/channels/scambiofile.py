@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
 # streamondemand.- XBMC Plugin
-# Canal para corsaronero
+# Canal para scambiofile
 # http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
 #------------------------------------------------------------
 import urlparse,urllib2,urllib,re
@@ -13,31 +13,30 @@ from core import scrapertools
 from core.item import Item
 from servers import servertools
 
-__channel__ = "corsaronero"
+__channel__ = "scambiofile"
 __category__ = "F"
 __type__ = "generic"
-__title__ = "Corsaro Nero (IT)"
+__title__ = "Scambiofile (IT)"
 __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://torcache.net/torrent/"
-site = "http://ilcorsaronero.info"
+site = "http://scambiofile.info"
 
 def isGeneric():
     return True
 
 def mainlist(item):
-    logger.info("streamondemand.corsaronero mainlist")
+    logger.info("streamondemand.scambiofile mainlist")
     itemlist = []
-    itemlist.append( Item(channel=__channel__, title="[COLOR azure]Novità-Film .torrent stream[/COLOR]", action="peliculas", url="http://ilcorsaronero.info/cat/1", thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"))
+    itemlist.append( Item(channel=__channel__, title="[COLOR azure]Novità-Film .torrent stream[/COLOR]", action="peliculas", url="http://www.scambiofile.info/browse.php?cat=1", thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"))
     itemlist.append( Item(channel=__channel__, title="[COLOR yellow]Cerca...[/COLOR]", action="search", thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"))
     
     return itemlist
 
 def search(item,texto):
-    logger.info("[corsaronero.py] "+item.url+" search "+texto)
-    item.url = "http://ilcorsaronero.info/argh.php?search="+texto
+    logger.info("[scambiofile.py] "+item.url+" search "+texto)
+    item.url = "http://www.scambiofile.info/browse.php?cat=1&search="+texto
     try:
         return peliculas(item)
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
@@ -48,24 +47,25 @@ def search(item,texto):
         return []
 
 def peliculas(item):
-    logger.info("streamondemand.corsaronero peliculas")
+    logger.info("streamondemand.scambiofile peliculas")
     itemlist = []
 
     # Descarga la pagina
     data = scrapertools.cache_page(item.url, timeout=10)
 
     # Extrae las entradas (carpetas)
-    patron = '<A class="tab" HREF="(.*?)"[^>]+>(.*?)</A>'
+    patron = '<a <td align="left">[^)]+.[^)]+.[^=]+=\'(.*?)\' target=\'_blank\'>(.*?)</a>'
     matches = re.compile(patron,re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
 
     for scrapedurl, scrapedtitle in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.replace("."," "))
-        proctitle1 = scrapertools.decodeHtmlentities(scrapedtitle.replace("19","("))
-        proctitle = scrapertools.decodeHtmlentities(proctitle1.replace("20","("))
-        title = proctitle.split("(")[0]
-        url = site + scrapedurl
+        title = scrapedtitle.split("(")[0]
+        url = scrapedurl
+        url = url.replace("%2F", "/")
+        url = url.replace("%3F", "?")
+        url = url.replace("%26n%3", "&n=")
+        url = url.replace("/details.php", "http://www.scambiofile.info/details.php")
         scrapedplot = ""
         scrapedthumbnail = ""
         if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+url+"], thumbnail=["+scrapedthumbnail+"]")
@@ -77,23 +77,24 @@ def peliculas(item):
            itemlist.append( Item(channel=__channel__, action="play", fulltitle=scrapedtitle, show=scrapedtitle, title="[COLOR darkkhaki].torrent [/COLOR]""[COLOR azure]"+scrapedtitle+"[/COLOR]" , url=url , thumbnail=scrapedthumbnail , plot=scrapedplot , folder=True) )
 
     # Extrae el paginador
-    patronvideos  = '<a href="([^>"]+)">pagine successive'
+    patronvideos  = '<td class="highlight"><b>[^h]+href="([^"]+)"[^>]+>'
     matches = re.compile(patronvideos,re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
 
     if len(matches)>0:
-        scrapedurl = urlparse.urljoin(item.url,matches[0])
-        itemlist.append( Item(channel=__channel__, action="peliculas", title="[COLOR orange]Successivo>>[/COLOR]" , url=scrapedurl , thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png", folder=True) )
+        url = urlparse.urljoin(item.url,matches[0])
+        url = url.replace("&amp;", "&")
+        itemlist.append( Item(channel=__channel__, action="peliculas", title="[COLOR orange]Successivo>>[/COLOR]" , url=url , thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png", folder=True) )
 
     return itemlist
 
 def play(item):
-    logger.info("[corsaronero.py] play")
+    logger.info("[scambiofile.py] play")
     itemlist = []
 
     data = scrapertools.cache_page(item.url)
 
-    patron = '<a class="forbtn magnet" target="_blank" href="(magnet[^"]+)" title="Magnet" ></a>'
+    patron = '<a class=\'btn btn-warning small\' href="(magnet[^&]+)[^>]+>'
     patron = urllib.unquote(patron).decode('utf8')
     link = scrapertools.find_single_match(data, patron)
     link = urlparse.urljoin(item.url,link)
@@ -103,25 +104,17 @@ def play(item):
     return itemlist
 
 def info(title):
-    logger.info("streamondemand.corsaronero info")
+    logger.info("streamondemand.altadefinizioneone info")
     try:
         from core.tmdb import Tmdb
-        oTmdb= Tmdb(texto_buscado=title, tipo="movie", include_adult="false", idioma_busqueda="it")
-        count = 0
+        oTmdb = Tmdb(texto_buscado=title, tipo="movie", include_adult="false", idioma_busqueda="it")
         if oTmdb.total_results > 0:
-            #Mientras el thumbnail no coincida con el del resultado de la búsqueda, pasa al siguiente resultado
-            #while oTmdb.get_poster(size="w185") != thumbnail:
-                #count += 1
-                #oTmdb.load_resultado(index_resultado=count)
-                #if count == oTmdb.total_results : break
-           extrameta = {}
-           extrameta["Year"] = oTmdb.result["release_date"][:4]
-           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-           extrameta["Rating"] = float(oTmdb.result["vote_average"])
-           fanart=oTmdb.get_backdrop()
-           poster=oTmdb.get_poster()
-           plot=oTmdb.get_sinopsis()
-           return plot, fanart, poster, extrameta
+            extrameta = {"Year": oTmdb.result["release_date"][:4],
+                         "Genre": ", ".join(oTmdb.result["genres"]),
+                         "Rating": float(oTmdb.result["vote_average"])}
+            fanart = oTmdb.get_backdrop()
+            poster = oTmdb.get_poster()
+            plot = oTmdb.get_sinopsis()
+            return plot, fanart, poster, extrameta
     except:
-        pass	
-
+        pass

@@ -73,17 +73,36 @@ def peliculas(item):
         #scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
         if (DEBUG): logger.info(
                 "url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "], title=[" + scrapedtitle + "]")
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="findvideos",
-                     url=scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     folder=True,
-                     fanart=scrapedthumbnail,
-                     plot=scrapedplot))
+        tmdbtitle1 = scrapedtitle.split("Sub-ITA")[0]
+        tmdbtitle2 = tmdbtitle1.split("20")[0]
+        tmdbtitle3 = tmdbtitle2.split("19")[0]
+        tmdbtitle = tmdbtitle3.split("(")[0]
+        try:
+           plot, fanart, poster, extrameta = info(tmdbtitle)
+
+           itemlist.append(
+               Item(channel=__channel__,
+                    thumbnail=poster,
+                    fanart=fanart if fanart != "" else poster,
+                    extrameta=extrameta,
+                    plot=str(plot),
+                    action="findvideos",
+                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                    url=scrapedurl,
+                    fulltitle=scrapedtitle,
+                    show=scrapedtitle,
+                    folder=True))
+        except:
+           itemlist.append(
+               Item(channel=__channel__,
+                    action="findvideos",
+                    url=scrapedurl,
+                    thumbnail=scrapedthumbnail,
+                    fulltitle=scrapedtitle,
+                    show=scrapedtitle,
+                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                    folder=True,
+                    plot=scrapedplot))
 
     # Extrae el paginador
     patronvideos = '<a class="nextpostslink" href="([^"]+)">&raquo;</a>'
@@ -183,3 +202,21 @@ def search(item, texto):
         for line in sys.exc_info():
             logger.error("%s" % line)
         return []
+
+def info(title):
+    logger.info("streamondemand.pianetastreaming info")
+    try:
+        from core.tmdb import Tmdb
+        oTmdb= Tmdb(texto_buscado=title, tipo= "movie", include_adult="false", idioma_busqueda="it")
+        count = 0
+        if oTmdb.total_results > 0:
+           extrameta = {}
+           extrameta["Year"] = oTmdb.result["release_date"][:4]
+           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
+           extrameta["Rating"] = float(oTmdb.result["vote_average"])
+           fanart=oTmdb.get_backdrop()
+           poster=oTmdb.get_poster()
+           plot=oTmdb.get_sinopsis()
+           return plot, fanart, poster, extrameta
+    except:
+        pass

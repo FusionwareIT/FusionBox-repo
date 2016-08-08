@@ -28,10 +28,12 @@ def mainlist(item, preferred_thumbnail="squares"):
     itemlist = [
         Item(channel=__channel__,
              action="search",
+             thumbnail="http://i.imgur.com/pE5WSZp.png",
              title="[COLOR yellow]Nuova ricerca film...[/COLOR]"),
         Item(channel=__channel__,
              action="search",
              category="serie",
+             thumbnail="http://i.imgur.com/pE5WSZp.png",
              title="[COLOR yellow]Nuova ricerca serie tv...[/COLOR]"),
     ]
 
@@ -48,6 +50,7 @@ def mainlist(item, preferred_thumbnail="squares"):
         itemlist.append(
                 Item(channel=__channel__,
                      action="clear_saved_searches",
+                     thumbnail="http://i.imgur.com/pE5WSZp.png",
                      title="[COLOR red]Elimina cronologia ricerche[/COLOR]"))
 
     return itemlist

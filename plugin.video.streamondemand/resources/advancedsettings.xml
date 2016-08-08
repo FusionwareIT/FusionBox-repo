@@ -2,7 +2,7 @@
 <network>
     <buffermode>1</buffermode>
     <cachemembuffersize>68157440</cachemembuffersize>
-    <readbufferfactor>10</readbufferfactor>
+    <readbufferfactor>20</readbufferfactor>
     <autodetectpingtime>30</autodetectpingtime>
     <curlclienttimeout>60</curlclienttimeout>
     <curllowspeedtime>60</curllowspeedtime>

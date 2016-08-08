@@ -5,15 +5,11 @@
 # http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
 # ------------------------------------------------------------
 import re
-import sys
-import urllib2
-import urlparse
 
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
-from servers import servertools
 
 __channel__ = "eurostreaminginfo"
 __category__ = "F"
@@ -26,11 +22,8 @@ host = "http://eurostreaming.info"
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
     ['Accept-Encoding', 'gzip, deflate'],
-    ['Referer', 'http://eurostreaming.info/'],
-    ['Host', 'eurostreaming.info'],
-    ['Connection', 'keep-alive']
+    ['Referer', host]
 ]
-
 
 DEBUG = config.get_setting("debug")
 
@@ -46,9 +39,9 @@ def mainlist(item):
                      action="peliculas",
                      url="%s/ultimi-100-film-inseriti/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
-                Item(channel=__channel__, 
-                     title="[COLOR yellow]Cerca...[/COLOR]", 
-                     action="search", 
+                Item(channel=__channel__,
+                     title="[COLOR yellow]Cerca...[/COLOR]",
+                     action="search",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
@@ -90,34 +83,46 @@ def peliculas(item):
     # Narrow search by selecting only the combo
     bloque = scrapertools.get_match(data, '<ol>(.*?)</ol>')
 
-
     # Extrae las entradas (carpetas)
-    patron = '<a href="([^"]+)">(.*?)</a>'
+    patron = '<a href="([^"]+)"\s*(?:target="_blank")?>(.*?)</a>'
     matches = re.compile(patron, re.DOTALL).findall(bloque)
 
     for scrapedurl, scrapedtitle in matches:
         scrapedthumbnail = ""
         scrapedplot = ""
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
-        #html = scrapertools.cache_page(scrapedurl)
-        #start = html.find("<strong>Trama:")
-        #end = html.find("<div class=\"product-profile-box-middlerow\">", start)
-        #scrapedplot = re.sub(r'<[^>]*>', '', html[start:end])
-        #scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
-        if DEBUG: logger.info(
-            "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        itemlist.append(
-            Item(channel=__channel__,
-                 action="findvideos",
-                 fulltitle=scrapedtitle,
-                 show=scrapedtitle,
-                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                 url=scrapedurl,
-                 thumbnail=scrapedthumbnail,
-                 plot=scrapedplot,
-                 folder=True))
+        scrapedtitle = re.sub(r'<[^>]*>', '', scrapedtitle)
+        url = scrapedurl
+        if (DEBUG): logger.info("title=[" + scrapedtitle + "], url=[" + url + "], thumbnail=[" + scrapedthumbnail + "]")
+        try:
+            plot, fanart, poster, extrameta = info(scrapedtitle)
+
+            itemlist.append(
+                Item(channel=__channel__,
+                     thumbnail=poster,
+                     fanart=fanart if fanart != "" else poster,
+                     extrameta=extrameta,
+                     plot=str(plot),
+                     action="findvideos",
+                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                     url=scrapedurl,
+                     fulltitle=scrapedtitle,
+                     show=scrapedtitle,
+                     folder=True))
+        except:
+            itemlist.append(
+                Item(channel=__channel__,
+                     action="findvideos",
+                     fulltitle=scrapedtitle,
+                     show=scrapedtitle,
+                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                     url=scrapedurl,
+                     thumbnail=scrapedthumbnail,
+                     plot=scrapedplot,
+                     folder=True))
 
     return itemlist
+
 
 def peliserie(item):
     logger.info("streamondemand.eurostreaminginfo peliculas")
@@ -151,6 +156,7 @@ def peliserie(item):
 
     return itemlist
 
+
 def pelisrc(item):
     logger.info("streamondemand.eurostreaminginfo peliculas")
     itemlist = []
@@ -167,16 +173,48 @@ def pelisrc(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         if DEBUG: logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        itemlist.append(
-            Item(channel=__channel__,
-                 action="findvideos",
-                 fulltitle=scrapedtitle,
-                 show=scrapedtitle,
-                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                 url=scrapedurl,
-                 thumbnail=scrapedthumbnail,
-                 plot=scrapedplot,
-                 folder=True))
+        try:
+            plot, fanart, poster, extrameta = info(scrapedtitle)
+
+            itemlist.append(
+                Item(channel=__channel__,
+                     thumbnail=poster,
+                     fanart=fanart if fanart != "" else poster,
+                     extrameta=extrameta,
+                     plot=str(plot),
+                     action="findvideos",
+                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                     url=scrapedurl,
+                     fulltitle=scrapedtitle,
+                     show=scrapedtitle,
+                     folder=True))
+        except:
+            itemlist.append(
+                Item(channel=__channel__,
+                     action="findvideos",
+                     fulltitle=scrapedtitle,
+                     show=scrapedtitle,
+                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                     url=scrapedurl,
+                     thumbnail=scrapedthumbnail,
+                     plot=scrapedplot,
+                     folder=True))
 
     return itemlist
 
+
+def info(title):
+    logger.info("streamondemand.eurostreaminginfo info")
+    try:
+        from core.tmdb import Tmdb
+        oTmdb = Tmdb(texto_buscado=title, tipo="movie", include_adult="false", idioma_busqueda="it")
+        if oTmdb.total_results > 0:
+            extrameta = {"Year": oTmdb.result["release_date"][:4],
+                         "Genre": ", ".join(oTmdb.result["genres"]),
+                         "Rating": float(oTmdb.result["vote_average"])}
+            fanart = oTmdb.get_backdrop()
+            poster = oTmdb.get_poster()
+            plot = oTmdb.get_sinopsis()
+            return plot, fanart, poster, extrameta
+    except:
+        pass

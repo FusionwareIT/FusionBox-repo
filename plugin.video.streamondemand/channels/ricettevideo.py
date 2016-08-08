@@ -18,7 +18,6 @@ __type__ = "generic"
 __title__ = "ricettevideo (IT)"
 __language__ = "IT"
 
-
 DEBUG = config.get_setting("debug")
 
 def isGeneric():

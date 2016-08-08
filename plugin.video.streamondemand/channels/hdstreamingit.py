@@ -29,6 +29,7 @@ key = base64.urlsafe_b64decode(
 
 importio_url = "https://api.import.io/store/connector/_magic?format=JSON&js=false&_apikey=%s&url=" % key
 
+dec_fly = "http://skizzerz.net/scripts/adfly.php?url="
 
 def isGeneric():
     return True
@@ -60,6 +61,12 @@ def mainlist(item):
                      action="peliculas",
                      extra="serie",
                      url="%s/event_categories/serie-tv/" % host,
+                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
+                Item(channel=__channel__,
+                     title="[COLOR azure]Serie TV Animate[/COLOR]",
+                     action="peliculas",
+                     extra="serie",
+                     url="%s/event_categories/serie-animate/" % host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
@@ -129,16 +136,38 @@ def peliculas(item):
         scrapedplot = ""
         if (DEBUG): logger.info(
                 "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        itemlist.append(
-                Item(channel=__channel__,
-                     action='episodios' if item.extra == 'serie' else 'findvideos',
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl if item.extra == 'serie' else importio_url + scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     plot=scrapedplot,
-                     folder=True))
+        tmdbtitle1 = scrapedtitle.split("[")[0]
+        tmdbtitle = tmdbtitle1.split("(")[0]
+        if 'adfoc.us' in scrapedurl:
+           scrapedurl = importio_url + scrapedurl
+        if 'adf.ly' in scrapedurl:
+           scrapedurl = dec_fly + scrapedurl
+        try:
+           plot, fanart, poster, extrameta = info(tmdbtitle)
+
+           itemlist.append(
+               Item(channel=__channel__,
+                    thumbnail=poster,
+                    fanart=fanart if fanart != "" else poster,
+                    extrameta=extrameta,
+                    plot=str(plot),
+                    action="episodios" if item.extra == "serie" else "findvideos",
+                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                    url=scrapedurl if item.extra == 'serie' else scrapedurl,
+                    fulltitle=scrapedtitle,
+                    show=scrapedtitle,
+                    folder=True))
+        except:
+           itemlist.append(
+               Item(channel=__channel__,
+                    action="episodios" if item.extra == "serie" else "findvideos",
+                    fulltitle=scrapedtitle,
+                    show=scrapedtitle,
+                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                    url=scrapedurl if item.extra == "serie" else scrapedurl,
+                    thumbnail=scrapedthumbnail,
+                    plot=scrapedplot,
+                    folder=True))
 
     # Extrae el paginador
     patronvideos = "<link rel='next' href='([^']+)' />"
@@ -185,18 +214,38 @@ def pelis3d(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.replace("-", " "))
         scrapedtitle = ' '.join(word[0].upper() + word[1:] for word in scrapedtitle.split())
         scrapedthumbnail = ""
-        if (DEBUG): logger.info(
-                "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        itemlist.append(
-                Item(channel=__channel__,
-                     action='episodios' if item.extra == 'serie' else 'findvideos',
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl if item.extra == 'serie' else importio_url + scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     plot=scrapedplot,
-                     folder=True))
+        tmdbtitle1 = scrapedtitle.split("[")[0]
+        tmdbtitle = tmdbtitle1.split("(")[0]
+        if 'adfoc.us' in scrapedurl:
+           scrapedurl = importio_url + scrapedurl
+        if 'adf.ly' in scrapedurl:
+           scrapedurl = dec_fly + scrapedurl
+        try:
+           plot, fanart, poster, extrameta = info(tmdbtitle)
+
+           itemlist.append(
+               Item(channel=__channel__,
+                    thumbnail=poster,
+                    fanart=fanart if fanart != "" else poster,
+                    extrameta=extrameta,
+                    plot=str(plot),
+                    action="episodios" if item.extra == "serie" else "findvideos",
+                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                    url=scrapedurl if item.extra == 'serie' else scrapedurl,
+                    fulltitle=scrapedtitle,
+                    show=scrapedtitle,
+                    folder=True))
+        except:
+            itemlist.append(
+               Item(channel=__channel__,
+                    action='episodios' if item.extra == 'serie' else 'findvideos',
+                    fulltitle=scrapedtitle,
+                    show=scrapedtitle,
+                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                    url=scrapedurl if item.extra == 'serie' else scrapedurl,
+                    thumbnail=scrapedthumbnail,
+                    plot=scrapedplot,
+                    folder=True))
 
     # Extrae el paginador
     patronvideos = "<link rel='next' href='([^']+)' />"
@@ -241,13 +290,17 @@ def episodios(item):
     for title1, url, title2 in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(title1 + title2)
         scrapedtitle = re.sub(r'<[^>]*>', '', scrapedtitle).strip()
+        if 'adfoc.us' in url:
+           scrapedurl = importio_url + url
+        if 'adf.ly' in url:
+           scrapedurl = dec_fly + url
         itemlist.append(
                 Item(channel=__channel__,
                      action='findvideos',
                      fulltitle=item.fulltitle,
                      show=item.show,
                      title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=importio_url + url,
+                     url=url,
                      thumbnail=item.thumbnail,
                      plot=item.plot,
                      folder=True))
@@ -269,3 +322,22 @@ def episodios(item):
                      show=item.show))
 
     return itemlist
+
+def info(title):
+    logger.info("streamondemand.hdstreamingit info")
+    try:
+        from core.tmdb import Tmdb
+        oTmdb= Tmdb(texto_buscado=title, tipo= "movie", include_adult="false", idioma_busqueda="it")
+        count = 0
+        if oTmdb.total_results > 0:
+           extrameta = {}
+           extrameta["Year"] = oTmdb.result["release_date"][:4]
+           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
+           extrameta["Rating"] = float(oTmdb.result["vote_average"])
+           fanart=oTmdb.get_backdrop()
+           poster=oTmdb.get_poster()
+           plot=oTmdb.get_sinopsis()
+           return plot, fanart, poster, extrameta
+    except:
+        pass	
+

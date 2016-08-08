@@ -6,6 +6,7 @@
 # ------------------------------------------------------------
 
 import re
+import urllib
 
 from core import jsunpack
 from core import logger
@@ -21,7 +22,7 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
     logger.info("youwatch get_video_url(page_url='%s')" % page_url)
 
     data = ''
-    patron_new_url = '<iframe[^>]*src="([^"]+/embed[^"]+)'
+    patron_new_url = '<iframe\s+src\s*=\s*"([^"]+)'
 
     while page_url != "":
         headers = [
@@ -38,7 +39,7 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
         data = scrapertools.find_single_match(data, '(eval\(function.*?)</script>')
         data = jsunpack.unpack(data)
         media_url = scrapertools.find_single_match(data, 'file\s*:\s*"([^"]+)')
-    video_urls = [[scrapertools.get_filename_from_url(media_url)[-4:] + " [youwatch]", media_url]]
+    video_urls = [[scrapertools.get_filename_from_url(media_url)[-4:] + " [youwatch]", media_url + '|' + urllib.urlencode(dict(headers))]]
 
     for video_url in video_urls:
         logger.info("[youwatch.py] %s - %s" % (video_url[0], video_url[1]))
@@ -51,13 +52,13 @@ def find_videos(data):
     encontrados = set()
     devuelve = []
 
-    patronvideos = r'//(?:www.)?youwatch.org/(?:embed-)?([A-Za-z0-9]+)(?:-\d+x\d+\.html)?'
+    patronvideos = '(?://|\.)(?:youwatch\.org)/(?:embed-)?([A-Za-z0-9]+)'
     logger.info("youwatch find_videos #" + patronvideos + "#")
     matches = re.compile(patronvideos, re.DOTALL).findall(data)
 
     for media_id in matches:
         titulo = "[youwatch]"
-        url = "http://youwatch.org/embed-%s-640x360.html" % media_id
+        url = 'http://youwatch.org/embed-%s.html' % media_id
         if url not in encontrados:
             logger.info("  url=" + url)
             devuelve.append([titulo, url, 'youwatch'])

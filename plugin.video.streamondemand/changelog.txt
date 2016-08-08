@@ -1,2 +1,4 @@
-v5.2.3
-- fix system for channels and servers
+v5.2.9
+- Fixed library
+- Fixed pigeons
+- Added aadecode lib

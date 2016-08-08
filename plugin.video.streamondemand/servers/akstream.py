@@ -11,7 +11,6 @@ import urllib
 
 from core import logger
 from core import scrapertools
-from lib import mechanize
 
 headers = [
     ['User-Agent',
@@ -58,30 +57,6 @@ def find_videos(text):
         titulo = "[Akstream]"
         url = "http://akstream.video/stream/" + match
         if url not in encontrados:
-            logger.info("  url=" + url)
-            devuelve.append([titulo, url, 'akstream'])
-            encontrados.add(url)
-        else:
-            logger.info("  url duplicada=" + url)
-
-    # http://vcrypt.net/sak/0a8hqibleus5
-    # Filmpertutti.eu
-    br = mechanize.Browser()
-    br.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0')]
-    br.set_handle_robots(False)
-    br.set_handle_gzip(True)
-    patronvideos = 'http://vcrypt.net/sak/([^"]+)'
-    matches = re.compile(patronvideos, re.DOTALL).findall(text)
-    page = scrapertools.find_single_match(text, 'rel="canonical" href="([^"]+)"')
-
-    for match in matches:
-        titulo = "[Akstream]"
-        url = "http://vcrypt.net/sak/" + match
-        r = br.open(url)
-        data = r.read()
-        vid = scrapertools.find_single_match(data, 'akstream.(?:net|video)/(?:v|videos)/([^"]+)"')
-        url = "http://akstream.video/stream/" + vid
-        if url not in encontrados and vid != "":
             logger.info("  url=" + url)
             devuelve.append([titulo, url, 'akstream'])
             encontrados.add(url)

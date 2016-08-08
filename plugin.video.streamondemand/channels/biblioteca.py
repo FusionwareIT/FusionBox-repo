@@ -133,14 +133,14 @@ def mainlist(item):
                      url="tv/on_the_air?",
                      plot="1",
                      thumbnail="https://i.imgur.com/2ZWjLn5.jpg?1"),
-		 
+
                 Item(channel=__channel__,
                      title="(TV Shows) [COLOR lime]Populars[/COLOR]",
                      action="list_tvshow",
                      url="tv/popular?",
                      plot="1",
                      thumbnail="https://i.imgur.com/2ZWjLn5.jpg?1"),
-          
+
                 Item(channel=__channel__,
                      title="(TV Shows) [COLOR lime]Top Rated[/COLOR]",
                      action="list_tvshow",
@@ -425,16 +425,26 @@ def build_movie_list(item, movies):
             logger.info('streamondemand.database set for local playing(%s):\n%s' % (title, str(kodi_db_movie)))
             if year == str(kodi_db_movie["year"]):
                 found = True
+
+                # If some, less relevant, keys are missing locally
+                # try to get them through TMDB anyway.
+                try:
+                    poster = kodi_db_movie["art"]["poster"]
+                    fanart = kodi_db_movie["art"]["fanart"]
+                except KeyError:
+                    poster = poster
+                    fanart = fanart
+
                 itemlist.append(Item(
                         channel=item.channel,
                         action='play',
                         url=kodi_db_movie["file"],
                         title='[COLOR orange][%s][/COLOR] ' % NLS_Library + kodi_db_movie["title"] + jobrole,
-                        thumbnail=kodi_db_movie["art"]["poster"],
+                        thumbnail=poster,
                         category=genres,
                         plot=plot,
                         viewmode='movie_with_plot',
-                        fanart=kodi_db_movie["art"]["fanart"],
+                        fanart=fanart,
                         extrameta=extrameta,
                         extracmds=extracmds,
                         folder=False,
@@ -466,8 +476,10 @@ def normalize_unicode(string, encoding='utf-8'):
             encoding, 'ignore')
 
 
-def tmdb_get_data(url="", results=[0, 0]):
-    url = TMDB_URL_BASE + "%sinclude_adult=%s&language=%s&api_key=%s" % (url, INCLUDE_ADULT, LANGUAGE_ID, TMDB_KEY)
+def tmdb_get_data(url="", results=[0, 0], language=True):
+    url = TMDB_URL_BASE + "%sinclude_adult=%s&api_key=%s" % (url, INCLUDE_ADULT, TMDB_KEY)
+    # Temporary fix until tmdb fixes the issue with getting the genres by language!
+    if language: url += "&language=%s" % LANGUAGE_ID
     response = get_json_response(url)
     results[0] = response['total_pages'] if 'total_pages' in response else 0
     results[1] = response['total_results'] if 'total_results' in response else 0
@@ -497,11 +509,11 @@ def tmdb_image(entry, tag, width='original'):
 
 def tmdb_genre(id):
     if id not in TMDb_genres:
-        genres = tmdb_get_data("genre/list?")
+        genres = tmdb_get_data("genre/list?", language=False)
         for genre in tmdb_tag(genres, 'genres', []):
             TMDb_genres[tmdb_tag(genre, 'id')] = tmdb_tag(genre, 'name')
 
-    return TMDb_genres[id] if id in TMDb_genres else str(id)
+    return TMDb_genres[id] if id in TMDb_genres and TMDb_genres[id] != None else str(id)
 
 
 def kodi_database_movies(title):

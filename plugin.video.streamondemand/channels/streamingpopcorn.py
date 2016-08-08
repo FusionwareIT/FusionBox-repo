@@ -103,8 +103,6 @@ def play(item):
 
     data = scrapertools.cache_page(item.url, headers=headers)
 
-    # <a target='_blank' href='linker.php?id=yeTp0t%2BjkqLr6dyP5tjj2%2BXD05LE3%2BKR48rX1tyx257M09DeqMbamKadtg%3D%3D&umId=5493&src='><img src='images/icons/youtube.png'>&nbsp;Guarda su YouTube</a>
-
     path = scrapertools.find_single_match(data, "href='(linker.php.id=[^']+)'")
     url = urlparse.urljoin(host, path)
     location = scrapertools.get_header_from_response(url, header_to_get="Location")

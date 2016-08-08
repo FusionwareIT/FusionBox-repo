@@ -4,6 +4,7 @@
 # update_servers.py
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 # ------------------------------------------------------------
+
 import os
 import re
 from threading import Thread
@@ -38,7 +39,8 @@ def update_channels():
         # ----------------------------
         percentage = index * 100 / len(remote_dict)
         # ----------------------------
-        if channel_id not in local_dict or remote_dict[channel_id][VERSION_IDX] > local_dict[channel_id][VERSION_IDX]:
+        if channel_id not in local_dict or remote_dict[channel_id][VERSION_IDX] > local_dict[channel_id][
+            VERSION_IDX]:
             data = scrapertools.cache_page(remote_dict[channel_id][UPDATE_URL_IDX])
 
             with open(os.path.join(local_folder, channel_id + ".py"), 'wb') as f:

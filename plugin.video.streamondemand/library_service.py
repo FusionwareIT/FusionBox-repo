@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-#------------------------------------------------------------
+# ------------------------------------------------------------
 # pelisalacarta 4
 # Copyright 2015 tvalacarta@gmail.com
 #
 # Distributed under the terms of GNU General Public License v3 (GPLv3)
 # http://www.gnu.org/licenses/gpl-3.0.html
-#------------------------------------------------------------
+# ------------------------------------------------------------
 # This file is part of pelisalacarta 4.
 #
 # pelisalacarta 4 is free software: you can redistribute it and/or modify
@@ -20,88 +20,98 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with pelisalacarta 4.  If not, see <http://www.gnu.org/licenses/>.
-#------------------------------------------------------------
+# ------------------------------------------------------------
 # Service for updating new episodes on library series
-#------------------------------------------------------------
+# ------------------------------------------------------------
 
-# -- Update channels from repository streamondemand ------
-try:
-    from core import update_channels
-except:
-    logger.info("streamondemand.library_service Error in update_channels")
-# ----------------------------------------------------------------------
-
-# -- Update servertools and servers from repository streamondemand ------
-try:
-    from core import update_servers
-except:
-    logger.info("streamondemand.library_service Error in update_servers")
-# ----------------------------------------------------------------------
-
-import os
-
-import xbmc
-
-from core import config
 from core import logger
-from core.item import Item
+from core import scrapertools
 
-logger.info("streamondemand.library_service Actualizando series...")
-from platformcode import library
-import imp
+if scrapertools.wait_for_internet(retry=10):
+    # -- Update channels from repository streamondemand ------
+    try:
+        from core import update_channels
+    except:
+        logger.info("streamondemand.library_service Error in update_channels")
+    # ----------------------------------------------------------------------
 
-directorio = os.path.join(config.get_library_path(),"SERIES")
-logger.info ("directorio="+directorio)
+    # -- Update servertools and servers from repository streamondemand ------
+    try:
+        from core import update_servers
+    except:
+        logger.info("streamondemand.library_service Error in update_servers")
+    # ----------------------------------------------------------------------
 
-if not os.path.exists(directorio):
-    os.mkdir(directorio)
+    import os
 
-nombre_fichero_config_canal = os.path.join( config.get_library_path() , "series.xml" )
-if not os.path.exists(nombre_fichero_config_canal):
-    nombre_fichero_config_canal = os.path.join( config.get_data_path() , "series.xml" )
+    import xbmc
 
-try:
+    from core import config
+    from core.item import Item
 
-    if config.get_setting("updatelibrary")=="true":
-        config_canal = open( nombre_fichero_config_canal , "r" )
-        
-        for serie in config_canal.readlines():
-            logger.info("streamondemand.library_service serie="+serie)
-            serie = serie.split(",")
-        
-            ruta = os.path.join( config.get_library_path() , "SERIES" , serie[0] )
-            logger.info("streamondemand.library_service ruta =#"+ruta+"#")
-            if os.path.exists( ruta ):
-                logger.info("streamondemand.library_service Actualizando "+serie[0])
-                item = Item(url=serie[1], show=serie[0])
-                try:
+    logger.info("streamondemand.library_service Actualizando series...")
+    from platformcode import library
+    import imp
+
+    directorio = os.path.join(config.get_library_path(), "SERIES")
+    logger.info("directorio=" + directorio)
+
+    if not os.path.exists(directorio):
+        os.mkdir(directorio)
+
+    nombre_fichero_config_canal = os.path.join(config.get_library_path(), "series.xml")
+    if not os.path.exists(nombre_fichero_config_canal):
+        nombre_fichero_config_canal = os.path.join(config.get_data_path(), "series.xml")
+
+    try:
+
+        if config.get_setting("updatelibrary") == "true":
+            config_canal = open(nombre_fichero_config_canal, "r")
+
+            for serie in config_canal.readlines():
+                logger.info("streamondemand.library_service serie=" + serie)
+                serie = serie.split(",")
+
+                ruta = os.path.join(config.get_library_path(), "SERIES", serie[0])
+                logger.info("streamondemand.library_service ruta =#" + ruta + "#")
+                if os.path.exists(ruta):
+                    logger.info("streamondemand.library_service Actualizando " + serie[0])
+                    item = Item(url=serie[1], show=serie[0])
+                    try:
+                        itemlist = []
+
+                        pathchannels = os.path.join(config.get_runtime_path(), 'channels', serie[2].strip() + '.py')
+                        logger.info(
+                            "streamondemand.library_service Cargando canal  " + pathchannels + " " + serie[2].strip())
+                        obj = imp.load_source(serie[2].strip(), pathchannels)
+                        itemlist = obj.episodios(item)
+
+                    except:
+                        import traceback
+
+                        logger.error(traceback.format_exc())
+                        itemlist = []
+                else:
+                    logger.info(
+                        "streamondemand.library_service No actualiza " + serie[0] + " (no existe el directorio)")
                     itemlist = []
 
-                    pathchannels = os.path.join(config.get_runtime_path() , 'channels' ,serie[2].strip() + '.py')
-                    logger.info("streamondemand.library_service Cargando canal  " + pathchannels + " " + serie[2].strip())
-                    obj = imp.load_source(serie[2].strip(), pathchannels )
-                    itemlist = obj.episodios(item)
+                for item in itemlist:
+                    # logger.info("item="+item.tostring())
+                    try:
+                        item.show = serie[0].strip()
+                        library.savelibrary(titulo=item.title, url=item.url, thumbnail=item.thumbnail,
+                                            server=item.server, plot=item.plot, canal=item.channel, category="Series",
+                                            Serie=item.show, verbose=False, accion="play_from_library",
+                                            pedirnombre=False, subtitle=item.subtitle)
+                    except:
+                        logger.info("streamondemand.library_service Capitulo no valido")
 
-                except:
-                    import traceback
-                    logger.error(traceback.format_exc())
-                    itemlist = []
-            else:
-                logger.info("streamondemand.library_service No actualiza "+serie[0]+" (no existe el directorio)")
-                itemlist=[]
+            import xbmc
 
-            for item in itemlist:
-                #logger.info("item="+item.tostring())
-                try:
-                    item.show=serie[0].strip()
-                    library.savelibrary( titulo=item.title , url=item.url , thumbnail=item.thumbnail , server=item.server , plot=item.plot , canal=item.channel , category="Series" , Serie=item.show , verbose=False, accion="play_from_library", pedirnombre=False, subtitle=item.subtitle )
-                except:
-                    logger.info("streamondemand.library_service Capitulo no valido")
+            xbmc.executebuiltin('UpdateLibrary(video)')
+        else:
+            logger.info("No actualiza la biblioteca, está desactivado en la configuración de streamondemand")
 
-        import xbmc
-        xbmc.executebuiltin('UpdateLibrary(video)')
-    else:
-        logger.info("No actualiza la biblioteca, está desactivado en la configuración de streamondemand")
-
-except:
-    logger.info("streamondemand.library_service No hay series para actualizar")
+    except:
+        logger.info("streamondemand.library_service No hay series para actualizar")

@@ -27,7 +27,7 @@ def find_videos(data):
 
     #http://rapidgator.net/file/10126555/ElBatallon-byjerobien.avi.html
     #http://rapidgator.net/file/15437757
-    patronvideos  = '(rapidgator.net/file/.*?\.html)'
+    patronvideos  = '(rapidgator.net/file/.*?(?:\.html)?$)'
     logger.info("[rapidgator.py] find_videos #"+patronvideos+"#")
     matches = re.compile(patronvideos,re.DOTALL).findall(data)
 

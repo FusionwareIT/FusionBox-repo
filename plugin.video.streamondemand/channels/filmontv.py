@@ -86,15 +86,31 @@ def tvoggi(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle).strip()
         titolo = urllib.quote_plus(scrapedtitle)
         if (DEBUG): logger.info("title=[" + scrapedtitle + "], url=[" + scrapedurl + "]")
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="do_search",
-                     extra=titolo,
-                     title=scrapedtitle + "[COLOR yellow]   " + scrapedtv + "[/COLOR]",
-                     fulltitle=scrapedtitle,
-                     url=scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     folder=True))
+        try:
+           plot, fanart, poster, extrameta = info(scrapedtitle)
+
+           itemlist.append(
+               Item(channel=__channel__,
+                    thumbnail=poster,
+                    fanart=fanart if fanart != "" else poster,
+                    extrameta=extrameta,
+                    plot=str(plot),
+                    action="do_search",
+                    title=scrapedtitle + "[COLOR yellow]   " + scrapedtv + "[/COLOR]",
+                    url=scrapedurl,
+                    fulltitle=scrapedtitle,
+                    extra=titolo,
+                    folder=True))
+        except:
+           itemlist.append(
+               Item(channel=__channel__,
+                    action="do_search",
+                    extra=titolo,
+                    title=scrapedtitle + "[COLOR yellow]   " + scrapedtv + "[/COLOR]",
+                    fulltitle=scrapedtitle,
+                    url=scrapedurl,
+                    thumbnail=scrapedthumbnail,
+                    folder=True))
 
     return itemlist
 
@@ -211,3 +227,22 @@ def do_search(item):
     itemlist = sorted(itemlist, key=lambda item: item.fulltitle)
 
     return itemlist
+
+def info(title):
+    logger.info("streamondemand.filmontv info")
+    try:
+        from core.tmdb import Tmdb
+        oTmdb= Tmdb(texto_buscado=title, tipo= "movie", include_adult="false", idioma_busqueda="it")
+        count = 0
+        if oTmdb.total_results > 0:
+           extrameta = {}
+           extrameta["Year"] = oTmdb.result["release_date"][:4]
+           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
+           extrameta["Rating"] = float(oTmdb.result["vote_average"])
+           fanart=oTmdb.get_backdrop()
+           poster=oTmdb.get_poster()
+           plot=oTmdb.get_sinopsis()
+           return plot, fanart, poster, extrameta
+    except:
+        pass	
+
