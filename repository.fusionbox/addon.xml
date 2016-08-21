@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.fusionbox" name="Repository FusionBox" version="1.0.1" provider-name="Fusionware">
+	<extension point="xbmc.addon.repository" name="Repository fusionbox">
+		<info>https://github.com/FusionwareIT/Repository-FusionBox/raw/master/addons.xml</info>
+		<checksum>https://github.com/FusionwareIT/Repository-FusionBox/raw/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://github.com/FusionwareIT/Repository-FusionBox/raw/master/</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Repository Fusionbox</summary>
+   		<description lang="en">Install FusionBox Repository!</description>
+    		<description lang="it">Installa il Repository FusionBox!</description>
+		<disclaimer></disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
