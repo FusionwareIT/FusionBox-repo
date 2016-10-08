@@ -1,3 +1,13 @@
+[B]1.1.3[/B]
+- fixed some case where there was already the full url
+
+[B]1.1.2[/B]
+- fixed the addon for mediaset website small changes
+
+[B]1.1.1[/B]
+- refactored the code
+- fixed the addon
+
 [B]1.1.0[/B]
 - added section "Canali Live"
 
