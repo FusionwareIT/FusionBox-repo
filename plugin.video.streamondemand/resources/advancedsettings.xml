@@ -1,7 +1,7 @@
 <advancedsettings>
 <network>
     <buffermode>1</buffermode>
-    <cachemembuffersize>68157440</cachemembuffersize>
+    <cachemembuffersize>157286400</cachemembuffersize>
     <readbufferfactor>20</readbufferfactor>
     <autodetectpingtime>30</autodetectpingtime>
     <curlclienttimeout>60</curlclienttimeout>

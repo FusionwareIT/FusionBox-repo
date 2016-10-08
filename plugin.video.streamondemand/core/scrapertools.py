@@ -4,8 +4,8 @@
 # Download Tools
 # Based on the code from VideoMonkey XBMC Plugin
 #------------------------------------------------------------
-# pelisalacarta
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# streamondemand
+# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
 #------------------------------------------------------------
 # Creado por:
 # Jesús (tvalacarta@gmail.com)
@@ -16,18 +16,23 @@
 # Historial de cambios:
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib
-import time
+import StringIO
+import gzip
 import os
-import config
-import logger
 import re
-import downloadtools
 import socket
+import time
+import urllib
+import urllib2
+import urlparse
+
+import config
+import downloadtools
+import logger
 
 # True - Muestra las cabeceras HTTP en el log
 # False - No las muestra
-DEBUG_LEVEL = True
+DEBUG_LEVEL = False
 
 CACHE_ACTIVA = "0"  # Automatica
 CACHE_SIEMPRE = "1" # Cachear todo
@@ -35,10 +40,15 @@ CACHE_NUNCA = "2"   # No cachear nada
 
 CACHE_PATH = config.get_setting("cache.dir")
 
-DEBUG = True
+DEFAULT_TIMEOUT = 20
 
-def cache_page(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],modo_cache=CACHE_ACTIVA, timeout=socket.getdefaulttimeout()):
-    logger.info("streamondemand.core.scrapertools cache_page url="+url)
+DEBUG = False
+
+def cache_page(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],modo_cache=CACHE_ACTIVA, timeout=DEFAULT_TIMEOUT):
+    return cachePage(url,post,headers,modo_cache,timeout=timeout)
+
+def cachePage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],modoCache=CACHE_ACTIVA, timeout=DEFAULT_TIMEOUT):
+    logger.info("streamondemand.core.scrapertools cachePage url="+url)
 
     # Cache desactivada
     modoCache = CACHE_NUNCA #config.get_setting("cache.mode")
@@ -301,7 +311,7 @@ class NoRedirectHandler(urllib2.HTTPRedirectHandler):
     http_error_303 = http_error_302
     http_error_307 = http_error_302
 
-def downloadpage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],follow_redirects=True, timeout=socket.getdefaulttimeout(), header_to_get=None):
+def downloadpage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],follow_redirects=True, timeout=DEFAULT_TIMEOUT, header_to_get=None):
     logger.info("streamondemand.core.scrapertools downloadpage")
     logger.info("streamondemand.core.scrapertools url="+url)
     
@@ -722,8 +732,7 @@ def downloadpageGzip(url):
 
     #txheaders =  {'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3',
     #              'Referer':'http://www.megavideo.com/?s=signup'}
-    
-    import httplib
+
     parsedurl = urlparse.urlparse(url)
     logger.info("parsedurl="+str(parsedurl))
         
@@ -1035,6 +1044,8 @@ def slugify(title):
 
     return title
 
+def remove_htmltags(string):
+    return re.sub('<[^<]+?>', '', string)
 
 def remove_show_from_title(title,show):
     #print slugify(title)+" == "+slugify(show)
@@ -1455,7 +1466,7 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
 
     # Lee los datos y cierra
     if handle.info().get('Content-Encoding') == 'gzip':
-        buf = StringIO( handle.read())
+        buf = StringIO.StringIO( handle.read())
         f = gzip.GzipFile(fileobj=buf)
         data = f.read()
     else:
@@ -1521,3 +1532,46 @@ def wait_for_internet(wait=30, retry=5):
         if count >= retry:
             return False
         time.sleep(wait)
+
+
+def parseJSString(s):
+    try:
+        offset = 1 if s[0] == '+' else 0
+        val = int(eval(s.replace('!+[]', '1').replace('!![]', '1').replace('[]', '0').replace('(', 'str(')[offset:]))
+        return val
+    except:
+        pass
+
+
+def anti_cloudflare(url, headers):
+    result = cache_page(url, headers=headers)
+    try:
+        jschl = re.compile('name="jschl_vc" value="(.+?)"/>').findall(result)[0]
+        init = re.compile('setTimeout\(function\(\){\s*.*?.*:(.*?)};').findall(result)[0]
+        builder = re.compile(r"challenge-form\'\);\s*(.*)a.v").findall(result)[0]
+        decrypt_val = parseJSString(init)
+        lines = builder.split(';')
+
+        for line in lines:
+            if len(line) > 0 and '=' in line:
+                sections = line.split('=')
+                line_val = parseJSString(sections[1])
+                decrypt_val = int(eval(str(decrypt_val) + sections[0][-1] + str(line_val)))
+
+        urlsplit = urlparse.urlsplit(url)
+        h = urlsplit.netloc
+        s = urlsplit.scheme
+
+        answer = decrypt_val + len(h)
+
+        query = '%s/cdn-cgi/l/chk_jschl?jschl_vc=%s&jschl_answer=%s' % (url, jschl, answer)
+
+        if 'type="hidden" name="pass"' in result:
+            passval = re.compile('name="pass" value="(.*?)"').findall(result)[0]
+            query = '%s/cdn-cgi/l/chk_jschl?pass=%s&jschl_vc=%s&jschl_answer=%s' % (s + '://' + h, urllib.quote_plus(passval), jschl, answer)
+            time.sleep(5)
+
+        get_headers_from_response(query, headers=headers)
+        return cache_page(url, headers=headers)
+    except:
+        return result

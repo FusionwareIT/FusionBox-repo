@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+	<id>filmbelli</id>
+	<name>Filmbelli</name>
+
+	<active>true</active>
+	<adult>false</adult>
+	<language>it</language>
+
+	<fanart></fanart>
+	<thumbnail>http://www.filmbelli.net/wp-content/themes/FilmBelli/images/logo.png</thumbnail>
+	<bannermenu>http://www.filmbelli.net/wp-content/themes/FilmBelli/images/logo.png</bannermenu>
+
+	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
+	<version>1</version>
+	<date>16/06/2016</date>
+	<changes>Actualizado</changes>
+
+	<categories>
+		<category>movie</category>
+
+	</categories>
+
+	<settings>
+		<include_in_global_search>true</include_in_global_search>
+	</settings>
+</channel>

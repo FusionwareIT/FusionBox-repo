@@ -1,8 +1,8 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Acceso a directorios con samba
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
 #------------------------------------------------------------
 import logger
 import os

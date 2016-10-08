@@ -1,0 +1,27 @@
+
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+	<id>tengourl</id>
+	<name>Inserisci un URL...</name>
+
+	<active>false</active>
+	<adult>false</adult>
+	<language>it</language>
+
+	<fanart></fanart>
+	<thumbnail>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/tengourl.png</thumbnail>
+	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/bannermenu/tengourl.png</bannermenu>
+
+	<update_url>https://raw.githubusercontent.com/plugin.video.streamondemand/channels/</update_url>
+	<version>1</version>
+	<date>22/06/2016</date>
+	<changes>update</changes>
+
+	<categories>
+		<category>all</category>
+	</categories>
+
+	<settings>
+		<include_in_global_search>true</include_in_global_search>
+	</settings>
+</channel>

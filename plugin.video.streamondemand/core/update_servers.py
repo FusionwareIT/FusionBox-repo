@@ -16,7 +16,7 @@ DEBUG = config.get_setting("debug")
 
 UPDATE_URL_IDX, ACTIVE_IDX, VERSION_IDX, DATE_IDX, CHANGES_IDX = xrange(0, 5)
 
-remote_url = "https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/"
+remote_url = "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/"
 local_folder = os.path.join(config.get_runtime_path(), "servers")
 
 

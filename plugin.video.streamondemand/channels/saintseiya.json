@@ -1,0 +1,23 @@
+{
+    "channel": {
+        "id": "saintseiya",
+        "name": "Saint Seiya",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "saghe",
+                     "anime"
+                    ],
+        "language": "it",
+        "thumbnail": "http://vignette2.wikia.nocookie.net/nonciclopedia/images/1/12/Logo_Cavalieri_dello_Zodiaco.png/revision/latest?cb=20140308215438",
+        "fanart": "",
+        "bannermenu": "http://vignette2.wikia.nocookie.net/nonciclopedia/images/1/12/Logo_Cavalieri_dello_Zodiaco.png/revision/latest?cb=20140308215438",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/saintseiya.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

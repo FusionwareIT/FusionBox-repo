@@ -3,17 +3,26 @@
 # streamondemand.- XBMC Plugin
 # http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
 # ------------------------------------------------------------
-import os
 
+import Queue
+import glob
+import imp
+import os
+import re
+import threading
+import time
+
+from core import channeltools
 from core import config
 from core import logger
 from core.item import Item
+from lib.fuzzywuzzy import fuzz
 
 __channel__ = "buscador"
 
 logger.info("streamondemand.channels.buscador init")
 
-DEBUG = True
+DEBUG = config.get_setting("debug")
 
 TIMEOUT_TOTAL = 90
 
@@ -28,6 +37,7 @@ def mainlist(item, preferred_thumbnail="squares"):
     itemlist = [
         Item(channel=__channel__,
              action="search",
+             category="film",
              thumbnail="http://i.imgur.com/pE5WSZp.png",
              title="[COLOR yellow]Nuova ricerca film...[/COLOR]"),
         Item(channel=__channel__,
@@ -77,32 +87,14 @@ def do_search(item):
 
     itemlist = []
 
-    import os
-    import glob
-    import imp
-    from lib.fuzzywuzzy import fuzz
-    import threading
-    import Queue
-    import time
-    import re
-
-    master_exclude_data_file = os.path.join(config.get_runtime_path(), "resources", "sodsearch.txt")
-    logger.info("streamondemand.channels.buscador master_exclude_data_file=" + master_exclude_data_file)
-
-    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.py')
+    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.xml')
     logger.info("streamondemand.channels.buscador channels_path=" + channels_path)
 
-    excluir = ""
-
-    if os.path.exists(master_exclude_data_file):
-        logger.info("streamondemand.channels.buscador Encontrado fichero exclusiones")
-
-        fileexclude = open(master_exclude_data_file, "r")
-        excluir = fileexclude.read()
-        fileexclude.close()
-    else:
-        logger.info("streamondemand.channels.buscador No encontrado fichero exclusiones")
-        excluir = "seriesly\nbuscador\ntengourl\n__init__"
+    channel_language = config.get_setting("channel_language")
+    logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
+    if channel_language == "":
+        channel_language = "all"
+        logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
 
     if config.is_xbmc():
         show_dialog = True
@@ -117,9 +109,9 @@ def do_search(item):
     def worker(infile, queue):
         channel_result_itemlist = []
         try:
-            basename_without_extension = os.path.basename(infile)[:-3]
+            basename_without_extension = os.path.basename(infile)[:-4]
             # http://docs.python.org/library/imp.html?highlight=imp#module-imp
-            obj = imp.load_source(basename_without_extension, infile)
+            obj = imp.load_source(basename_without_extension, infile[:-4]+".py")
             logger.info("streamondemand.channels.buscador cargado " + basename_without_extension + " de " + infile)
             channel_result_itemlist.extend(obj.search(Item(extra=item.category), tecleado))
             for local_item in channel_result_itemlist:
@@ -130,7 +122,34 @@ def do_search(item):
             logger.error(traceback.format_exc())
         queue.put(channel_result_itemlist)
 
-    channel_files = [infile for infile in glob.glob(channels_path) if os.path.basename(infile)[:-3] not in excluir]
+    channel_files = glob.glob(channels_path)
+
+    channel_files_tmp = []
+    for infile in channel_files:
+
+        basename_without_extension = os.path.basename(infile)[:-4]
+
+        channel_parameters = channeltools.get_channel_parameters(basename_without_extension)
+
+        # No busca si es un canal inactivo
+        if channel_parameters["active"] != "true":
+            continue
+
+        # No busca si es un canal excluido de la busqueda global
+        if channel_parameters["include_in_global_search"] != "true":
+            continue
+
+        # No busca si es un canal para adultos, y el modo adulto está desactivado
+        if channel_parameters["adult"] == "true" and config.get_setting("adult_mode") == "false":
+            continue
+
+        # No busca si el canal es en un idioma filtrado
+        if channel_language != "all" and channel_parameters["language"] != channel_language:
+            continue
+
+        channel_files_tmp.append(infile)
+
+    channel_files = channel_files_tmp
 
     result = Queue.Queue()
     threads = [threading.Thread(target=worker, args=(infile, result)) for infile in channel_files]

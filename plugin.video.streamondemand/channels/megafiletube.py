@@ -6,16 +6,14 @@
 #  By Costaplus
 # ------------------------------------------------------------
 import re
-import sys
-import urlparse
-import urllib2
+
 import xbmc
+
+import filmontv
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
-from servers import servertools
-import filmontv
 
 __channel__ = "megafiletube"
 __category__ = "F"

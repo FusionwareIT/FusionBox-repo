@@ -1,8 +1,8 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Buscador de Trailers en youtube
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
 #------------------------------------------------------------
 
 import urlparse,urllib2,urllib,re
@@ -67,7 +67,7 @@ def buscartrailer(params,url,category):
             duracion = video[3]
             xbmctools.addnewvideo( "trailertools" , "youtubeplay" , category , "youtube" ,  titulo , url , thumbnail , "Ver Video","",duracion )
     
-    xbmctools.addnewfolder( CHANNELNAME , "buscartrailer" , category , config.get_localized_string(30111)+" "+videotitle , url , os.path.join(IMAGES_PATH, 'trailertools.png'), "" ) #"Insatisfecho?, busca otra vez : "        
+    xbmctools.addnewfolderextra( CHANNELNAME , "buscartrailer" , category , config.get_localized_string(30111)+" "+videotitle , url , os.path.join(IMAGES_PATH, 'trailertools.png'), "" ) #"Insatisfecho?, busca otra vez : "        
     # Propiedades
     xbmcplugin.setPluginCategory( handle=int( sys.argv[ 1 ] ), category=category )
     xbmcplugin.addSortMethod( handle=int( sys.argv[ 1 ] ), sortMethod=xbmcplugin.SORT_METHOD_NONE )
@@ -98,7 +98,7 @@ def GetFrom_Trailersdepeliculas(titulovideo):
             if titulo in (string.lower(LimpiarTitulo(match[1]))):
                 urlpage = urlparse.urljoin(url1,match[0])
                 thumbnail = urlparse.urljoin(url1,match[2])
-                data     = scrapertools.cache_page(urlpage)
+                data     = scrapertools.cachePage(urlpage)
                 logger.info("Trailer elegido :  "+match[1])
                 matches2 = re.compile(patronvideos,re.DOTALL).findall(data)
                 for match2 in matches2:
@@ -128,7 +128,7 @@ def GetFromYoutubePlaylist(titulovideo):
         listyoutubeurl += titulovideo.replace(" ","+")+i+"&uni=1"
         listyoutubeurl = listyoutubeurl.replace(" ","")
         logger.info("Youtube url parametros de busqueda  :"+listyoutubeurl)
-        data = scrapertools.cache_page(listyoutubeurl)
+        data = scrapertools.cachePage(listyoutubeurl)
 
         thumbnail=""
         patronyoutube  = '<span><a class="hLink" title="(.*?)" href="(.*?)">.*?'

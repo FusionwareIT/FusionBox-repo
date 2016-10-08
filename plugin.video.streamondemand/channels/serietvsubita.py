@@ -5,13 +5,13 @@
 # http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
-import sys
 import urlparse
 
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
 
 __channel__ = "serietvsubita"
 __category__ = "S"
@@ -81,46 +81,29 @@ def episodios(item):
         if scrapedtitle.startswith("Link to "):
             scrapedtitle = scrapedtitle[8:]
         if (DEBUG): logger.info(
-                "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        tmdbtitle = scrapedtitle.split("S0")[0]
-        try:
-           plot, fanart, poster, extrameta = info(tmdbtitle)
-
-           itemlist.append(
-               Item(channel=__channel__,
-                    thumbnail=poster,
-                    fanart=fanart if fanart != "" else poster,
-                    extrameta=extrameta,
-                    plot=str(plot),
-                    action="findvideos",
-                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                    url=scrapedurl,
-                    fulltitle=scrapedtitle,
-                    show=scrapedtitle,
-                    folder=True))
-        except:
-           itemlist.append(
-               Item(channel=__channel__,
-                    action="findvideos",
-                    fulltitle=scrapedtitle,
-                    show=scrapedtitle,
-                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                    url=scrapedurl,
-                    thumbnail=scrapedthumbnail,
-                    plot=scrapedplot,
-                    folder=True))
+            "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="findvideos",
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 plot=scrapedplot,
+                 folder=True), tipo='tv'))
 
     # paginación
     patron = '<div id="navigation">.*?\d+</a> <a href="([^"]+)"'
     next_page = scrapertools.find_single_match(data, patron)
     if next_page != "":
         itemlist.append(
-                Item(channel=__channel__,
-                     title="[COLOR orange]Post più vecchi...[/COLOR]",
-                     url=next_page,
-                     action="episodios",
-                     extra=item.extra,
-                     thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
+            Item(channel=__channel__,
+                 title="[COLOR orange]Post più vecchi...[/COLOR]",
+                 url=next_page,
+                 action="episodios",
+                 extra=item.extra,
+                 thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
 
     return itemlist
 
@@ -145,24 +128,24 @@ def series(item):
 
         if (DEBUG): logger.info("title=[" + title + "], url=[" + url + "], thumbnail=[" + thumbnail + "]")
         itemlist.append(
-                Item(channel=__channel__,
-                     action="episodiosearch",
-                     title="[COLOR azure]" + title + "[/COLOR]",
-                     url=url,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png",
-                     folder=True))
+            Item(channel=__channel__,
+                 action="episodiosearch",
+                 title="[COLOR azure]" + title + "[/COLOR]",
+                 url=url,
+                 thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png",
+                 folder=True))
 
     # paginación
     patron = '<div id="navigation">.*?\d+</a> <a href="([^"]+)"'
     next_page = scrapertools.find_single_match(data, patron)
     if next_page != "":
         itemlist.append(
-                Item(channel=__channel__,
-                     title="[COLOR orange]Episodi precedenti...[/COLOR]",
-                     url=next_page,
-                     action="series",
-                     extra=item.extra,
-                     thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
+            Item(channel=__channel__,
+                 title="[COLOR orange]Episodi precedenti...[/COLOR]",
+                 url=next_page,
+                 action="series",
+                 extra=item.extra,
+                 thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
 
     return itemlist
 
@@ -180,47 +163,28 @@ def episodiosearch(item):
         scrapedplot = ""
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         if (DEBUG): logger.info(
-                "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
+            "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(
-                Item(channel=__channel__,
-                     action="findvideos",
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     plot=scrapedplot,
-                     folder=True))
+            Item(channel=__channel__,
+                 action="findvideos",
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 plot=scrapedplot,
+                 folder=True))
 
     # paginación
     patron = '<div id="navigation">.*?\d+</a> <a href="([^"]+)"'
     next_page = scrapertools.find_single_match(data, patron)
     if next_page != "":
         itemlist.append(
-                Item(channel=__channel__,
-                     title="[COLOR orange]Episodi precedenti...[/COLOR]",
-                     url=next_page,
-                     action="episodios",
-                     extra=item.extra,
-                     thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
+            Item(channel=__channel__,
+                 title="[COLOR orange]Episodi precedenti...[/COLOR]",
+                 url=next_page,
+                 action="episodios",
+                 extra=item.extra,
+                 thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
 
     return itemlist
-
-def info(title):
-    logger.info("streamondemand.serietvsubita info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb= Tmdb(texto_buscado=title, tipo= "tv", include_adult="false", idioma_busqueda="it")
-        count = 0
-        if oTmdb.total_results > 0:
-           extrameta = {}
-           extrameta["Year"] = oTmdb.result["release_date"][:4]
-           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-           extrameta["Rating"] = float(oTmdb.result["vote_average"])
-           fanart=oTmdb.get_backdrop()
-           poster=oTmdb.get_poster()
-           plot=oTmdb.get_sinopsis()
-           return plot, fanart, poster, extrameta
-    except:
-        pass	
-

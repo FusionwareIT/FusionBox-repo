@@ -1,0 +1,22 @@
+{
+    "channel": {
+        "id": "pianetastreaming",
+        "name": "Pianeta Streaming",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "movie"
+                    ],
+        "language": "it",
+        "thumbnail": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/pianetastreaming.png",
+        "fanart": "",
+        "bannermenu": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/pianetastreaming.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/pianetastreaming.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

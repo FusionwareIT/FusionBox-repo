@@ -10,6 +10,7 @@ from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
 from servers import servertools
 
 __channel__ = "toonitalia"
@@ -96,31 +97,15 @@ def anime(item):
         title = scrapertools.decodeHtmlentities(scrapedtitle)
         scrapedthumbnail = ""
 
-        try:
-            plot, fanart, poster, extrameta = info_tv(title)
-
-            itemlist.append(
-                Item(channel=__channel__,
-                     thumbnail=poster,
-                     fanart=fanart if fanart != "" else poster,
-                     extrameta=extrameta,
-                     plot=str(plot),
-                     action="episodi",
-                     title="[COLOR azure]" + title + "[/COLOR]",
-                     url=scrapedurl,
-                     fulltitle=title,
-                     show=title,
-                     folder=True))
-        except:
-            itemlist.append(
-                Item(channel=__channel__,
-                     action="episodi",
-                     title=title,
-                     url=scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     fulltitle=title,
-                     show=title,
-                     viewmode="movie_with_plot"))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodi",
+                 title=title,
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 fulltitle=title,
+                 show=title,
+                 viewmode="movie_with_plot"), tipo='tv'))
 
     # Older Entries
     patron = '<link rel="next" href="([^"]+)" />'
@@ -151,31 +136,15 @@ def animazione(item):
     for scrapedurl, scrapedtitle in matches:
         title = scrapertools.decodeHtmlentities(scrapedtitle)
         scrapedthumbnail = ""
-        try:
-            plot, fanart, poster, extrameta = info(title)
-
-            itemlist.append(
-                Item(channel=__channel__,
-                     thumbnail=poster,
-                     fanart=fanart if fanart != "" else poster,
-                     extrameta=extrameta,
-                     plot=str(plot),
-                     action="film",
-                     title="[COLOR azure]" + title + "[/COLOR]",
-                     url=scrapedurl,
-                     fulltitle=title,
-                     show=title,
-                     folder=True))
-        except:
-            itemlist.append(
-                Item(channel=__channel__,
-                     action="film",
-                     title=title,
-                     url=scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     fulltitle=title,
-                     show=title,
-                     viewmode="movie_with_plot"))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="film",
+                 title=title,
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 fulltitle=title,
+                 show=title,
+                 viewmode="movie_with_plot"), tipo='movie'))
 
     # Older Entries
     patron = '<link rel="next" href="([^"]+)" />'
@@ -260,41 +229,3 @@ def findvid(item):
         videoitem.channel = __channel__
 
     return itemlist
-
-
-def info_tv(title):
-    logger.info("streamondemand.toonitalia info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb = Tmdb(texto_buscado=title, tipo="tv", include_adult="false", idioma_busqueda="it")
-        count = 0
-        if oTmdb.total_results > 0:
-            extrameta = {}
-            extrameta["Year"] = oTmdb.result["release_date"][:4]
-            extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-            extrameta["Rating"] = float(oTmdb.result["vote_average"])
-            fanart = oTmdb.get_backdrop()
-            poster = oTmdb.get_poster()
-            plot = oTmdb.get_sinopsis()
-            return plot, fanart, poster, extrameta
-    except:
-        pass
-
-
-def info(title):
-    logger.info("streamondemand.toonitalia info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb = Tmdb(texto_buscado=title, tipo="movie", include_adult="false", idioma_busqueda="it")
-        count = 0
-        if oTmdb.total_results > 0:
-            extrameta = {}
-            extrameta["Year"] = oTmdb.result["release_date"][:4]
-            extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-            extrameta["Rating"] = float(oTmdb.result["vote_average"])
-            fanart = oTmdb.get_backdrop()
-            poster = oTmdb.get_poster()
-            plot = oTmdb.get_sinopsis()
-            return plot, fanart, poster, extrameta
-    except:
-        pass

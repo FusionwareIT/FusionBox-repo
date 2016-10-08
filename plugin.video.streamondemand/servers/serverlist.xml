@@ -2,7 +2,7 @@
 <servers>
 <server>
     <id>abysstream</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/abysstream.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/abysstream.py</update_url>
     <active>true</active>
     <version>6</version>
     <date>05/04/2016</date>
@@ -11,7 +11,7 @@
 
 <server>
     <id>adfly</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/adfly.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/adfly.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -20,7 +20,7 @@
 
 <server>
     <id>adnstream</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/adnstream.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/adnstream.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -29,7 +29,7 @@
 
 <server>
     <id>akstream</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/akstream.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/akstream.py</update_url>
     <active>true</active>
     <version>5</version>
     <date>12/09/2015</date>
@@ -38,7 +38,7 @@
 
 <server>
     <id>alldebrid</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/alldebrid.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/alldebrid.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -47,7 +47,7 @@
 
 <server>
     <id>allmyvideos</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/allmyvideos.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/allmyvideos.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -56,7 +56,7 @@
 
 <server>
     <id>backin</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/backin.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/backin.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -65,7 +65,7 @@
 
 <server>
     <id>bitshare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/bitshare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/bitshare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -74,7 +74,7 @@
 
 <server>
     <id>bliptv</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/bliptv.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/bliptv.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -83,7 +83,7 @@
 
 <server>
     <id>cineraculo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/cineraculo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/cineraculo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -92,7 +92,7 @@
 
 <server>
     <id>cloudifer</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/cloudifer.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/cloudifer.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>17/09/2015</date>
@@ -101,7 +101,7 @@
 
 <server>
     <id>cloudzer</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/cloudzer.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/cloudzer.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -110,7 +110,7 @@
 
 <server>
     <id>cloudzilla</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/cloudzilla.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/cloudzilla.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -119,7 +119,7 @@
 
 <server>
     <id>cramit</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/cramit.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/cramit.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -128,7 +128,7 @@
 
 <server>
     <id>cumlouder</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/cumlouder.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/cumlouder.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -137,7 +137,7 @@
 
 <server>
     <id>dailymotion</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/dailymotion.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/dailymotion.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -146,7 +146,7 @@
 
 <server>
     <id>depositfiles</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/depositfiles.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/depositfiles.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -155,7 +155,7 @@
 
 <server>
     <id>directo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/directo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/directo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -164,7 +164,7 @@
 
 <server>
     <id>divxstage</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/divxstage.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/divxstage.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -173,7 +173,7 @@
 
 <server>
     <id>documentary</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/documentary.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/documentary.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -182,7 +182,7 @@
 
 <server>
     <id>exashare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/exashare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/exashare.py</update_url>
     <active>true</active>
     <version>4</version>
     <date>31/10/2015</date>
@@ -191,7 +191,7 @@
 
 <server>
     <id>extabit</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/extabit.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/extabit.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -200,7 +200,7 @@
 
 <server>
     <id>facebook</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/facebook.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/facebook.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -209,7 +209,7 @@
 
 <server>
     <id>fakingstv</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/fakingstv.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/fakingstv.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -218,7 +218,7 @@
 
 <server>
     <id>fastvideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/fastvideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/fastvideo.py</update_url>
     <active>true</active>
     <version>3</version>
     <date>12/09/2015</date>
@@ -227,7 +227,7 @@
 
 <server>
     <id>fiberupload</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/fiberupload.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/fiberupload.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -236,7 +236,7 @@
 
 <server>
     <id>filebox</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/filebox.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/filebox.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -245,7 +245,7 @@
 
 <server>
     <id>filefactory</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/filefactory.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/filefactory.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -254,7 +254,7 @@
 
 <server>
     <id>fileflyer</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/fileflyer.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/fileflyer.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -263,7 +263,7 @@
 
 <server>
     <id>filejungle</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/filejungle.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/filejungle.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -272,7 +272,7 @@
 
 <server>
     <id>filenium</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/filenium.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/filenium.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -281,7 +281,7 @@
 
 <server>
     <id>filereactor</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/filereactor.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/filereactor.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -290,7 +290,7 @@
 
 <server>
     <id>fileserve</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/fileserve.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/fileserve.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -299,7 +299,7 @@
 
 <server>
     <id>filesmonster</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/filesmonster.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/filesmonster.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -308,7 +308,7 @@
 
 <server>
     <id>filesonic</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/filesonic.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/filesonic.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -317,7 +317,7 @@
 
 <server>
     <id>firedrive</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/firedrive.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/firedrive.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -326,16 +326,16 @@
 
 <server>
     <id>flashx</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/flashx.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/flashx.py</update_url>
     <active>true</active>
-    <version>4</version>
-    <date>12/02/2016</date>
-    <changes>CmosGit version</changes>
+    <version>5</version>
+    <date>19/07/2016</date>
+    <changes>Nico & CmosGit version</changes>
 </server>
 
 <server>
     <id>fooget</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/fooget.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/fooget.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -344,7 +344,7 @@
 
 <server>
     <id>fourshared</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/fourshared.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/fourshared.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -353,7 +353,7 @@
 
 <server>
     <id>freakshare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/freakshare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/freakshare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -362,7 +362,7 @@
 
 <server>
     <id>gamovideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/gamovideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/gamovideo.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -371,7 +371,7 @@
 
 <server>
     <id>gigasize</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/gigasize.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/gigasize.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -380,7 +380,7 @@
 
 <server>
     <id>googledrive</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/googledrive.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/googledrive.py</update_url>
     <active>true</active>
     <version>4</version>
     <date>17/11/2015</date>
@@ -389,7 +389,7 @@
 
 <server>
     <id>googlevideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/googlevideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/googlevideo.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -398,7 +398,7 @@
 
 <server>
     <id>hdload</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/hdload.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/hdload.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -407,7 +407,7 @@
 
 <server>
     <id>hdplay</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/hdplay.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/hdplay.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -416,7 +416,7 @@
 
 <server>
     <id>hotfile</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/hotfile.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/hotfile.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -425,7 +425,7 @@
 
 <server>
     <id>hugefiles</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/hugefiles.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/hugefiles.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -434,7 +434,7 @@
 
 <server>
     <id>hulkshare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/hulkshare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/hulkshare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -443,7 +443,7 @@
 
 <server>
     <id>jumbofiles</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/jumbofiles.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/jumbofiles.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -452,7 +452,7 @@
 
 <server>
     <id>junkyvideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/junkyvideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/junkyvideo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -461,7 +461,7 @@
 
 <server>
     <id>justintv</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/justintv.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/justintv.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -470,7 +470,7 @@
 
 <server>
     <id>letitbit</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/letitbit.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/letitbit.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -479,7 +479,7 @@
 
 <server>
     <id>letwatch</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/letwatch.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/letwatch.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -488,7 +488,7 @@
 
 <server>
     <id>linkbucks</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/linkbucks.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/linkbucks.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -497,7 +497,7 @@
 
 <server>
     <id>longurl</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/longurl.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/longurl.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -506,7 +506,7 @@
 
 <server>
     <id>lumfile</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/lumfile.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/lumfile.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -515,7 +515,7 @@
 
 <server>
     <id>magnovideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/magnovideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/magnovideo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -524,7 +524,7 @@
 
 <server>
     <id>mailru</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/mailru.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/mailru.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -533,7 +533,7 @@
 
 <server>
     <id>mediafire</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/mediafire.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/mediafire.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -542,7 +542,7 @@
 
 <server>
     <id>mega</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/mega.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/mega.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -551,25 +551,25 @@
 
 <server>
     <id>megadrive</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/megadrive.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/megadrive.py</update_url>
     <active>true</active>
-    <version>3</version>
-    <date>20/09/2015</date>
-    <changes>Prima versione di Pelisalacarta 4</changes>
+    <version>4</version>
+    <date>11/09/2016</date>
+    <changes>Fixed server</changes>
 </server>
 
 <server>
     <id>megahd</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/megahd.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/megahd.py</update_url>
     <active>true</active>
-    <version>2</version>
+    <version>3</version>
     <date>12/09/2015</date>
     <changes>Prima versione di Pelisalacarta 4</changes>
 </server>
 
 <server>
     <id>meuvideos</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/meuvideos.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/meuvideos.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -578,7 +578,7 @@
 
 <server>
     <id>modovideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/modovideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/modovideo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -587,7 +587,7 @@
 
 <server>
     <id>moevideos</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/moevideos.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/moevideos.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>22/10/2015</date>
@@ -596,7 +596,7 @@
 
 <server>
     <id>movreel</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/movreel.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/movreel.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -605,7 +605,7 @@
 
 <server>
     <id>movshare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/movshare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/movshare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -614,7 +614,7 @@
 
 <server>
     <id>netload</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/netload.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/netload.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -623,7 +623,7 @@
 
 <server>
     <id>netutv</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/netutv.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/netutv.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -632,7 +632,7 @@
 
 <server>
     <id>nosvideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/nosvideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/nosvideo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -641,7 +641,7 @@
 
 <server>
     <id>novamov</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/novamov.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/novamov.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -650,7 +650,7 @@
 
 <server>
     <id>nowdownload</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/nowdownload.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/nowdownload.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -659,16 +659,16 @@
 
 <server>
     <id>nowvideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/nowvideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/nowvideo.py</update_url>
     <active>true</active>
-    <version>10</version>
+    <version>12</version>
     <date>15/06/2016</date>
     <changes>re-coded by costaplus</changes>
 </server>
 
 <server>
     <id>nubestream</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/nubestream.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/nubestream.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -677,7 +677,7 @@
 
 <server>
     <id>oboom</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/oboom.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/oboom.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -686,7 +686,7 @@
 
 <server>
     <id>okru</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/okru.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/okru.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -695,7 +695,7 @@
 
 <server>
     <id>one80upload</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/one80upload.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/one80upload.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -704,7 +704,7 @@
 
 <server>
     <id>onefichier</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/onefichier.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/onefichier.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -713,16 +713,16 @@
 
 <server>
     <id>openload</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/openload.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/openload.py</update_url>
     <active>true</active>
-    <version>13</version>
-    <date>26/06/2016</date>
+    <version>24</version>
+    <date>27/08/2016</date>
     <changes>Fixed by cmos</changes>
 </server>
 
 <server>
     <id>playedto</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/playedto.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/playedto.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -731,7 +731,7 @@
 
 <server>
     <id>powvideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/powvideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/powvideo.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -740,7 +740,7 @@
 
 <server>
     <id>publicvideohost</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/publicvideohost.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/publicvideohost.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -749,7 +749,7 @@
 
 <server>
     <id>putlocker</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/putlocker.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/putlocker.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -758,7 +758,7 @@
 
 <server>
     <id>putstream</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/putstream.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/putstream.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>05/03/2016</date>
@@ -767,7 +767,7 @@
 
 <server>
     <id>rapidgator</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/rapidgator.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/rapidgator.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>4/6/16</date>
@@ -776,7 +776,7 @@
 
 <server>
     <id>rapidshare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/rapidshare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/rapidshare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -785,7 +785,7 @@
 
 <server>
     <id>rapidtube</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/rapidtube.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/rapidtube.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -794,7 +794,7 @@
 
 <server>
     <id>rapidvideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/rapidvideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/rapidvideo.py</update_url>
     <active>true</active>
     <version>7</version>
     <date>11/02/2016</date>
@@ -802,8 +802,17 @@
 </server>
 
 <server>
+    <id>rapidvideocom</id>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/rapidvideocom.py</update_url>
+    <active>true</active>
+    <version>2</version>
+    <date>11/02/2016</date>
+    <changes>Prima versione di Pelisalacarta 4</changes>
+</server>
+
+<server>
     <id>realdebrid</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/realdebrid.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/realdebrid.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>16/05/2016</date>
@@ -812,7 +821,7 @@
 
 <server>
     <id>realvid</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/realvid.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/realvid.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -821,7 +830,7 @@
 
 <server>
     <id>rocvideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/rocvideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/rocvideo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -830,7 +839,7 @@
 
 <server>
     <id>royalvids</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/royalvids.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/royalvids.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -839,7 +848,7 @@
 
 <server>
     <id>rutube</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/rutube.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/rutube.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -848,7 +857,7 @@
 
 <server>
     <id>safelinking</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/safelinking.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/safelinking.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -857,7 +866,7 @@
 
 <server>
     <id>sendvid</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/sendvid.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/sendvid.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -866,16 +875,16 @@
 
 <server>
     <id>servertools</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/servertools.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/servertools.py</update_url>
     <active>true</active>
-    <version>7</version>
+    <version>9</version>
     <date>29/09/2015</date>
     <changes>Prima versione di Pelisalacarta 4</changes>
 </server>
 
 <server>
     <id>shareflare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/shareflare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/shareflare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -884,7 +893,7 @@
 
 <server>
     <id>sharpfile</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/sharpfile.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/sharpfile.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -893,7 +902,7 @@
 
 <server>
     <id>sockshare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/sockshare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/sockshare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -902,7 +911,7 @@
 
 <server>
     <id>speedvid</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/speedvid.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/speedvid.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -911,7 +920,7 @@
 
 <server>
     <id>speedvideo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/speedvideo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/speedvideo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -920,7 +929,7 @@
 
 <server>
     <id>spruto</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/spruto.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/spruto.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -929,7 +938,7 @@
 
 <server>
     <id>stagero</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/stagero.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/stagero.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -938,7 +947,7 @@
 
 <server>
     <id>stagevu</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/stagevu.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/stagevu.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -947,7 +956,7 @@
 
 <server>
     <id>streamable</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/streamable.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/streamable.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -956,7 +965,7 @@
 
 <server>
     <id>streamcloud</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/streamcloud.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/streamcloud.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -965,25 +974,25 @@
 
 <server>
     <id>streaminto</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/streaminto.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/streaminto.py</update_url>
     <active>true</active>
-    <version>3</version>
-    <date>22/10/2015</date>
+    <version>4</version>
+    <date>09/09/2016</date>
     <changes>Italian alert</changes>
 </server>
 
 <server>
     <id>thevideome</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/thevideome.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/thevideome.py</update_url>
     <active>true</active>
-    <version>5</version>
+    <version>7</version>
     <date>12/09/2015</date>
     <changes>Prima versione di Pelisalacarta 4</changes>
 </server>
 
 <server>
     <id>torrent</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/torrent.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/torrent.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>03/01/2016</date>
@@ -992,7 +1001,7 @@
 
 <server>
     <id>tumitv</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/tumitv.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/tumitv.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -1001,7 +1010,7 @@
 
 <server>
     <id>tunepk</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/tunepk.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/tunepk.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -1010,7 +1019,7 @@
 
 <server>
     <id>turbobit</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/turbobit.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/turbobit.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1019,7 +1028,7 @@
 
 <server>
     <id>tutv</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/tutv.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/tutv.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1028,7 +1037,7 @@
 
 <server>
     <id>twitvid</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/twitvid.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/twitvid.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1037,7 +1046,7 @@
 
 <server>
     <id>ultramegabit</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/ultramegabit.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/ultramegabit.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1046,7 +1055,7 @@
 
 <server>
     <id>uploadedto</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/uploadedto.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/uploadedto.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1055,7 +1064,7 @@
 
 <server>
     <id>uploading</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/uploading.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/uploading.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1064,7 +1073,7 @@
 
 <server>
     <id>uploadstation</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/uploadstation.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/uploadstation.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1073,7 +1082,7 @@
 
 <server>
     <id>uploaz</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/uploaz.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/uploaz.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1082,7 +1091,7 @@
 
 <server>
     <id>uptobox</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/uptobox.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/uptobox.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1091,7 +1100,7 @@
 
 <server>
     <id>userporn</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/userporn.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/userporn.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1100,7 +1109,7 @@
 
 <server>
     <id>v4y</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/v4y.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/v4y.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1109,7 +1118,7 @@
 
 <server>
     <id>veehd</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/veehd.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/veehd.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1118,7 +1127,7 @@
 
 <server>
     <id>veevr</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/veevr.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/veevr.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1127,7 +1136,7 @@
 
 <server>
     <id>veoh</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/veoh.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/veoh.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1136,7 +1145,7 @@
 
 <server>
     <id>vidbull</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vidbull.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vidbull.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1145,7 +1154,7 @@
 
 <server>
     <id>vidbux</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vidbux.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vidbux.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1154,7 +1163,7 @@
 
 <server>
     <id>video4you</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/video4you.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/video4you.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1163,7 +1172,7 @@
 
 <server>
     <id>videobam</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videobam.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videobam.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1172,7 +1181,7 @@
 
 <server>
     <id>videomega</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videomega.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videomega.py</update_url>
     <active>true</active>
     <version>5</version>
     <date>04/10/2015</date>
@@ -1181,7 +1190,7 @@
 
 <server>
     <id>videopremium</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videopremium.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videopremium.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1190,7 +1199,7 @@
 
 <server>
     <id>videostoring</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videostoring.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videostoring.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1199,7 +1208,7 @@
 
 <server>
     <id>videott</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videott.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videott.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1208,7 +1217,7 @@
 
 <server>
     <id>videoweed</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videoweed.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videoweed.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1217,7 +1226,7 @@
 
 <server>
     <id>videowood</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videowood.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videowood.py</update_url>
     <active>true</active>
     <version>3</version>
     <date>12/09/2015</date>
@@ -1226,7 +1235,7 @@
 
 <server>
     <id>videozed</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videozed.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videozed.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1235,7 +1244,7 @@
 
 <server>
     <id>videozer</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/videozer.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/videozer.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1244,7 +1253,7 @@
 
 <server>
     <id>vidhog</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vidhog.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vidhog.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1253,7 +1262,7 @@
 
 <server>
     <id>vidspot</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vidspot.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vidspot.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1262,7 +1271,7 @@
 
 <server>
     <id>vidtome</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vidtome.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vidtome.py</update_url>
     <active>true</active>
     <version>3</version>
     <date>12/09/2015</date>
@@ -1271,7 +1280,7 @@
 
 <server>
     <id>vidxden</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vidxden.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vidxden.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1280,7 +1289,7 @@
 
 <server>
     <id>vidxtreme</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vidxtreme.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vidxtreme.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -1289,7 +1298,7 @@
 
 <server>
     <id>vidzi</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vidzi.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vidzi.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -1298,7 +1307,7 @@
 
 <server>
     <id>vimeo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vimeo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vimeo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1307,7 +1316,7 @@
 
 <server>
     <id>vimpleru</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vimpleru.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vimpleru.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -1316,7 +1325,7 @@
 
 <server>
     <id>vk</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vk.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vk.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>22/10/2015</date>
@@ -1325,7 +1334,7 @@
 
 <server>
     <id>vkpass</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vkpass.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vkpass.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -1334,7 +1343,7 @@
 
 <server>
     <id>vodlocker</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vodlocker.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vodlocker.py</update_url>
     <active>true</active>
     <version>2</version>
     <date>12/09/2015</date>
@@ -1343,7 +1352,7 @@
 
 <server>
     <id>vureel</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/vureel.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/vureel.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1352,7 +1361,7 @@
 
 <server>
     <id>watchfreeinhd</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/watchfreeinhd.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/watchfreeinhd.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1361,7 +1370,7 @@
 
 <server>
     <id>xmltoplaylist</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/xmltoplaylist.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/xmltoplaylist.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1370,7 +1379,7 @@
 
 <server>
     <id>xvideos</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/xvideos.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/xvideos.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1379,7 +1388,7 @@
 
 <server>
     <id>yahoo</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/yahoo.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/yahoo.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1388,7 +1397,7 @@
 
 <server>
     <id>youtube</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/youtube.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/youtube.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1397,7 +1406,7 @@
 
 <server>
     <id>youwatch</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/youwatch.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/youwatch.py</update_url>
     <active>true</active>
     <version>3</version>
     <date>12/09/2015</date>
@@ -1405,8 +1414,17 @@
 </server>
 
 <server>
+    <id>wstream</id>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/wstream.py</update_url>
+    <active>true</active>
+    <version>1</version>
+    <date>12/09/2015</date>
+    <changes>Prima versione di Pelisalacarta 4</changes>
+</server>
+
+<server>
     <id>zinwa</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/zinwa.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/zinwa.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1415,7 +1433,7 @@
 
 <server>
     <id>zippyshare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/zippyshare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/zippyshare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>
@@ -1424,7 +1442,7 @@
 
 <server>
     <id>zshare</id>
-    <update_url>https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/servers/zshare.py</update_url>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/zshare.py</update_url>
     <active>true</active>
     <version>1</version>
     <date>12/09/2015</date>

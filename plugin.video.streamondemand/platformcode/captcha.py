@@ -196,7 +196,7 @@ class Keyboard:
 
     def doModal(self):
         self.initializeImage()
-        self.win = InputWindow("Captcha.xml", __addonDir__, "default", heading=self.heading, default=self.inputString,
+        self.win = InputWindow("Captcha.xml", __addonDir__, "Default", heading=self.heading, default=self.inputString,
                                captcha=self.captcha)
         self.win.doModal()
         self.confirmed = self.win.isConfirmed()

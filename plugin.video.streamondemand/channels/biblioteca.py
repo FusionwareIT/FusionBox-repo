@@ -4,17 +4,23 @@
 # Ricerca "Biblioteca"
 # http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
-import base64
+
+import Queue
 import datetime
+import glob
+import imp
+import os
 import re
+import threading
+import time
 import urllib
 from unicodedata import normalize
 
 import xbmc
-import xbmcgui
-import xbmcaddon
 
+from core import channeltools
 from core import scrapertools
+from lib.fuzzywuzzy import fuzz
 
 try:
     import json
@@ -262,29 +268,30 @@ def search_tvshow_by_title(item, search_terms):
     logger.info("streamondemand.channels.database search_tvshow_by_title '%s'" % (search_terms))
 
     return list_movie(
-            Item(channel=item.channel,
-                 url='search/tv?query=%s&' % url_quote_plus(search_terms),
-                 plot="1",
-                 type="serie"))
+        Item(channel=item.channel,
+             url='search/tv?query=%s&' % url_quote_plus(search_terms),
+             plot="1",
+             type="serie"))
 
 
 def search_movie_by_title(item, search_terms):
     logger.info("streamondemand.channels.database search_movie_by_title '%s'" % (search_terms))
 
     return list_movie(
-            Item(channel=item.channel,
-                 url='search/movie?query=%s&' % url_quote_plus(search_terms),
-                 plot="1"))
+        Item(channel=item.channel,
+             url='search/movie?query=%s&' % url_quote_plus(search_terms),
+             plot="1",
+             type="film"))
 
 
 def search_similar_movie_by_title(item, search_terms):
     logger.info("streamondemand.channels.database search_movie_by_title '%s'" % (search_terms))
 
     return list_movie(
-            Item(channel=item.channel,
-                 url='search/movie?append_to_response=similar_movies,alternative_title&query=%s&' % url_quote_plus(
-                         search_terms),
-                 plot="1"))
+        Item(channel=item.channel,
+             url='search/movie?append_to_response=similar_movies,alternative_title&query=%s&' % url_quote_plus(search_terms),
+             plot="1",
+             type='film'))
 
 
 def search_movie_by_year(item, search_terms):
@@ -294,10 +301,11 @@ def search_movie_by_year(item, search_terms):
     result = []
     if len(year) == 4:
         result.extend(
-                list_movie(
-                        Item(channel=item.channel,
-                             url='discover/movie?primary_release_year=%s&' % year,
-                             plot="1")))
+            list_movie(
+                Item(channel=item.channel,
+                     url='discover/movie?primary_release_year=%s&' % year,
+                     plot="1",
+                     type="film")))
     return result
 
 
@@ -316,9 +324,9 @@ def search_person_by_name(item, search_terms):
                 fanart = tmdb_image(movie, 'backdrop_path', 'w1280')
                 break
 
-        extracmds = [
-            (NLS_Info_Person, "RunScript(script.extendedinfo,info=extendedactorinfo,id=%s)" % str(tmdb_tag(person, 'id')))] \
-            if xbmc.getCondVisibility('System.HasAddon(script.extendedinfo)') else []
+        # extracmds = [
+        #     (NLS_Info_Person, "RunScript(script.extendedinfo,info=extendedactorinfo,id=%s)" % str(tmdb_tag(person, 'id')))] \
+        #     if xbmc.getCondVisibility('System.HasAddon(script.extendedinfo)') else []
 
         itemlist.append(Item(
                 channel=item.channel,
@@ -328,7 +336,8 @@ def search_person_by_name(item, search_terms):
                 thumbnail=poster,
                 viewmode='list',
                 fanart=fanart,
-                extracmds=extracmds
+                type='film'
+                # extracmds=extracmds
         ))
 
     return itemlist
@@ -374,6 +383,7 @@ def search_collection_by_name(item, search_terms):
                 thumbnail=poster,
                 viewmode='list',
                 fanart=fanart,
+                type='film'
         ))
 
     return itemlist
@@ -409,15 +419,15 @@ def build_movie_list(item, movies):
         rating = tmdb_tag(movie, 'vote_average')
         votes = tmdb_tag(movie, 'vote_count')
 
-        extrameta = {}
+        extrameta = {'plot': plot}
         if year != "": extrameta["Year"] = year
         if genres != "": extrameta["Genre"] = genres
         if votes:
             extrameta["Rating"] = rating
             extrameta["Votes"] = "%d" % votes
 
-        extracmds = [(NLS_Info_Title, "RunScript(script.extendedinfo,info=extendedinfo,id=%s)" % str(tmdb_tag(movie, 'id')))] \
-            if xbmc.getCondVisibility('System.HasAddon(script.extendedinfo)') else [('Movie/Show Info', 'XBMC.Action(Info)')]
+        # extracmds = [(NLS_Info_Title, "RunScript(script.extendedinfo,info=extendedinfo,id=%s)" % str(tmdb_tag(movie, 'id')))] \
+        #     if xbmc.getCondVisibility('System.HasAddon(script.extendedinfo)') else [('Movie/Show Info', 'XBMC.Action(Info)')]
 
         found = False
         kodi_db_movies = kodi_database_movies(title)
@@ -442,11 +452,11 @@ def build_movie_list(item, movies):
                         title='[COLOR orange][%s][/COLOR] ' % NLS_Library + kodi_db_movie["title"] + jobrole,
                         thumbnail=poster,
                         category=genres,
-                        plot=plot,
+                        plot=str({"infoLabels": extrameta}),
                         viewmode='movie_with_plot',
                         fanart=fanart,
-                        extrameta=extrameta,
-                        extracmds=extracmds,
+                        # extrameta=extrameta,
+                        # extracmds=extracmds,
                         folder=False,
                 ))
 
@@ -459,11 +469,11 @@ def build_movie_list(item, movies):
                     title=title + jobrole,
                     thumbnail=poster,
                     category=genres,
-                    plot=plot,
+                    plot=str({"infoLabels": extrameta}),
                     viewmode='movie_with_plot',
                     fanart=fanart,
-                    extrameta=extrameta,
-                    extracmds=extracmds,
+                    # extrameta=extrameta,
+                    # extracmds=extracmds,
                     url=item.type
             ))
 
@@ -572,31 +582,14 @@ def do_channels_search(item):
 
     itemlist = []
 
-    import os
-    import glob
-    import imp
-    from lib.fuzzywuzzy import fuzz
-    import threading
-    import Queue
-    import time
-
-    master_exclude_data_file = os.path.join(config.get_runtime_path(), "resources", "sodsearch.txt")
-    logger.info("streamondemand.channels.buscador master_exclude_data_file=" + master_exclude_data_file)
-
-    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.py')
+    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.xml')
     logger.info("streamondemand.channels.buscador channels_path=" + channels_path)
 
-    excluir = ""
-
-    if os.path.exists(master_exclude_data_file):
-        logger.info("streamondemand.channels.buscador Encontrado fichero exclusiones")
-
-        fileexclude = open(master_exclude_data_file, "r")
-        excluir = fileexclude.read()
-        fileexclude.close()
-    else:
-        logger.info("streamondemand.channels.buscador No encontrado fichero exclusiones")
-        excluir = "seriesly\nbuscador\ntengourl\n__init__"
+    channel_language = config.get_setting("channel_language")
+    logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
+    if channel_language == "":
+        channel_language = "all"
+        logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
 
     if config.is_xbmc():
         show_dialog = True
@@ -611,9 +604,9 @@ def do_channels_search(item):
     def worker(infile, queue):
         channel_result_itemlist = []
         try:
-            basename_without_extension = os.path.basename(infile)[:-3]
+            basename_without_extension = os.path.basename(infile)[:-4]
             # http://docs.python.org/library/imp.html?highlight=imp#module-imp
-            obj = imp.load_source(basename_without_extension, infile)
+            obj = imp.load_source(basename_without_extension, infile[:-4]+".py")
             logger.info("streamondemand.channels.buscador cargado " + basename_without_extension + " de " + infile)
             # item.url contains search type: serie, anime, etc...
             channel_result_itemlist.extend(obj.search(Item(extra=item.url), tecleado))
@@ -625,7 +618,34 @@ def do_channels_search(item):
             logger.error(traceback.format_exc())
         queue.put(channel_result_itemlist)
 
-    channel_files = [infile for infile in glob.glob(channels_path) if os.path.basename(infile)[:-3] not in excluir]
+    channel_files = glob.glob(channels_path)
+
+    channel_files_tmp = []
+    for infile in channel_files:
+
+        basename_without_extension = os.path.basename(infile)[:-4]
+
+        channel_parameters = channeltools.get_channel_parameters(basename_without_extension)
+
+        # No busca si es un canal inactivo
+        if channel_parameters["active"] != "true":
+            continue
+
+        # No busca si es un canal excluido de la busqueda global
+        if channel_parameters["include_in_global_search"] != "true":
+            continue
+
+        # No busca si es un canal para adultos, y el modo adulto está desactivado
+        if channel_parameters["adult"] == "true" and config.get_setting("adult_mode") == "false":
+            continue
+
+        # No busca si el canal es en un idioma filtrado
+        if channel_language != "all" and channel_parameters["language"] != channel_language:
+            continue
+
+        channel_files_tmp.append(infile)
+
+    channel_files = channel_files_tmp
 
     result = Queue.Queue()
     threads = [threading.Thread(target=worker, args=(infile, result)) for infile in channel_files]

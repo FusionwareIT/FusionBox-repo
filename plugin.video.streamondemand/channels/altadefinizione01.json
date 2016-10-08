@@ -1,0 +1,24 @@
+{
+    "channel": {
+        "id": "altadefinizione01",
+        "name": "Altadefinizione01",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "movie",
+                     "vos",
+                     "top channels"
+                    ],
+        "language": "it",
+        "thumbnail": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/altadefinizione01.png",
+        "fanart": "",
+        "bannermenu": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/altadefinizione01.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/altadefinizione01.xml",
+        "version": "2",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

@@ -11,6 +11,7 @@ from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
 
 __channel__ = "strfilm"
 __category__ = "F"
@@ -109,35 +110,16 @@ def peliculas(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         if DEBUG: logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        tmdbtitle1 = scrapedtitle.split("[")[0]
-        tmdbtitle = tmdbtitle1.split("(")[0]
-        year = scrapertools.find_single_match(scrapedtitle, '\((\d+)\)')
-        try:
-            plot, fanart, poster, extrameta = info(tmdbtitle, year)
-
-            itemlist.append(
-                Item(channel=__channel__,
-                     thumbnail=poster,
-                     fanart=fanart if fanart != "" else poster,
-                     extrameta=extrameta,
-                     plot=str(plot),
-                     action="findvideos",
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl,
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     folder=True))
-        except:
-            itemlist.append(
-                Item(channel=__channel__,
-                     action="findvideos",
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl,
-                     thumbnail=scrapedthumbnail,
-                     plot=scrapedplot,
-                     folder=True))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="findvideos",
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 plot=scrapedplot,
+                 folder=True), tipo='movie'))
 
     # Extrae el paginador
     patronvideos = '</span><a class="page larger" href="(.*?)">'
@@ -164,20 +146,3 @@ def peliculas(item):
 def HomePage(item):
     import xbmc
     xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
-
-
-def info(title, year):
-    logger.info("streamondemand.strfilm info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb = Tmdb(texto_buscado=title, year=year, tipo="movie", include_adult="false", idioma_busqueda="it")
-        if oTmdb.total_results > 0:
-            extrameta = {"Year": oTmdb.result["release_date"][:4],
-                         "Genre": ", ".join(oTmdb.result["genres"]),
-                         "Rating": float(oTmdb.result["vote_average"])}
-            fanart = oTmdb.get_backdrop()
-            poster = oTmdb.get_poster()
-            plot = oTmdb.get_sinopsis()
-            return plot, fanart, poster, extrameta
-    except:
-        pass

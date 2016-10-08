@@ -1,0 +1,22 @@
+{
+    "channel": {
+        "id": "tengourl",
+        "name": "Inserisci un URL...",
+        "active": true,
+        "adult": false,
+        "category": [
+            "all"
+        ],
+        "language": "it",
+        "thumbnail": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/tengourl.png",
+        "fanart": "",
+        "bannermenu": "https://raw.githubusercontent.com/Zanzibar82/images/master/bannermenu/tengourl.png",
+        "update_url": "https://raw.githubusercontent.com/plugin.video.streamondemand/channels/tengourl.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "27/6/2016"
+   },
+   "settings": {
+        "include_in_global_search": false
+   }
+}

@@ -60,6 +60,7 @@ import traceback
 import urllib2
 
 from core import logger
+from core import scrapertools
 
 
 class Tmdb(object):
@@ -575,3 +576,61 @@ class Tmdb(object):
             "still_path"] else ""
 
         return ret_dic
+
+
+####################################################################################################
+#   for StreamOnDemand by costaplus
+# ===================================================================================================
+def info(title, year, tipo):
+    logger.info("streamondemand.core.tmdb info")
+
+    try:
+        oTmdb = Tmdb(texto_buscado=title, year=year, tipo=tipo, include_adult="false", idioma_busqueda="it")
+        if oTmdb.total_results > 0:
+            infolabels = {"year": oTmdb.result["release_date"][:4],
+                          "genre": ", ".join(oTmdb.result["genres"]),
+                          "rating": float(oTmdb.result["vote_average"])}
+            fanart = oTmdb.get_backdrop()
+            poster = oTmdb.get_poster()
+            infolabels['plot'] = oTmdb.get_sinopsis()
+            plot = {"infoLabels": infolabels}
+
+            return plot, fanart, poster
+    except:
+        plot = ""
+        fanart = ""
+        poster = ""
+        return plot, fanart, poster
+
+
+
+
+
+# ----------------------------------------------------------------------------------------------------
+
+# ====================================================================================================
+def infoSod(item, tipo="movie", ):
+    '''
+    :param item:  item
+    :return:      ritorna un'item completo esente da errori di codice
+    '''
+    logger.info("streamondemand.core.tmdb infoSod")
+    logger.info("channel=[" + item.channel + "], action=[" + item.action + "], title[" + item.title + "], url=[" + item.url + "], thumbnail=[" + item.thumbnail + "], tipo=[" + tipo + "]")
+    try:
+        tmdbtitle = item.fulltitle.split("|")[0].split("{")[0].split("[")[0].split("(")[0].split("Sub-ITA")[0].split("Sub ITA")[0].split("20")[0].split("19")[0].split("S0")[0].split("Serie")[0].split("HD ")[0]
+        year = scrapertools.find_single_match(item.fulltitle, '\((\d{4})\)')
+
+        plot, fanart, poster = info(tmdbtitle, year, tipo)
+        item.poster = poster if poster != "" else item.thumbnail
+        item.thumbnail=poster if poster != "" else item.thumbnail
+        item.fanart = fanart if fanart != "" else poster
+
+        if plot:
+            if not plot['infoLabels']['plot']:
+                plot['infoLabels']['plot'] = item.plot
+            item.plot = str(plot)
+    except:
+        pass
+    return item
+
+# ===================================================================================================

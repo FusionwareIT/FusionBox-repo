@@ -2,8 +2,8 @@
 #------------------------------------------------------------
 # Parámetros de configuración (kodi)
 #------------------------------------------------------------
-# streamondemand / pelisalacarta 4.0.3
-# http://www.mimediacenter.info/foro/viewforum.php?f=36
+# streamondemand
+# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
 #------------------------------------------------------------
 # Creado por: Jesús (tvalacarta@gmail.com)
 # Licencia: GPL (http://www.gnu.org/licenses/gpl-3.0.html)
@@ -15,8 +15,7 @@ import os
 import xbmcaddon
 import xbmc
 
-PLATFORM_NAME = "kodi-isengard"
-print "streamondemand.core.config PLATFORM_NAME="+PLATFORM_NAME
+PLATFORM_NAME = "kodi-jarvis"
 
 PLUGIN_NAME = "streamondemand"
 __settings__ = xbmcaddon.Addon(id="plugin.video."+PLUGIN_NAME)
@@ -175,7 +174,3 @@ def verify_directories_created():
             shutil.rmtree(old_xbmc_directory)
         except:
             pass
-
-print "streamondemand.core.config runtime path = "+get_runtime_path()
-print "streamondemand.core.config data path = "+get_data_path()
-print "streamondemand.core.config temp path = "+get_temp_file("test")

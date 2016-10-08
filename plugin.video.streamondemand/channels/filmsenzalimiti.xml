@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+	<id>filmsenzalimiti</id>
+	<name>Filmsenzalimiti</name>
+
+	<active>true</active>
+	<adult>false</adult>
+	<language>it</language>
+
+	<fanart></fanart>
+	<thumbnail>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/filmsenzalimiti.png</thumbnail>
+	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/filmsenzalimiti.png</bannermenu>
+
+	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
+	<version>1</version>
+	<date>16/06/2016</date>
+	<changes>update</changes>
+
+	<categories>
+		<category>movie</category>
+		<category>top channels</category>
+                <category>serie</category>
+		<category>vos</category>
+	</categories>
+
+	<settings>
+		<include_in_global_search>true</include_in_global_search>
+	</settings>
+</channel>

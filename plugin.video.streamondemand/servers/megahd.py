@@ -22,18 +22,11 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
     data_pack = scrapertools.find_single_match(data, "(eval.function.p,a,c,k,e,.*?)\s*</script>")
 
     if data_pack != "":
-        try:
-            from core import unpackerjs3
-            data_unpack = unpackerjs3.unpackjs(data_pack)
-        except:
-            data_unpack = ""
-        if data_unpack == "":
-            from core import jsunpack
-            data_unpack = jsunpack.unpack(data_pack)
-        data = data_unpack
+        from core import jsunpack
+        data = jsunpack.unpack(data_pack)
 
     video_url = scrapertools.find_single_match(data, 'file"?\s*:\s*"([^"]+)",')
-    video_urls.append(["[megahd]", video_url])
+    video_urls.append([".mp4 [megahd]", video_url])
 
     for video_url in video_urls:
         logger.info("[megahd.py] %s - %s" % (video_url[0], video_url[1]))

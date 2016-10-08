@@ -1,0 +1,23 @@
+{
+    "channel": {
+        "id": "hdstreamingit",
+        "name": "HDStreamingit",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "movie",
+                     "serie"
+                    ],
+        "language": "it",
+        "thumbnail": "http://www.hd-streaming.it/wp-content/uploads/2015/10/hdstreaminglogo.png",
+        "fanart": "",
+        "bannermenu": "http://www.hd-streaming.it/wp-content/uploads/2015/10/hdstreaminglogo.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/hdstreamingit.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

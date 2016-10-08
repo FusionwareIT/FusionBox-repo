@@ -1,0 +1,24 @@
+{
+    "channel": {
+        "id": "cineblog01",
+        "name": "Cineblog01",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "movie",
+                     "top channels",
+                     "serie",
+                    ],
+        "language": "it",
+        "thumbnail": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/cineblog01.png",
+        "fanart": "",
+        "bannermenu": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/cineblog01.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/cineblog01.xml",
+        "version": "3",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

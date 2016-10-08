@@ -5,15 +5,13 @@
 # http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
 # ------------------------------------------------------------
 import re
-import sys
 import urlparse
-import urllib2
-import time
 
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
 
 __channel__ = "guardaserie"
 __category__ = "S"
@@ -91,13 +89,13 @@ def fichas(item):
 
     itemlist = []
 
-#    data = scrapertools.cache_page(item.url)
+    # data = scrapertools.cache_page(item.url)
 
     ## Descarga la página
     data = re.sub(
         r'\t|\n|\r',
         '',
-        anti_cloudflare(item.url)
+        scrapertools.anti_cloudflare(item.url, headers)
     )
 
     data = scrapertools.find_single_match(data, '<a[^>]+>Serie Tv</a><ul>(.*?)</ul>')
@@ -109,13 +107,13 @@ def fichas(item):
     for scrapedurl, scrapedtitle in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
 
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="episodios",
-                     title=scrapedtitle,
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     url=scrapedurl))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios",
+                 title=scrapedtitle,
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 url=scrapedurl), tipo='tv'))
 
     return itemlist
 
@@ -129,7 +127,7 @@ def ultimi(item):
     data = re.sub(
         r'\t|\n|\r',
         '',
-        anti_cloudflare(item.url)
+        scrapertools.anti_cloudflare(item.url, headers)
     )
  #   data = scrapertools.cache_page(item.url)
     patron = '<p>Nuove Puntate delle SERIE TV, Aggiunte OGGI:</p>(.*?)<div id="disclamer">'
@@ -155,19 +153,18 @@ def ultimi(item):
 
     return itemlist
 
-
 def anime(item):
     logger.info("streamondemand.channels.guardaserie anime")
 
     itemlist = []
 
-#    data = scrapertools.cache_page(item.url)
+    # data = scrapertools.cache_page(item.url)
 
     ## Descarga la página
     data = re.sub(
         r'\t|\n|\r',
         '',
-        anti_cloudflare(item.url)
+        scrapertools.anti_cloudflare(item.url, headers)
     )
 
     data = scrapertools.find_single_match(data, '<a[^>]+>Anime</a><ul>(.*?)</ul>')
@@ -179,14 +176,14 @@ def anime(item):
     for scrapedurl, scrapedtitle in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
 
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="episodios",
-                     title=scrapedtitle,
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     url=scrapedurl,
-                     thumbnail="http://www.itrentenni.com/wp-content/uploads/2015/02/tv-series.jpg"))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios",
+                 title=scrapedtitle,
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 url=scrapedurl,
+                 thumbnail="http://www.itrentenni.com/wp-content/uploads/2015/02/tv-series.jpg"), tipo='tv'))
 
     return itemlist
 
@@ -200,9 +197,9 @@ def cartoni(item):
     data = re.sub(
         r'\t|\n|\r',
         '',
-        anti_cloudflare(item.url)
+        scrapertools.anti_cloudflare(item.url, headers)
     )
-	
+
     data = scrapertools.find_single_match(data, '<a[^>]+>Cartoni</a><ul>(.*?)</ul>')
 
     patron = '<li><a href="([^"]+)[^>]+>([^<]+)</a></li>'
@@ -212,14 +209,14 @@ def cartoni(item):
     for scrapedurl, scrapedtitle in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
 
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="episodios",
-                     title=scrapedtitle,
-                     fulltitle=scrapedtitle,
-                     url=scrapedurl,
-                     show=scrapedtitle,
-                     thumbnail="http://www.itrentenni.com/wp-content/uploads/2015/02/tv-series.jpg"))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios",
+                 title=scrapedtitle,
+                 fulltitle=scrapedtitle,
+                 url=scrapedurl,
+                 show=scrapedtitle,
+                 thumbnail="http://www.itrentenni.com/wp-content/uploads/2015/02/tv-series.jpg"), tipo='tv'))
 
     return itemlist
 
@@ -233,9 +230,9 @@ def progs(item):
     data = re.sub(
         r'\t|\n|\r',
         '',
-        anti_cloudflare(item.url)
+        scrapertools.anti_cloudflare(item.url, headers)
     )
-	
+
     data = scrapertools.find_single_match(data, '<a[^>]+>Programmi TV</a><ul>(.*?)</ul>')
 
     patron = '<li><a href="([^"]+)[^>]+>([^<]+)</a></li>'
@@ -246,13 +243,13 @@ def progs(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
 
         itemlist.append(
-                Item(channel=__channel__,
-                     action="episodios",
-                     title=scrapedtitle,
-                     fulltitle=scrapedtitle,
-                     url=scrapedurl,
-                     show=scrapedtitle,
-                     thumbnail="http://www.itrentenni.com/wp-content/uploads/2015/02/tv-series.jpg"))
+            Item(channel=__channel__,
+                 action="episodios",
+                 title=scrapedtitle,
+                 fulltitle=scrapedtitle,
+                 url=scrapedurl,
+                 show=scrapedtitle,
+                 thumbnail="http://www.itrentenni.com/wp-content/uploads/2015/02/tv-series.jpg"))
 
     return itemlist
 
@@ -266,9 +263,9 @@ def cerca(item):
     data = re.sub(
         r'\t|\n|\r',
         '',
-        anti_cloudflare(item.url)
+        scrapertools.anti_cloudflare(item.url, headers)
     )
-	
+
     patron = '<div class="search_thumbnail">.*?<a class="search_link" href="([^"]+)" rel="bookmark" title="([^"]+)">.*?<img src="([^"]+)" />.*?</a>'
 
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -279,14 +276,14 @@ def cerca(item):
         if scrapedtitle.startswith("Guarda "):
             scrapedtitle = scrapedtitle[7:]
 
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="episodios",
-                     title=scrapedtitle,
-                     fulltitle=scrapedtitle,
-                     url=scrapedurl,
-                     show=scrapedtitle,
-                     thumbnail=scrapedthumbnail))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios",
+                 title=scrapedtitle,
+                 fulltitle=scrapedtitle,
+                 url=scrapedurl,
+                 show=scrapedtitle,
+                 thumbnail=scrapedthumbnail), tipo='tv'))
 
     return itemlist
 
@@ -302,10 +299,10 @@ def episodios(item):
     data = re.sub(
         r'\t|\n|\r',
         '',
-        anti_cloudflare(item.url)
+        scrapertools.anti_cloudflare(item.url, headers)
     )
-	
-    serie_id = scrapertools.get_match(data, '/?id=(\d+)" rel="nofollow"')
+
+    serie_id = scrapertools.get_match(data, 'id=([^"]+)" rel="nofollow" target="_blank"')
 
     data = scrapertools.get_match(data, '<div id="episode">(.*?)</div>')
 
@@ -327,29 +324,29 @@ def episodios(item):
             url = host + "/wp-admin/admin-ajax.php?action=get_episode&id=" + serie_id + "&season=" + scrapedseason + "&episode=" + scrapedepisode + "?" + item.url
 
             itemlist.append(
-                    Item(channel=__channel__,
-                         action="findvideos",
-                         title=title,
-                         url=url,
-                         fulltitle=item.title,
-                         show=item.title,
-                         thumbnail=item.thumbnail))
+                Item(channel=__channel__,
+                     action="findvideos",
+                     title=title,
+                     url=url,
+                     fulltitle=item.title,
+                     show=item.title,
+                     thumbnail=item.thumbnail))
 
     if config.get_library_support():
         itemlist.append(
-                Item(channel=__channel__,
-                     title="[COLOR azure]Aggiungi [/COLOR]" + item.title + "[COLOR azure] alla libreria di Kodi[/COLOR]",
-                     url=item.url,
-                     action="add_serie_to_library",
-                     extra="episodios",
-                     show=item.show))
+            Item(channel=__channel__,
+                 title="[COLOR azure]Aggiungi [/COLOR]" + item.title + "[COLOR azure] alla libreria di Kodi[/COLOR]",
+                 url=item.url,
+                 action="add_serie_to_library",
+                 extra="episodios",
+                 show=item.show))
         itemlist.append(
-                Item(channel=__channel__,
-                     title="[COLOR azure]Scarica tutti gli episodi della serie[/COLOR]",
-                     url=item.url,
-                     action="download_all_episodes",
-                     extra="episodios",
-                     show=item.show))
+            Item(channel=__channel__,
+                 title="[COLOR azure]Scarica tutti gli episodi della serie[/COLOR]",
+                 url=item.url,
+                 action="download_all_episodes",
+                 extra="episodios",
+                 show=item.show))
 
     return itemlist
 
@@ -376,34 +373,13 @@ def findvideos(item):
     title = "[" + server + "] " + item.title
 
     itemlist.append(
-            Item(channel=__channel__,
-                 action="play",
-                 title=title,
-                 url=url,
-                 server=server,
-                 fulltitle=item.fulltitle,
-                 show=item.show,
-                 folder=False))
+        Item(channel=__channel__,
+             action="play",
+             title=title,
+             url=url,
+             server=server,
+             fulltitle=item.fulltitle,
+             show=item.show,
+             folder=False))
 
     return itemlist
-
-def anti_cloudflare(url):
-    # global headers
-
-    try:
-        resp_headers = scrapertools.get_headers_from_response(url, headers=headers)
-        resp_headers = dict(resp_headers)
-    except urllib2.HTTPError, e:
-        resp_headers = e.headers
-
-    if 'refresh' in resp_headers:
-        time.sleep(int(resp_headers['refresh'][:1]))
-
-        urlsplit = urlparse.urlsplit(url)
-        h = urlsplit.netloc
-        s = urlsplit.scheme
-        scrapertools.get_headers_from_response(s + '://' + h + "/" + resp_headers['refresh'][7:], headers=headers)
-
-    return scrapertools.cache_page(url, headers=headers)
-
-

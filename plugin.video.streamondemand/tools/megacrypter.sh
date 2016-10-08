@@ -82,7 +82,7 @@ function hrk2hk {
 	printf "%016x" ${key[*]}
 } 
 
-echo -e "\nThis is MEGA-DOWN (pelisalacarta MOD) $VERSION"
+echo -e "\nThis is MEGA-DOWN (streamondemand MOD) $VERSION"
 
 if [ -z $1 ]
 then

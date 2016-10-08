@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
-# pelisalacarta 4
+# streamondemand 4
 # Copyright 2015 tvalacarta@gmail.com
 #
 # Distributed under the terms of GNU General Public License v3 (GPLv3)
 # http://www.gnu.org/licenses/gpl-3.0.html
 # ------------------------------------------------------------
-# This file is part of pelisalacarta 4.
+# This file is part of streamondemand 4.
 #
-# pelisalacarta 4 is free software: you can redistribute it and/or modify
+# streamondemand 4 is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# pelisalacarta 4 is distributed in the hope that it will be useful,
+# streamondemand 4 is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pelisalacarta 4.  If not, see <http://www.gnu.org/licenses/>.
+# along with streamondemand 4.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------
 # Service for updating new episodes on library series
 # ------------------------------------------------------------
@@ -40,18 +40,17 @@ if scrapertools.wait_for_internet(retry=10):
         from core import update_servers
     except:
         logger.info("streamondemand.library_service Error in update_servers")
-    # ----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
 
     import os
-
     import xbmc
+    import imp
 
     from core import config
     from core.item import Item
+    from platformcode import library
 
     logger.info("streamondemand.library_service Actualizando series...")
-    from platformcode import library
-    import imp
 
     directorio = os.path.join(config.get_library_path(), "SERIES")
     logger.info("directorio=" + directorio)
@@ -76,13 +75,12 @@ if scrapertools.wait_for_internet(retry=10):
                 logger.info("streamondemand.library_service ruta =#" + ruta + "#")
                 if os.path.exists(ruta):
                     logger.info("streamondemand.library_service Actualizando " + serie[0])
-                    item = Item(url=serie[1], show=serie[0])
+                    item = Item(url=serie[1], show=serie[0], extra=serie[3].split('###')[1].strip() if '###' in serie[3] else '')
                     try:
                         itemlist = []
 
-                        pathchannels = os.path.join(config.get_runtime_path(), 'channels', serie[2].strip() + '.py')
-                        logger.info(
-                            "streamondemand.library_service Cargando canal  " + pathchannels + " " + serie[2].strip())
+                        pathchannels = os.path.join(config.get_runtime_path(), 'channels', serie[2] + '.py')
+                        logger.info("streamondemand.library_service Cargando canal  " + pathchannels + " " + serie[2])
                         obj = imp.load_source(serie[2].strip(), pathchannels)
                         itemlist = obj.episodios(item)
 
@@ -97,13 +95,13 @@ if scrapertools.wait_for_internet(retry=10):
                     itemlist = []
 
                 for item in itemlist:
-                    # logger.info("item="+item.tostring())
                     try:
                         item.show = serie[0].strip()
                         library.savelibrary(titulo=item.title, url=item.url, thumbnail=item.thumbnail,
-                                            server=item.server, plot=item.plot, canal=item.channel, category="Series",
-                                            Serie=item.show, verbose=False, accion="play_from_library",
-                                            pedirnombre=False, subtitle=item.subtitle)
+                                            server=item.server, plot=item.plot, canal=item.channel,
+                                            category="Series", Serie=item.show.strip(), verbose=False,
+                                            accion="play_from_library", pedirnombre=False, subtitle=item.subtitle,
+                                            extra=item.extra)
                     except:
                         logger.info("streamondemand.library_service Capitulo no valido")
 

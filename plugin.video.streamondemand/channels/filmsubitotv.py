@@ -5,13 +5,13 @@
 # http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
 # ------------------------------------------------------------
 import re
-import sys
 import urlparse
 
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
 from servers import servertools
 
 __channel__ = "filmsubitotv"
@@ -100,35 +100,16 @@ def peliculas(item):
         if (DEBUG): logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
-        tmdbtitle1 = scrapedtitle.split("[")[0]
-        tmdbtitle = tmdbtitle1.split("(")[0]
-
-        try:
-           plot, fanart, poster, extrameta = info(tmdbtitle)
-
-           itemlist.append(
-               Item(channel=__channel__,
-                    thumbnail=poster,
-                    fanart=fanart if fanart != "" else poster,
-                    extrameta=extrameta,
-                    plot=str(plot),
-                    action="findvid",
-                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                    url=scrapedurl,
-                    fulltitle=scrapedtitle,
-                    show=scrapedtitle,
-                    folder=True))
-        except:
-           itemlist.append(
-               Item(channel=__channel__,
-                    action="findvid",
-                    fulltitle=scrapedtitle,
-                    show=scrapedtitle,
-                    title=scrapedtitle,
-                    url=scrapedurl,
-                    plot=scrapedplot,
-                    thumbnail=scrapedthumbnail,
-                    folder=True))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="findvid",
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 title=scrapedtitle,
+                 url=scrapedurl,
+                 plot=scrapedplot,
+                 thumbnail=scrapedthumbnail,
+                 folder=True), tipo='movie'))
 
     # Extrae el paginador
     patronvideos = '<a href="([^"]+)">&raquo;</a>'
@@ -400,21 +381,3 @@ def findvid(item):
 def HomePage(item):
     import xbmc
     xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
-
-def info(title):
-    logger.info("streamondemand.filmsubito info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb= Tmdb(texto_buscado=title, tipo= "movie", include_adult="false", idioma_busqueda="it")
-        count = 0
-        if oTmdb.total_results > 0:
-           extrameta = {}
-           extrameta["Year"] = oTmdb.result["release_date"][:4]
-           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-           extrameta["Rating"] = float(oTmdb.result["vote_average"])
-           fanart=oTmdb.get_backdrop()
-           poster=oTmdb.get_poster()
-           plot=oTmdb.get_sinopsis()
-           return plot, fanart, poster, extrameta
-    except:
-        pass	

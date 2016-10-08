@@ -5,16 +5,14 @@
 # http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
 # ------------------------------------------------------------
 import re
-import sys
-import time
-import urllib2
 import urlparse
 
-from core import logger
 from core import config
+from core import logger
 from core import scrapertools
-from servers import servertools
 from core.item import Item
+from core.tmdb import infoSod
+from servers import servertools
 
 __channel__ = "casacinema"
 __category__ = "F,S,A"
@@ -22,16 +20,15 @@ __type__ = "generic"
 __title__ = "casacinema"
 __language__ = "IT"
 
-host = "http://www.casa-cinema.org"
+host = 'http://www.casa-cinema.org'
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
     ['Accept-Encoding', 'gzip, deflate'],
-    ['Referer', 'http://www.casa-cinema.org/genere/serie-tv'],
-    ['Connection', 'keep-alive']
-
-
+    ['Referer', '%s/genere/serie-tv' % host],
 ]
+
+
 def isGeneric():
     return True
 
@@ -48,21 +45,25 @@ def mainlist(item):
                 Item(channel=__channel__,
                      title="[COLOR azure]Film - HD[/COLOR]",
                      action="peliculas",
+                     extra="film",
                      url="%s/?s=[HD]" % host,
                      thumbnail="http://jcrent.com/apple%20tv%20final/HD.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Categorie[/COLOR]",
                      action="categorias",
+                     extra="film",
                      url=host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Sub - Ita[/COLOR]",
                      action="peliculas",
+                     extra="film",
                      url="%s/genere/sub-ita" % host,
                      thumbnail="http://i.imgur.com/qUENzxl.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
+                     extra="film",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
@@ -103,7 +104,7 @@ def peliculas(item):
     itemlist = []
 
     # Descarga la pagina
-    data = anti_cloudflare(item.url)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
     patron = '<div class="box-single-movies">\s*'
@@ -119,51 +120,37 @@ def peliculas(item):
         scrapedplot = html[start:end]
         scrapedplot = re.sub(r'<[^>]*>', '', scrapedplot)
         scrapedplot = scrapertools.decodeHtmlentities(scrapedplot).strip()
-        tmdbtitle = title.split("[")[0]
-        try:
-           plot, fanart, poster, extrameta = info(tmdbtitle)
-
-           itemlist.append(
-               Item(channel=__channel__,
-                    thumbnail=poster,
-                    fanart=fanart if fanart != "" else poster,
-                    extrameta=extrameta,
-                    plot=str(plot),
-                    action="episodios" if item.extra == "serie" else "findvideos",
-                    title=title,
-                    url=scrapedurl,
-                    fulltitle=title,
-                    show=title,
-                    folder=True))
-        except:
-           itemlist.append(
-               Item(channel=__channel__,
-                    action="episodios" if item.extra == "serie" else "findvideos",
-                    title=title,
-                    url=scrapedurl,
-                    thumbnail=scrapedthumbnail,
-                    fulltitle=title,
-                    show=title,
-                    plot=scrapedplot,
-                    folder=True))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios" if item.extra == "serie" else "findvideos",
+                 title=title,
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 fulltitle=title,
+                 show=title,
+                 plot=scrapedplot,
+                 extra=item.extra,
+                 folder=True), tipo='movie'))
 
     ## Paginación
     next_page = scrapertools.find_single_match(data, 'rel="next" href="([^"]+)"')
 
     if next_page != "":
         itemlist.append(
-                Item(channel=__channel__,
-                     action="HomePage",
-                     title="[COLOR yellow]Torna Home[/COLOR]",
-                     folder=True)),
+            Item(channel=__channel__,
+                 action="HomePage",
+                 title="[COLOR yellow]Torna Home[/COLOR]",
+                 folder=True)),
         itemlist.append(
-                Item(channel=__channel__,
-                     action="peliculas",
-                     title="[COLOR orange]Successivo >>[/COLOR]",
-                     url=next_page,
-                     thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
+            Item(channel=__channel__,
+                 action="peliculas",
+                 title="[COLOR orange]Successivo >>[/COLOR]",
+                 url=next_page,
+                 extra=item.extra,
+                 thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
 
     return itemlist
+
 
 def peliculas_tv(item):
     logger.info("streamondemand.casacinema peliculas")
@@ -171,7 +158,7 @@ def peliculas_tv(item):
     itemlist = []
 
     # Descarga la pagina
-    data = anti_cloudflare(item.url)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
     patron = '<div class="box-single-movies">\s*'
@@ -187,49 +174,34 @@ def peliculas_tv(item):
         scrapedplot = html[start:end]
         scrapedplot = re.sub(r'<[^>]*>', '', scrapedplot)
         scrapedplot = scrapertools.decodeHtmlentities(scrapedplot).strip()
-        tmdbtitle = title.split("Serie")[0]
-        try:
-           plot, fanart, poster, extrameta = info_tv(tmdbtitle)
-
-           itemlist.append(
-               Item(channel=__channel__,
-                    thumbnail=poster,
-                    fanart=fanart if fanart != "" else poster,
-                    extrameta=extrameta,
-                    plot=str(plot),
-                    action="episodios" if item.extra == "serie" else "findvideos",
-                    title=title,
-                    url=scrapedurl,
-                    fulltitle=title,
-                    show=title,
-                    folder=True))
-        except:
-           itemlist.append(
-               Item(channel=__channel__,
-                    action="episodios" if item.extra == "serie" else "findvideos",
-                    title=title,
-                    url=scrapedurl,
-                    thumbnail=scrapedthumbnail,
-                    fulltitle=title,
-                    show=title,
-                    plot=scrapedplot,
-                    folder=True))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios" if item.extra == "serie" else "findvideos",
+                 title=title,
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 fulltitle=title,
+                 show=title,
+                 plot=scrapedplot,
+                 extra=item.extra,
+                 folder=True), tipo='tv'))
 
     ## Paginación
     next_page = scrapertools.find_single_match(data, 'rel="next" href="([^"]+)"')
 
     if next_page != "":
         itemlist.append(
-                Item(channel=__channel__,
-                     action="HomePage",
-                     title="[COLOR yellow]Torna Home[/COLOR]",
-                     folder=True)),
+            Item(channel=__channel__,
+                 action="HomePage",
+                 title="[COLOR yellow]Torna Home[/COLOR]",
+                 folder=True)),
         itemlist.append(
-                Item(channel=__channel__,
-                     action="peliculas_tv",
-                     title="[COLOR orange]Successivo >>[/COLOR]",
-                     url=next_page,
-                     thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
+            Item(channel=__channel__,
+                 action="peliculas_tv",
+                 title="[COLOR orange]Successivo >>[/COLOR]",
+                 url=next_page,
+                 extra=item.extra,
+                 thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"))
 
     return itemlist
 
@@ -244,132 +216,81 @@ def categorias(item):
 
     itemlist = []
 
-    data = anti_cloudflare(item.url)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     # The categories are the options for the combo
-    patron = '<td[^<]+<a href="([^"]+)">[^>]+>([^<]+)</a>[^/]+/td>'
+    patron = '<div class="col-xs-6[^=]+="Categoria"[^>]+>[^=]+="(.*?)">(.*?)</a>'
 
     matches = re.compile(patron, re.DOTALL).findall(data)
 
     for scrapedurl, scrapedtitle in matches:
         itemlist.append(
-                Item(channel=__channel__,
-                     action="peliculas",
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=urlparse.urljoin(host, scrapedurl)))
+            Item(channel=__channel__,
+                 action="peliculas",
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 extra=item.extra,
+                 url=urlparse.urljoin(host, scrapedurl)))
 
     return itemlist
 
-def info(title):
-    logger.info("streamondemand.casacinema info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb= Tmdb(texto_buscado=title, tipo= "movie", include_adult="false", idioma_busqueda="it")
-        count = 0
-        if oTmdb.total_results > 0:
-           extrameta = {}
-           extrameta["Year"] = oTmdb.result["release_date"][:4]
-           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-           extrameta["Rating"] = float(oTmdb.result["vote_average"])
-           fanart=oTmdb.get_backdrop()
-           poster=oTmdb.get_poster()
-           plot=oTmdb.get_sinopsis()
-           return plot, fanart, poster, extrameta
-    except:
-        pass	
-
-def info_tv(title):
-    logger.info("streamondemand.casacinema info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb= Tmdb(texto_buscado=title, tipo= "tv", include_adult="false", idioma_busqueda="it")
-        count = 0
-        if oTmdb.total_results > 0:
-           extrameta = {}
-           extrameta["Year"] = oTmdb.result["release_date"][:4]
-           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-           extrameta["Rating"] = float(oTmdb.result["vote_average"])
-           fanart=oTmdb.get_backdrop()
-           poster=oTmdb.get_poster()
-           plot=oTmdb.get_sinopsis()
-           return plot, fanart, poster, extrameta
-    except:
-        pass	
 
 def episodios(item):
-    logger.info("anime sub ita - episodianime")
+    logger.info("streamondemand.casacinema episodios")
 
     itemlist = []
 
     # Downloads page
-    data = anti_cloudflare(item.url)
+    data = scrapertools.anti_cloudflare(item.url, headers)
     # Extracts the entries
     patron = '(.*?)<a href="(.*?)" target="_blank" rel="nofollow".*?>(.*?)</a>'
     matches = re.compile(patron).findall(data)
 
     for scrapedtitle, scrapedurl, scrapedserver in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
-        scrapedurl = scrapertools.decodeHtmlentities(scrapedurl)
         if scrapedtitle.startswith("<p>"):
             scrapedtitle = scrapedtitle[3:]
 
         itemlist.append(
             Item(channel=__channel__,
-                 action="find_video_items",
-                 title="[COLOR red]"+scrapedtitle+" [/COLOR]"+"[COLOR azure]"+item.fulltitle+" [/COLOR]"+"[COLOR orange] ["+scrapedserver+"][/COLOR]",
+                 action="findvideos",
+                 title="[COLOR red]" + scrapedtitle + " [/COLOR]" + "[COLOR azure]" + item.fulltitle + " [/COLOR]" + "[COLOR orange] [" + scrapedserver + "][/COLOR]",
                  url=scrapedurl,
-                 #data=scrapedurl,
                  thumbnail=item.thumbnail,
-                 fulltitle=item.fulltitle,
+                 fulltitle=item.show + ' | ' + scrapedtitle,
+                 extra=item.extra,
+                 show=item.show))
+
+    if config.get_library_support() and len(itemlist) != 0:
+        itemlist.append(
+            Item(channel=__channel__,
+                 title=item.title,
+                 url=item.url,
+                 action="add_serie_to_library",
+                 extra="episodios" + "###" + item.extra,
+                 show=item.show))
+        itemlist.append(
+            Item(channel=item.channel,
+                 title="Scarica tutti gli episodi della serie",
+                 url=item.url,
+                 action="download_all_episodes",
+                 extra="episodios" + "###" + item.extra,
                  show=item.show))
 
     return itemlist
 
-def find_video_items(item=None, data=None, channel=""):
-    logger.info("[launcher.py] findvideos")
 
-    data=item.url
+def findvideos(item):
+    logger.info("streamondemand.casacinema findvideos")
 
-    # Descarga la página
-    if data is None:
-        from core import scrapertools
-        data = scrapertools.cache_page(item.url)
-        #logger.info(data)
-    
-    # Busca los enlaces a los videos
-    from core.item import Item
-    from servers import servertools
-    listavideos = servertools.findvideos(data)
+    data = item.url if item.extra == 'serie' else scrapertools.cache_page(item.url, headers=headers)
 
-    if item is None:
-        item = Item()
-
-    itemlist = []
-    for video in listavideos:
-        scrapedtitle = item.title.strip() + " - " + video[0].strip()
-        scrapedurl = video[1]
-        server = video[2]
-        
-        itemlist.append( Item(channel=item.channel, title=item.title , action="play" , server=server, page=item.page, url=scrapedurl, thumbnail=item.thumbnail, show=item.show , plot=item.plot , folder=False) )
+    itemlist = servertools.find_video_items(data=data)
+    for videoitem in itemlist:
+        videoitem.title = item.title + videoitem.title
+        videoitem.fulltitle = item.fulltitle
+        videoitem.thumbnail = item.thumbnail
+        videoitem.show = item.show
+        videoitem.plot = item.plot
+        videoitem.channel = __channel__
 
     return itemlist
-
-def anti_cloudflare(url):
-    # global headers
-
-    try:
-        resp_headers = scrapertools.get_headers_from_response(url, headers=headers)
-        resp_headers = dict(resp_headers)
-    except urllib2.HTTPError, e:
-        resp_headers = e.headers
-
-    if 'refresh' in resp_headers:
-        time.sleep(int(resp_headers['refresh'][:1]))
-
-        urlsplit = urlparse.urlsplit(url)
-        h = urlsplit.netloc
-        s = urlsplit.scheme
-        scrapertools.get_headers_from_response(s + '://' + h + "/" + resp_headers['refresh'][7:], headers=headers)
-
-    return scrapertools.cache_page(url, headers=headers)
-

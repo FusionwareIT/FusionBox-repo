@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+	<id>hdblog</id>
+	<name>Hdblog</name>
+
+	<active>true</active>
+	<adult>false</adult>
+	<language>it</language>
+
+	<fanart></fanart>
+	<thumbnail>http://css.hd-cdn.it/new_files/templates/theme_darklight/img/logos_wt/logohdhardware.png</thumbnail>
+	<bannermenu>http://css.hd-cdn.it/new_files/templates/theme_darklight/img/logos_wt/logohdhardware.png</bannermenu>
+
+	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
+	<version>1</version>
+	<date>16/06/2016</date>
+	<changes>update</changes>
+
+	<categories>
+        <category>documentary</category>
+	</categories>
+
+	<settings>
+		<include_in_global_search>false</include_in_global_search>
+	</settings>
+</channel>

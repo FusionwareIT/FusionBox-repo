@@ -1,8 +1,8 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Configuración
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
 #------------------------------------------------------------
 
 from core import downloadtools

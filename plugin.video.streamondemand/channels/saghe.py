@@ -4,16 +4,22 @@
 # Ricerca "Saghe"
 # http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
-import base64
+
+import Queue
 import datetime
+import glob
+import imp
 import json
-import re
+import os
+import threading
 import urllib
 
+from core import channeltools
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from lib.fuzzywuzzy import fuzz
 
 __channel__ = "saghe"
 __category__ = "F"
@@ -24,7 +30,7 @@ __language__ = "IT"
 DEBUG = config.get_setting("debug")
 
 tmdb_key = 'f7f51775877e0bb6703520952b3c7840'
-#tmdb_key = base64.urlsafe_b64decode('NTc5ODNlMzFmYjQzNWRmNGRmNzdhZmI4NTQ3NDBlYTk=')
+# tmdb_key = base64.urlsafe_b64decode('NTc5ODNlMzFmYjQzNWRmNGRmNzdhZmI4NTQ3NDBlYTk=')
 dttime = (datetime.datetime.utcnow() - datetime.timedelta(hours=5))
 systime = dttime.strftime('%Y%m%d%H%M%S%f')
 today_date = dttime.strftime('%Y-%m-%d')
@@ -80,12 +86,8 @@ def mainlist(item):
                      title="[COLOR yellow]Disney Classic Collection[/COLOR]",
                      action="tmdb_saghe",
                      url='http://api.themoviedb.org/3/list/51224e42760ee3297424a1e0?api_key=%s&language=it' % tmdb_key,
-                     thumbnail="https://image.tmdb.org/t/p/w180_and_h270_bestv2/vGV35HBCMhQl2phhGaQ29P08ZgM.jpg"),
-                Item( title="[COLOR azure]Hokuto no Ken[/COLOR]", channel="hokutonoken", action="mainlist", thumbnail="http://i.imgur.com/dn9ImTf.jpg"),
-                Item( title="[COLOR azure]Saint Seiya[/COLOR]", channel="saintseiya" ,action="mainlist", thumbnail="http://vignette2.wikia.nocookie.net/nonciclopedia/images/1/12/Logo_Cavalieri_dello_Zodiaco.png/revision/latest?cb=20140308215438")]
-
+                     thumbnail="https://image.tmdb.org/t/p/w180_and_h270_bestv2/vGV35HBCMhQl2phhGaQ29P08ZgM.jpg")]
     return itemlist
-
 
 
 def tmdb_saghe(item):
@@ -144,30 +146,14 @@ def do_search(item):
 
     itemlist = []
 
-    import os
-    import glob
-    import imp
-    from lib.fuzzywuzzy import fuzz
-    import threading
-    import Queue
-
-    master_exclude_data_file = os.path.join(config.get_runtime_path(), "resources", "sodsearch.txt")
-    logger.info("streamondemand.channels.buscador master_exclude_data_file=" + master_exclude_data_file)
-
-    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.py')
+    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.xml')
     logger.info("streamondemand.channels.buscador channels_path=" + channels_path)
 
-    excluir = ""
-
-    if os.path.exists(master_exclude_data_file):
-        logger.info("streamondemand.channels.buscador Encontrado fichero exclusiones")
-
-        fileexclude = open(master_exclude_data_file, "r")
-        excluir = fileexclude.read()
-        fileexclude.close()
-    else:
-        logger.info("streamondemand.channels.buscador No encontrado fichero exclusiones")
-        excluir = "seriesly\nbuscador\ntengourl\n__init__"
+    channel_language = config.get_setting("channel_language")
+    logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
+    if channel_language == "":
+        channel_language = "all"
+        logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
 
     if config.is_xbmc():
         show_dialog = True
@@ -182,9 +168,9 @@ def do_search(item):
     def worker(infile, queue):
         channel_result_itemlist = []
         try:
-            basename_without_extension = os.path.basename(infile)[:-3]
+            basename_without_extension = os.path.basename(infile)[:-4]
             # http://docs.python.org/library/imp.html?highlight=imp#module-imp
-            obj = imp.load_source(basename_without_extension, infile)
+            obj = imp.load_source(basename_without_extension, infile[:-4]+".py")
             logger.info("streamondemand.channels.buscador cargado " + basename_without_extension + " de " + infile)
             channel_result_itemlist.extend(obj.search(Item(), tecleado))
             for item in channel_result_itemlist:
@@ -195,7 +181,34 @@ def do_search(item):
             logger.error(traceback.format_exc())
         queue.put(channel_result_itemlist)
 
-    channel_files = [infile for infile in glob.glob(channels_path) if os.path.basename(infile)[:-3] not in excluir]
+    channel_files = glob.glob(channels_path)
+
+    channel_files_tmp = []
+    for infile in channel_files:
+
+        basename_without_extension = os.path.basename(infile)[:-4]
+
+        channel_parameters = channeltools.get_channel_parameters(basename_without_extension)
+
+        # No busca si es un canal inactivo
+        if channel_parameters["active"] != "true":
+            continue
+
+        # No busca si es un canal excluido de la busqueda global
+        if channel_parameters["include_in_global_search"] != "true":
+            continue
+
+        # No busca si es un canal para adultos, y el modo adulto está desactivado
+        if channel_parameters["adult"] == "true" and config.get_setting("adult_mode") == "false":
+            continue
+
+        # No busca si el canal es en un idioma filtrado
+        if channel_language != "all" and channel_parameters["language"] != channel_language:
+            continue
+
+        channel_files_tmp.append(infile)
+
+    channel_files = channel_files_tmp
 
     result = Queue.Queue()
     threads = [threading.Thread(target=worker, args=(infile, result)) for infile in channel_files]
@@ -219,4 +232,3 @@ def do_search(item):
         progreso.close()
 
     return itemlist
-

@@ -11,6 +11,7 @@ from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
 from servers import servertools
 
 __channel__ = "guardarefilm"
@@ -137,35 +138,16 @@ def peliculas(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         if (DEBUG): logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        tmdbtitle1 = scrapedtitle.split("[")[0]
-        tmdbtitle = tmdbtitle1.split("(")[0]
-        year = scrapertools.find_single_match(scrapedtitle, '\((\d+)\)')
-        try:
-            plot, fanart, poster, extrameta = info(tmdbtitle, year)
-
-            itemlist.append(
-                Item(channel=__channel__,
-                     thumbnail=poster,
-                     fanart=fanart if fanart != "" else poster,
-                     extrameta=extrameta,
-                     plot=str(plot),
-                     action="episodios" if item.extra == "serie" else "findvideos",
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl,
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     folder=True))
-        except:
-            itemlist.append(
-                Item(channel=__channel__,
-                     action="episodios" if item.extra == "serie" else "findvideos",
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl,
-                     thumbnail=urlparse.urljoin(host, scrapedthumbnail),
-                     plot=scrapedplot,
-                     folder=True))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios" if item.extra == "serie" else "findvideos",
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=scrapedurl,
+                 thumbnail=urlparse.urljoin(host, scrapedthumbnail),
+                 plot=scrapedplot,
+                 folder=True), tipo='movie'))
 
     # Extrae el paginador
     patronvideos = '<div class="pages".*?<span>.*?<a href="([^"]+)">'
@@ -206,34 +188,16 @@ def peliculas_tv(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         if (DEBUG): logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        tmdbtitle1 = scrapedtitle.split("[")[0]
-        tmdbtitle = tmdbtitle1.split("(")[0]
-        try:
-            plot, fanart, poster, extrameta = info_tv(tmdbtitle)
-
-            itemlist.append(
-                Item(channel=__channel__,
-                     thumbnail=poster,
-                     fanart=fanart if fanart != "" else poster,
-                     extrameta=extrameta,
-                     plot=str(plot),
-                     action="episodios" if item.extra == "serie" else "findvideos",
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl,
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     folder=True))
-        except:
-            itemlist.append(
-                Item(channel=__channel__,
-                     action="episodios" if item.extra == "serie" else "findvideos",
-                     fulltitle=scrapedtitle,
-                     show=scrapedtitle,
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=scrapedurl,
-                     thumbnail=urlparse.urljoin(host, scrapedthumbnail),
-                     plot=scrapedplot,
-                     folder=True))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios" if item.extra == "serie" else "findvideos",
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=scrapedurl,
+                 thumbnail=urlparse.urljoin(host, scrapedthumbnail),
+                 plot=scrapedplot,
+                 folder=True), tipo='tv'))
 
     # Extrae el paginador
     patronvideos = '<div class="pages".*?<span>.*?<a href="([^"]+)">'
@@ -360,37 +324,3 @@ def findvid_serie(item):
         videoitem.channel = __channel__
 
     return itemlist
-
-
-def info(title, year):
-    logger.info("streamondemand.guardarefilm info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb = Tmdb(texto_buscado=title, year=year, tipo="movie", include_adult="false", idioma_busqueda="it")
-        if oTmdb.total_results > 0:
-            extrameta = {"Year": oTmdb.result["release_date"][:4],
-                         "Genre": ", ".join(oTmdb.result["genres"]),
-                         "Rating": float(oTmdb.result["vote_average"])}
-            fanart = oTmdb.get_backdrop()
-            poster = oTmdb.get_poster()
-            plot = oTmdb.get_sinopsis()
-            return plot, fanart, poster, extrameta
-    except:
-        pass
-
-
-def info_tv(title):
-    logger.info("streamondemand.guardarefilm info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb = Tmdb(texto_buscado=title, tipo="tv", include_adult="false", idioma_busqueda="it")
-        if oTmdb.total_results > 0:
-            extrameta = {"Year": oTmdb.result["release_date"][:4],
-                         "Genre": ", ".join(oTmdb.result["genres"]),
-                         "Rating": float(oTmdb.result["vote_average"])}
-            fanart = oTmdb.get_backdrop()
-            poster = oTmdb.get_poster()
-            plot = oTmdb.get_sinopsis()
-            return plot, fanart, poster, extrameta
-    except:
-        pass

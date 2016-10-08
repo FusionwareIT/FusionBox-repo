@@ -4,13 +4,23 @@
 # Canal para filmontv
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 # ------------------------------------------------------------
+
+import Queue
+import glob
+import imp
+import os
 import re
+import threading
+import time
 import urllib
 
+from core import channeltools
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
+from lib.fuzzywuzzy import fuzz
 
 __channel__ = "filmontv"
 __category__ = "F"
@@ -78,7 +88,7 @@ def tvoggi(item):
     data = scrapertools.cache_page(item.url)
 
     # Extrae las entradas (carpetas)
-    patron = '<div class="col-xs-5 box-immagine">\s*<img src="([^"]+)"[^>]+>\s*</div>\s*[^>]+>[^>]+>\s*[^>]+>\s*[^>]+>(.*?)</div>\s*[^>]+>[^>]+>[^>]+>[^>]+>(.*?)</div>'
+    patron = '<div class="col-xs-5 box-immagine">[^<]+<img src="([^"]+)[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<.*?titolo">(.*?)<[^<]+<[^<]+<[^<]+<[^>]+><br />(.*?)<[^<]+</div>'
     matches = re.compile(patron, re.DOTALL).findall(data)
 
     for scrapedthumbnail, scrapedtitle, scrapedtv in matches:
@@ -86,31 +96,16 @@ def tvoggi(item):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle).strip()
         titolo = urllib.quote_plus(scrapedtitle)
         if (DEBUG): logger.info("title=[" + scrapedtitle + "], url=[" + scrapedurl + "]")
-        try:
-           plot, fanart, poster, extrameta = info(scrapedtitle)
 
-           itemlist.append(
-               Item(channel=__channel__,
-                    thumbnail=poster,
-                    fanart=fanart if fanart != "" else poster,
-                    extrameta=extrameta,
-                    plot=str(plot),
-                    action="do_search",
-                    title=scrapedtitle + "[COLOR yellow]   " + scrapedtv + "[/COLOR]",
-                    url=scrapedurl,
-                    fulltitle=scrapedtitle,
-                    extra=titolo,
-                    folder=True))
-        except:
-           itemlist.append(
-               Item(channel=__channel__,
-                    action="do_search",
-                    extra=titolo,
-                    title=scrapedtitle + "[COLOR yellow]   " + scrapedtv + "[/COLOR]",
-                    fulltitle=scrapedtitle,
-                    url=scrapedurl,
-                    thumbnail=scrapedthumbnail,
-                    folder=True))
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="do_search",
+                 extra=titolo,
+                 title=scrapedtitle + "[COLOR yellow]   " + scrapedtv + "[/COLOR]",
+                 fulltitle=scrapedtitle,
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 folder=True), tipo="movie"))
 
     return itemlist
 
@@ -125,32 +120,14 @@ def do_search(item):
 
     itemlist = []
 
-    import os
-    import glob
-    import imp
-    from lib.fuzzywuzzy import fuzz
-    import threading
-    import Queue
-    import time
-    import re
-
-    master_exclude_data_file = os.path.join(config.get_runtime_path(), "resources", "sodsearch.txt")
-    logger.info("streamondemand.channels.buscador master_exclude_data_file=" + master_exclude_data_file)
-
-    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.py')
+    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.xml')
     logger.info("streamondemand.channels.buscador channels_path=" + channels_path)
 
-    excluir = ""
-
-    if os.path.exists(master_exclude_data_file):
-        logger.info("streamondemand.channels.buscador Encontrado fichero exclusiones")
-
-        fileexclude = open(master_exclude_data_file, "r")
-        excluir = fileexclude.read()
-        fileexclude.close()
-    else:
-        logger.info("streamondemand.channels.buscador No encontrado fichero exclusiones")
-        excluir = "seriesly\nbuscador\ntengourl\n__init__"
+    channel_language = config.get_setting("channel_language")
+    logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
+    if channel_language == "":
+        channel_language = "all"
+        logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
 
     if config.is_xbmc():
         show_dialog = True
@@ -165,11 +142,11 @@ def do_search(item):
     def worker(infile, queue):
         channel_result_itemlist = []
         try:
-            basename_without_extension = os.path.basename(infile)[:-3]
+            basename_without_extension = os.path.basename(infile)[:-4]
             # http://docs.python.org/library/imp.html?highlight=imp#module-imp
-            obj = imp.load_source(basename_without_extension, infile)
+            obj = imp.load_source(basename_without_extension, infile[:-4]+".py")
             logger.info("streamondemand.channels.buscador cargado " + basename_without_extension + " de " + infile)
-            channel_result_itemlist.extend(obj.search(Item(), tecleado))
+            channel_result_itemlist.extend(obj.search(Item(extra='film'), tecleado))
             for item in channel_result_itemlist:
                 item.title = " [COLOR azure] " + item.title + " [/COLOR] [COLOR orange]su[/COLOR] [COLOR green]" + basename_without_extension + "[/COLOR]"
                 item.viewmode = "list"
@@ -178,7 +155,34 @@ def do_search(item):
             logger.error(traceback.format_exc())
         queue.put(channel_result_itemlist)
 
-    channel_files = [infile for infile in glob.glob(channels_path) if os.path.basename(infile)[:-3] not in excluir]
+    channel_files = glob.glob(channels_path)
+
+    channel_files_tmp = []
+    for infile in channel_files:
+
+        basename_without_extension = os.path.basename(infile)[:-4]
+
+        channel_parameters = channeltools.get_channel_parameters(basename_without_extension)
+
+        # No busca si es un canal inactivo
+        if channel_parameters["active"] != "true":
+            continue
+
+        # No busca si es un canal excluido de la busqueda global
+        if channel_parameters["include_in_global_search"] != "true":
+            continue
+
+        # No busca si es un canal para adultos, y el modo adulto está desactivado
+        if channel_parameters["adult"] == "true" and config.get_setting("adult_mode") == "false":
+            continue
+
+        # No busca si el canal es en un idioma filtrado
+        if channel_language != "all" and channel_parameters["language"] != channel_language:
+            continue
+
+        channel_files_tmp.append(infile)
+
+    channel_files = channel_files_tmp
 
     result = Queue.Queue()
     threads = [threading.Thread(target=worker, args=(infile, result)) for infile in channel_files]
@@ -227,22 +231,3 @@ def do_search(item):
     itemlist = sorted(itemlist, key=lambda item: item.fulltitle)
 
     return itemlist
-
-def info(title):
-    logger.info("streamondemand.filmontv info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb= Tmdb(texto_buscado=title, tipo= "movie", include_adult="false", idioma_busqueda="it")
-        count = 0
-        if oTmdb.total_results > 0:
-           extrameta = {}
-           extrameta["Year"] = oTmdb.result["release_date"][:4]
-           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-           extrameta["Rating"] = float(oTmdb.result["vote_average"])
-           fanart=oTmdb.get_backdrop()
-           poster=oTmdb.get_poster()
-           plot=oTmdb.get_sinopsis()
-           return plot, fanart, poster, extrameta
-    except:
-        pass	
-

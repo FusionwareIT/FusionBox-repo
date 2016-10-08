@@ -5,13 +5,13 @@
 # http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
 # ------------------------------------------------------------
 import re
-import sys
 import urlparse
 
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
 
 __channel__ = "streaming01"
 __category__ = "F"
@@ -64,12 +64,12 @@ def categorias(item):
     for scrapedurl, scrapedtitle in matches:
         if (DEBUG): logger.info("title=[" + scrapedtitle + "], url=[" + scrapedurl + "]")
         itemlist.append(
-                Item(channel=__channel__,
-                     action="peliculas",
-                     title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                     url=host + scrapedurl,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png",
-                     folder=True))
+            Item(channel=__channel__,
+                 action="peliculas",
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=host + scrapedurl,
+                 thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png",
+                 folder=True))
 
     return itemlist
 
@@ -103,13 +103,13 @@ def peliculas(item):
     matches = re.compile(patron, re.DOTALL).findall(data)
 
     for scrapedurl, scrapedthumbnail, scrapedtitle in matches:
- #		COMMENTING PLOT LINES BECAUSE CHANNELS' TOO SLOW
- #       html = scrapertools.cache_page(scrapedurl)
- #       start = html.find("<div class=\"full-text clearfix desc-text\">")
- #       end = html.find("<table>", start)
- #       scrapedplot = html[start:end]
- #       scrapedplot = re.sub(r'<.*?>', '', scrapedplot)
- #       scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
+        #		COMMENTING PLOT LINES BECAUSE CHANNELS' TOO SLOW
+        #       html = scrapertools.cache_page(scrapedurl)
+        #       start = html.find("<div class=\"full-text clearfix desc-text\">")
+        #       end = html.find("<table>", start)
+        #       scrapedplot = html[start:end]
+        #       scrapedplot = re.sub(r'<.*?>', '', scrapedplot)
+        #       scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
         scrapedtitle = scrapedtitle.replace("Streaming ", "")
         scrapedtitle = scrapedtitle.replace(" e download", "")
         scrapedtitle = scrapedtitle.replace("gratis", "")
@@ -122,34 +122,16 @@ def peliculas(item):
         scrapedtitle = scrapedtitle.replace("]", "")
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         if DEBUG: logger.info(
-                "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
-        tmdbtitle1 = scrapedtitle.split("HD ")[0]
-        tmdbtitle = tmdbtitle1.split("(")[0]
-        try:
-           plot, fanart, poster, extrameta = info(tmdbtitle)
-
-           itemlist.append(
-               Item(channel=__channel__,
-                    thumbnail=poster,
-                    fanart=fanart if fanart != "" else poster,
-                    extrameta=extrameta,
-                    plot=str(plot),
-                    action="findvideos",
-                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                    url=scrapedurl,
-                    fulltitle=scrapedtitle,
-                    show=scrapedtitle,
-                    folder=True))
-        except:
-           itemlist.append(
-               Item(channel=__channel__,
-                    action="findvideos",
-                    fulltitle=scrapedtitle,
-                    show=scrapedtitle,
-                    title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                    url=scrapedurl,
-                    thumbnail=scrapedthumbnail,
-                    folder=True))
+            "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="findvideos",
+                 fulltitle=scrapedtitle,
+                 show=scrapedtitle,
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=scrapedurl,
+                 thumbnail=scrapedthumbnail,
+                 folder=True), tipo='movie'))
 
     # Extrae el paginador
     patronvideos = '<span class="pnext"><a href="([^"]+)">Avanti</a></span>'
@@ -172,26 +154,7 @@ def peliculas(item):
 
     return itemlist
 
+
 def HomePage(item):
     import xbmc
     xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
-
-def info(title):
-    logger.info("streamondemand.streaming01 info")
-    try:
-        from core.tmdb import Tmdb
-        oTmdb= Tmdb(texto_buscado=title, tipo= "movie", include_adult="false", idioma_busqueda="it")
-        count = 0
-        if oTmdb.total_results > 0:
-           extrameta = {}
-           extrameta["Year"] = oTmdb.result["release_date"][:4]
-           extrameta["Genre"] = ", ".join(oTmdb.result["genres"])
-           extrameta["Rating"] = float(oTmdb.result["vote_average"])
-           fanart=oTmdb.get_backdrop()
-           poster=oTmdb.get_poster()
-           plot=oTmdb.get_sinopsis()
-           return plot, fanart, poster, extrameta
-    except:
-        pass
-
-

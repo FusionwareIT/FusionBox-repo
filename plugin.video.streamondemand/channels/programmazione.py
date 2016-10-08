@@ -1,18 +1,16 @@
-#-*- coding: utf-8 -*-
-#------------------------------------------------------------
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canale Video Corsi Programmazione
 # Creato da costaplus
 # http://www.mimediacenter.info/foro/viewforum.php?f=36.
-#------------------------------------------------------------
+# ------------------------------------------------------------
 import re
-import urlparse
 
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
-from servers import servertools
 
 __channel__ = "programmazione"
 __category__ = "D"
@@ -20,13 +18,14 @@ __type__ = "generic"
 __title__ = "programmazione(IT)"
 __language__ = "IT"
 
-
 DEBUG = config.get_setting("debug")
 
 site = "https://www.youtube.com"
 
+
 def isGeneric():
     return True
+
 
 def mainlist(item):
     logger.info("streamondemand.programmazione mainlist")
@@ -46,51 +45,50 @@ def mainlist(item):
     itemlist.append( Item(channel=__channel__, title="[COLOR azure]Corso Python[/COLOR]", action="corsi", url="https://www.youtube.com/playlist?list=PLC64779F4E2E7EB10", thumbnail="http://i.ytimg.com/vi/_iX9CSX09Z8/mqdefault.jpg"))
     itemlist.append( Item(channel=__channel__, title="[COLOR azure]Corso Unit 3D[/COLOR]", action="corsi", url="https://www.youtube.com/playlist?list=PL0qAPtx8YtJcbl6ZHwtFIkFxWY-adCeS7", thumbnail="http://i.ytimg.com/vi/QiFBrHp3IGk/mqdefault.jpg"))
 
-
     return itemlist
+
 
 def corsi(item):
     logger.info("streamondemand.programmazione peliculas")
     itemlist = []
 
-	#scarrico il canale
+    # scarrico il canale
     html = scrapertools.cache_page(item.url)
 
-	# Estraggo l'elenco dei video e titoli
-    patron  = '<a class="pl-video-title-link.*?href="(.*?)"[^>]+>(.*?)</a>'
-    trovati = re.compile(patron,re.DOTALL).findall(html)
+    # Estraggo l'elenco dei video e titoli
+    patron = '<a class="pl-video-title-link.*?href="(.*?)"[^>]+>(.*?)</a>'
+    trovati = re.compile(patron, re.DOTALL).findall(html)
     scrapertools.printMatches(trovati)
-    max =len(trovati)
+    max = len(trovati)
     min = 0
 
-	#ciclo sull'elenco trovato
-    for VideoUrl,VideoTitolo in trovati:
-          # Decodifico Html
-		  titolo= scrapertools.decodeHtmlentities(VideoTitolo)
-	      #contatore
-		  min +=1
-		  #aggiungo alla lista
-		  itemlist.append(Item(  channel=__channel__,
-                                  action="findvideos",
-    						   fulltitle=titolo,
-								    show=titolo,
-							       title="[COLOR azure]" + item.title + " - " + str(min) + "x" +str(max) + "[/COLOR]",
-								     url=site+VideoUrl,
-							   thumbnail=item.thumbnail,
-  								    plot=titolo,
-  								  folder=True)
-						)
-
+    # ciclo sull'elenco trovato
+    for VideoUrl, VideoTitolo in trovati:
+        # Decodifico Html
+        titolo = scrapertools.decodeHtmlentities(VideoTitolo)
+        # contatore
+        min += 1
+        # aggiungo alla lista
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="findvideos",
+                 fulltitle=titolo,
+                 show=titolo,
+                 title="[COLOR azure]" + item.title + " - " + str(min) + "x" + str(max) + "[/COLOR]",
+                 url=site + VideoUrl,
+                 thumbnail=item.thumbnail,
+                 plot=titolo,
+                 folder=True)
+        )
 
     if max > 0:
-	     itemlist.append(
-             Item(channel=__channel__,
+        itemlist.append(
+            Item(channel=__channel__,
                  action="HomePage",
                  title="[COLOR yellow]Torna Home[/COLOR]",
                  folder=True)),
 
     return itemlist
-
 
 
 def HomePage(item):

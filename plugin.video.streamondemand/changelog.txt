@@ -1,4 +1,31 @@
-v5.2.9
-- Fixed library
-- Fixed pigeons
-- Added aadecode lib
+v5.3.6
+- openload big fix
+- jjdecode lib
+
+v5.3.5
+- fix megadrive, streaminto, openload (plus code jsunpack)
+- beautify jjdecode lib
+- translated downloadtools by artioni81
+- new channel: altadefinizioneclub
+- fixed some channels
+
+v5.3.4
+- openload big fix
+- transictional release
+
+v5.3.3
+- openload fix
+- new channel added
+- favorites and download -=NOT WORKING=-
+
+v5.3.2
+- TMDB fix
+- many channels fix
+
+v5.3.1
+- Minor fix menu
+
+v5.3.0
+- Megamerge pelisa
+- Major update
+

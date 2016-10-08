@@ -1,0 +1,22 @@
+{
+    "channel": {
+        "id": "scambioetico",
+        "name": "Scambio Etico - TNT Village",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "torrent"
+                    ],
+        "language": "it",
+        "thumbnail": "http://forum.tntvillage.scambioetico.org/style_images/mkportal-636/tntlogo2012.png",
+        "fanart": "",
+        "bannermenu": "http://forum.tntvillage.scambioetico.org/style_images/mkportal-636/tntlogo2012.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/scambioetico.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

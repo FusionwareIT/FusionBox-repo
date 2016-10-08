@@ -1,0 +1,23 @@
+{
+    "channel": {
+        "id": "toonitalia",
+        "name": "Toonitalia",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "serie",
+                     "anime"
+                    ],
+        "language": "it",
+        "thumbnail": "http://i.imgur.com/a8Vwz1V.png",
+        "fanart": "",
+        "bannermenu": "http://i.imgur.com/a8Vwz1V.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/tonitalia.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

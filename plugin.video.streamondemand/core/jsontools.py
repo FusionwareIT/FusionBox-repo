@@ -9,7 +9,76 @@
 import traceback
 import logger
 
+#Incorporadas las funciones loads() y dumps() para json y simplejson
+def loads(*args, **kwargs):
+  try:
+    logger.info("core.jsontools.loads Probando json incluido en el interprete")
+    import json
+    return to_utf8(json.loads(*args, **kwargs))
+  except ImportError:
+    pass
+  except:
+   logger.info(traceback.format_exc())
 
+  try:
+    logger.info("core.jsontools.loads Probando simplejson incluido en el interprete")
+    import simplejson as json
+    return to_utf8(json.loads(*args, **kwargs))
+  except ImportError:
+    pass
+  except:
+   logger.info(traceback.format_exc())
+   
+  try:
+    logger.info("core.jsontools.loads Probando simplejson en el directorio lib")
+    from lib import simplejson as json
+    return to_utf8(json.loads(*args, **kwargs))
+  except ImportError:
+    pass
+  except:
+   logger.info(traceback.format_exc())
+   
+def dumps(*args, **kwargs):
+  try:
+    logger.info("core.jsontools.loads Probando json incluido en el interprete")
+    import json
+    return json.dumps(*args, **kwargs)
+  except ImportError:
+    pass
+  except:
+   logger.info(traceback.format_exc())
+
+  try:
+    logger.info("core.jsontools.loads Probando simplejson incluido en el interprete")
+    import simplejson as json
+    return json.dumps(*args, **kwargs)
+  except ImportError:
+    pass
+  except:
+   logger.info(traceback.format_exc())
+   
+  try:
+    logger.info("core.jsontools.loads Probando simplejson en el directorio lib")
+    from lib import simplejson as json
+    return json.dumps(*args, **kwargs)
+  except ImportError:
+    pass
+  except:
+   logger.info(traceback.format_exc())
+   
+ 
+def to_utf8(dct):
+  if isinstance(dct, dict):
+      return dict((to_utf8(key), to_utf8(value)) for key, value in dct.iteritems())
+  elif isinstance(dct, list):
+      return [to_utf8(element) for element in dct]
+  elif isinstance(dct, unicode):
+      return dct.encode('utf-8')
+  else:
+      return dct
+
+
+##############
 def load_json(data):
     logger.info("core.jsontools.load_json Probando simplejson en directorio lib")
 

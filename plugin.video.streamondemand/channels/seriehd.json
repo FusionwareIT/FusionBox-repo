@@ -1,0 +1,22 @@
+{
+    "channel": {
+        "id": "seriehd",
+        "name": "Serie HD",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "serie"
+                    ],
+        "language": "it",
+        "thumbnail": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/seriehd.png",
+        "fanart": "",
+        "bannermenu": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/seriehd.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/serieHD.xml",
+        "version": "2",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

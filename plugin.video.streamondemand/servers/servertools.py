@@ -7,10 +7,9 @@
 #LvX Edited Patched
 import sys
 
-from core import scrapertools
-#from core import jsontools
 from core import config
 from core import logger
+from core import scrapertools
 
 # Listas de servidores empleadas a la hora de reproducir para explicarle al usuario por qué no puede ver un vídeo
 
@@ -26,7 +25,7 @@ FREE_SERVERS.extend(['fileflyer','playedto','tunepk','powvideo','videomega','meg
 FREE_SERVERS.extend(['videozed','documentary','hugefiles','firedrive','videott','tumitv','gamovideo'])
 FREE_SERVERS.extend(['torrent','video4you','mailru','streaminto','backin','akstream','speedvideo','junkyvideo','realvid','cloudzilla','fakingstv'])
 FREE_SERVERS.extend(['meuvideos','cumlouder','openload','abysstream','megahd','exashare','okru','youwatch','publicvideohost','spruto','vkpass','bitmovie'])
-FREE_SERVERS.extend(['googledrive', 'megadrive', 'hdload', 'thevideome', 'speedvid', 'putstream'])
+FREE_SERVERS.extend(['googledrive', 'megadrive', 'hdload', 'thevideome', 'speedvid', 'putstream', 'rapidvideocom', 'wstream'])
 
 # Lista de TODOS los servidores que funcionan con cuenta premium individual
 PREMIUM_SERVERS = ['uploadedto','nowvideo']
@@ -100,7 +99,7 @@ def find_video_items(item=None, data=None, channel=""):
         scrapedurl = video[1]
         server = video[2]
         
-        itemlist.append( Item(channel=item.channel, title=scrapedtitle , action="play" , server=server, page=item.page, url=scrapedurl, thumbnail=item.thumbnail, show=item.show , plot=item.plot , folder=False) )
+        itemlist.append( Item(channel=item.channel, title=scrapedtitle , action="play" , server=server, url=scrapedurl, thumbnail=item.thumbnail, show=item.show , plot=item.plot , folder=False) )
 
     return itemlist
 

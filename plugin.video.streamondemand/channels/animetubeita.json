@@ -1,0 +1,22 @@
+{
+    "channel": {
+        "id": "animetubeita",
+        "name": "Animetubeita",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "anime"
+                    ],
+        "language": "it",
+        "thumbnail": "http://i.imgur.com/rQPx1iQ.png",
+        "fanart": "",
+        "bannermenu": "http://i.imgur.com/rQPx1iQ.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/animetubeita.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

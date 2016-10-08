@@ -1,0 +1,22 @@
+{
+    "channel": {
+        "id": "playcinema",
+        "name": "Play Cinema",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "movie"
+                    ],
+        "language": "it",
+        "thumbnail": "http://www.playcinema.org/wp-content/uploads/2015/10/playcinemaimmagine.png",
+        "fanart": "",
+        "bannermenu": "http://www.playcinema.org/wp-content/uploads/2015/10/playcinemaimmagine.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/playcinema.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

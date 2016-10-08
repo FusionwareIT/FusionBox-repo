@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+	<id>filmissimi</id>
+	<name>Filmissimi</name>
+
+	<active>true</active>
+	<adult>false</adult>
+	<language>it</language>
+
+	<fanart></fanart>
+	<thumbnail>http://www.filmissimi.net/wp-content/uploads/2015/10/Logo3.png</thumbnail>
+	<bannermenu>http://www.filmissimi.net/wp-content/uploads/2015/10/Logo3.png</bannermenu>
+
+	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
+	<version>1</version>
+	<date>27/06/2016</date>
+	<changes>New Channel</changes>
+
+	<categories>
+		<category>movie</category>
+		<category>vos</category>
+	</categories>
+
+	<settings>
+		<include_in_global_search>true</include_in_global_search>
+	</settings>
+</channel>

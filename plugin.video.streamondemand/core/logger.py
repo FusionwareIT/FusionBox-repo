@@ -2,8 +2,8 @@
 #------------------------------------------------------------
 # Logger (kodi)
 #------------------------------------------------------------
-# pelisalacarta
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# streamondemand
+# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
 #------------------------------------------------------------
 # Creado por: Jesús (tvalacarta@gmail.com)
 # Licencia: GPL (http://www.gnu.org/licenses/gpl-3.0.html)
@@ -32,6 +32,13 @@ def info(texto):
 def debug(texto):
     if loggeractive:
         try:
+            import inspect
+            import os
+            last=inspect.stack()[1]
+            modulo= os.path.basename(os.path.splitext(last[1])[0])
+            funcion= last [3]
+            texto= "    [" + modulo + "." + funcion + "] " + texto
+            xbmc.log("######## DEBUG #########")
             xbmc.log(texto)
         except:
             validchars = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&'()-@[]^_`{}~."
@@ -41,6 +48,13 @@ def debug(texto):
 def error(texto):
     if loggeractive:
         try:
+            import inspect
+            import os
+            last=inspect.stack()[1]
+            modulo= os.path.basename(os.path.splitext(last[1])[0])
+            funcion= last [3]
+            texto= "    [" + modulo + "." + funcion + "] " + texto
+            xbmc.log("######## ERROR #########")
             xbmc.log(texto)
         except:
             validchars = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&'()-@[]^_`{}~."

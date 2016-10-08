@@ -4,30 +4,21 @@
 # update_servers.py
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 # ------------------------------------------------------------
-
+import glob
 import os
-import re
 from threading import Thread
 
 from core import config
-from core import scrapertools
+from core import updater
 
 DEBUG = config.get_setting("debug")
-
-UPDATE_URL_IDX, VERSION_IDX = xrange(0, 2)
-
-remote_url = "https://raw.githubusercontent.com/Zanzibar82/plugin.video.streamondemand/master/channels/"
-local_folder = os.path.join(config.get_runtime_path(), "channels")
 
 
 ### Procedures
 def update_channels():
-    with open(os.path.join(local_folder, "channelslist.xml"), 'rb') as f:
-        xml = f.read()
-    local_dict = read_channels_list(xml)
+    channel_path = os.path.join(config.get_runtime_path(), "channels", '*.xml')
 
-    xml = scrapertools.cache_page(remote_url + "channelslist.xml")
-    remote_dict = read_channels_list(xml)
+    channel_files = glob.glob(channel_path)
 
     # ----------------------------
     import xbmcgui
@@ -35,38 +26,19 @@ def update_channels():
     progress.create("Update channels list")
     # ----------------------------
 
-    for index, channel_id in enumerate(remote_dict.iterkeys()):
+    for index, channel in enumerate(channel_files):
         # ----------------------------
-        percentage = index * 100 / len(remote_dict)
+        percentage = index * 100 / len(channel_files)
         # ----------------------------
-        if channel_id not in local_dict or remote_dict[channel_id][VERSION_IDX] > local_dict[channel_id][
-            VERSION_IDX]:
-            data = scrapertools.cache_page(remote_dict[channel_id][UPDATE_URL_IDX])
-
-            with open(os.path.join(local_folder, channel_id + ".py"), 'wb') as f:
-                f.write(data)
-            # ----------------------------
-            progress.update(percentage, ' Update channel: ' + channel_id)
-            # ----------------------------
-
-    for channel_id in set(local_dict.keys()) - set(remote_dict.keys()):
-        os.remove(os.path.join(local_folder, channel_id + ".py"))
-
-    with open(os.path.join(local_folder, "channelslist.xml"), 'wb') as f:
-        f.write(xml)
+        channel_id = os.path.basename(channel)[:-4]
+        updater.updatechannel(channel_id)
+        # ----------------------------
+        progress.update(percentage, ' Update channel: ' + channel_id)
+        # ----------------------------
 
     # ----------------------------
     progress.close()
     # ----------------------------
-
-
-def read_channels_list(xml):
-    ret = {}
-    patron = r"<channel>\s*<id>([^<]+)</id>.*?<update_url>([^<]+)</update_url>.*?<version>([^<]+)</version>.*?</channel>"
-    for channel_id, update_url, version in re.compile(patron, re.DOTALL).findall(xml):
-        ret[channel_id] = [update_url, int(version)]
-
-    return ret
 
 
 ### Run

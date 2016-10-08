@@ -1,0 +1,22 @@
+{
+    "channel": {
+        "id": "saghe",
+        "name": "Saghe",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "saghe"
+                    ],
+        "language": "it",
+        "thumbnail": "https://ideedaleggere.files.wordpress.com/2015/11/icona2.png?w=300&h=300&crop=1",
+        "fanart": "",
+        "bannermenu": "https://ideedaleggere.files.wordpress.com/2015/11/icona2.png?w=300&h=300&crop=1",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/saghe.xml",
+        "version": "1",
+        "changes": "update",
+        "date": "26/06/2016"
+   },
+   "settings": {
+        "include_in_global_search": false
+   }
+}

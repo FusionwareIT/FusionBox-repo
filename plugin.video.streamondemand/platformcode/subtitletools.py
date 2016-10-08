@@ -1,8 +1,8 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Herramientas de integración con xbmc subtitles
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
 # Autor: bandavi
 # Este archivo utiliza el Script XBMC SUBTITLES y el modulo "regex_tvshow()"
 # cuyos autores son: amet,mr_blobby
@@ -228,6 +228,7 @@ def searchSubtitle(item):
         playlist = xbmc.PlayList( xbmc.PLAYLIST_VIDEO )
         playlist.clear()
         playlist.add( full_path_video_new, listitem )
+        #xbmcPlayer = xbmc.Player(  xbmc.PLAYER_CORE_AUTO )
         xbmcPlayer = xbmc.Player()
         xbmcPlayer.play(playlist)
 

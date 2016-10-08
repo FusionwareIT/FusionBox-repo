@@ -1,0 +1,23 @@
+{
+    "channel": {
+        "id": "altadefinizioneclick",
+        "name": "Altadefinizioneclick",
+        "active": true,
+        "adult": false,
+        "category": [
+                     "movie",
+                     "vos"
+                    ],
+        "language": "it",
+        "thumbnail": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/altadefinizioneclick.png",
+        "fanart": "",
+        "bannermenu": "https://raw.githubusercontent.com/Zanzibar82/images/master/posters/altadefinizioneclick.png",
+        "update_url": "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/altadefinizioneclick.xml",
+        "version": "4",
+        "changes": "Fix Host",
+        "date": "09/009/2016"
+   },
+   "settings": {
+        "include_in_global_search": true
+   }
+}

@@ -1,9 +1,9 @@
 # -*- coding: iso-8859-1 -*-
-# ------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+#------------------------------------------------------------
+# streamondemand - XBMC Plugin
 # Zip Tools
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
-# ------------------------------------------------------------
+# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
+#------------------------------------------------------------
 import zipfile
 import os
 import os.path

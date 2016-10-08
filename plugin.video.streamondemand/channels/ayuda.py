@@ -11,6 +11,7 @@ from core import config
 from core import logger
 from core.item import Item
 
+
 CHANNELNAME = "ayuda"
 
 def isGeneric():
@@ -44,22 +45,62 @@ def tutoriales(item):
     return playlists(item,"tvalacarta")
 
 def force_creation_advancedsettings(item):
+    logger.info("streamondemand.channels.ayuda force_creation_advancedsettings")
+    import xbmc, xbmcgui, os
 
-    # Ruta del advancedsettings
-    import xbmc,xbmcgui,os
+    # ======================================
+    # Impostazioni
+    # ======================================
+    ram = ['512 Mega', '1 Gb', '2 Gb']
+    opt = ['20971520','157286400', '157286400']
     advancedsettings = xbmc.translatePath("special://userdata/advancedsettings.xml")
+    default = '20971520'
+    valore = default
 
-    # Copia el advancedsettings.xml desde el directorio resources al userdata
-    fichero = open( os.path.join(config.get_runtime_path(),"resources","advancedsettings.xml") )
-    texto = fichero.read()
-    fichero.close()
-    
-    fichero = open(advancedsettings,"w")
-    fichero.write(texto)
-    fichero.close()
-                
-    dialog2 = xbmcgui.Dialog()
-    dialog2.ok("plugin", "E' stato creato un file advancedsettings.xml","con la configurazione ideale per lo streaming.")
+    try:
+        dialog = xbmcgui.Dialog()
+        risp = dialog.select('Scegli settaggio', [ram[0], ram[1], ram[2]])
+        logger.info(str(risp))
+        if risp ==0: valore = opt[0]
+        if risp ==1: valore = opt[1]
+        if risp ==2: valore = opt[2]
+        if risp ==-1: valore = default
+        file = '''<advancedsettings>
+                    <network>
+                        <buffermode>1</buffermode>
+                        <cachemembuffersize>''' + valore + '''</cachemembuffersize>
+                        <readbufferfactor>10</readbufferfactor>
+                        <autodetectpingtime>30</autodetectpingtime>
+                        <curlclienttimeout>60</curlclienttimeout>
+                        <curllowspeedtime>60</curllowspeedtime>
+                        <curlretries>2</curlretries>
+                        <disableipv6>true</disableipv6>
+                    </network>
+                    <gui>
+                        <algorithmdirtyregions>0</algorithmdirtyregions>
+                        <nofliptimeout>0</nofliptimeout>
+                    </gui>
+                        <playlistasfolders1>false</playlistasfolders1>
+                    <audio>
+                        <defaultplayer>dvdplayer</defaultplayer>
+                    </audio>
+                        <imageres>540</imageres>
+                        <fanartres>720</fanartres>
+                        <splash>false</splash>
+                        <handlemounting>0</handlemounting>
+                    <samba>
+                        <clienttimeout>30</clienttimeout>
+                    </samba>
+                </advancedsettings>'''
+        logger.info(file)
+        salva = open(advancedsettings, "w")
+        salva.write(file)
+        salva.close()
+    except:
+        pass
+
+    dialog = xbmcgui.Dialog()
+    dialog.ok("plugin", "E' stato creato un file advancedsettings.xml","con la configurazione ideale per lo streaming.")
 
     return []
 
