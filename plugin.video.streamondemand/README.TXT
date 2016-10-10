@@ -97,7 +97,7 @@ BIOS EEPROM chip with a modified BIOS.
 -- Installation                        --
 -----------------------------------------
 
-pelisalacarta is an XBMC plugin, not an script. It has been tested and works on XBMC, Boxee and Plex.
+streamondemand is an XBMC plugin, not an script. It has been tested and works on XBMC, Boxee and Plex.
 
 To install simply unzip the file inside your video plugin folder.
 
@@ -138,7 +138,7 @@ Library/Application Support/Plex/plugins/video
 
 
 
-After installation go to XBMC, section "Video / Video Plugins" and you will see the pelisalacarta icon.
+After installation go to XBMC, section "Video / Video Plugins" and you will see the streamondemand icon.
 
 ---------------------------------------
 -- Why i do this?                    --
@@ -159,11 +159,11 @@ This way i return a fraction of what I have received.
 Google Code Project Page for downloads
 http://xbmc-tvalacarta.googlecode.com/
  
-My spanish blog about "Televisión a la carta"
+My spanish blog about "Televisiï¿½n a la carta"
 http://blog.tvalacarta.info
 
 Plugin home page
-http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta
+http://www.mimediacenter.info/foro/viewforum.php?f=36
 
 ----------------------------------------
 -- Contact                            --
@@ -184,7 +184,7 @@ Thanks man, your plugins are a source of inspiration.
 
 Special thanks go to the development team, their work is awesome.
 
-ErManitu added the channels "Divxonline" and "Descarga Cine Clásico"
+ErManitu added the channels "Divxonline" and "Descarga Cine Clï¿½sico"
 Bandavi added the trailers, and many channels, including "PeliculasEroticas", "DocumaniaTV", "Peliculas21", ...
 Lily added the great anime channel for "Animeforos" and "CastTV", and the subtitles
 Messi86 from the telebision.com forum made the DocumentalesYonkis plugin, which i converted to a pelisalacarta channel.

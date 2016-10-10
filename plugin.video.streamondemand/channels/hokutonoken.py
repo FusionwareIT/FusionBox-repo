@@ -2,15 +2,15 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canale per I Cavalieri Dello Zodiaco
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
-from servers import servertools
 
 __channel__ = "hokutonoken"
 __category__ = "A"

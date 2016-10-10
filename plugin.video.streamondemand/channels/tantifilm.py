@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para piratestreaming
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 import urlparse
@@ -10,9 +10,9 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "tantifilm"
 __category__ = "F"
@@ -60,6 +60,7 @@ def mainlist(item):
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
+                     extra="movie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
@@ -106,10 +107,10 @@ def search(item, texto):
     item.url = "%s/?s=%s" % (host, texto)
 
     try:
+        if item.extra == "movie":
+            return search_peliculas(item)
         if item.extra == "serie":
             return search_peliculas_tv(item)
-        else:
-            return search_peliculas(item)
 
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
     except:

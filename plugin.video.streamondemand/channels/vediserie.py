@@ -2,16 +2,16 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para vediserie - based on seriehd channel
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "vediserie"
 __category__ = "S"
@@ -46,6 +46,7 @@ def mainlist(item):
                      thumbnail="http://i37.photobucket.com/albums/e88/xzener/NewIcons.png"),
                 Item(channel=__channel__,
                      action="search",
+                     extra="serie",
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
 

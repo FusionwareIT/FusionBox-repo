@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canale per solo-streaming.com
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import json
 import urllib
@@ -11,9 +11,9 @@ from unicodedata import normalize
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "solostreaming"
 __category__ = "S"
@@ -59,8 +59,7 @@ def mainlist(item):
                 Item(channel=__channel__,
                      title="[B][COLOR springgreen][ANIME][/COLOR][/B] [B][COLOR deepskyblue]ULTIMI EPISODI AGGIORNATI[/COLOR][/B]",
                      action="updateserietv",
-                     url="%s/sod/api.php?get=anime&type=elenco&order=multi&days=30&start=0&end=%d" % (
-                         host, result_per_page),
+                     url="%s/sod/api.php?get=anime&type=elenco&order=multi&days=30&start=0&end=%d" % (host, result_per_page),
                      extra="anime",
                      thumbnail="http://solo-streaming.com/images/sod/anime1_225x330.jpg"),
                 Item(channel=__channel__,

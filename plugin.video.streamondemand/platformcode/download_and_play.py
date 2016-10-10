@@ -1,29 +1,47 @@
 # -*- coding: utf-8 -*-
-#------------------------------------------------------------
+# ------------------------------------------------------------
+# streamondemand 5
+# Copyright 2015 tvalacarta@gmail.com
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
+#
+# Distributed under the terms of GNU General Public License v3 (GPLv3)
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ------------------------------------------------------------
+# This file is part of streamondemand 5.
+#
+# streamondemand 5 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# streamondemand 5 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
+# ------------------------------------------------------------
 # Download and play
-#------------------------------------------------------------
-# License: GPL (http://www.gnu.org/licenses/gpl-3.0.html)
 #------------------------------------------------------------
 # Based on code from the Mega add-on (xbmchub.com)
 #---------------------------------------------------------------------------
 
 import os
-import sys
 import re
-import urlparse
-import urllib
-import urllib2
-import locale
+import socket
 import threading
 import time
-import socket
+import urllib
+import urllib2
 
 import xbmc
 import xbmcgui
 
 from core import config
-from core import logger
 from core import downloadtools
+from core import logger
+
 
 # Download a file and start playing while downloading
 def download_and_play(url,file_name,download_path):
@@ -199,7 +217,6 @@ class DownloadThread(threading.Thread):
 
         logger.info("DownloadThread.download_file destino="+self.download_path)
 
-        import subprocess
         os.system( comando+" '"+self.url+ "' \"" + self.download_path+"\"" )
         #p = subprocess.Popen([comando , self.url , self.download_path], cwd=cwd, stdout=subprocess.PIPE , stderr=subprocess.PIPE )
         #out, err = p.communicate()
@@ -223,12 +240,6 @@ class DownloadThread(threading.Thread):
         f = open(self.file_name, 'wb')
         grabado = 0
 
-        # Login y password Filenium
-        # http://abcd%40gmail.com:mipass@filenium.com/get/Oi8vd3d3/LmZpbGVz/ZXJ2ZS5j/b20vZmls/ZS9kTnBL/dm11/b0/?.zip
-        if "filenium" in self.url:
-            from servers import filenium
-            self.url , authorization_header = filenium.extract_authorization_header(self.url)
-            headers.append( [ "Authorization", authorization_header ] )
 
         # Interpreta las cabeceras en una URL como en XBMC
         if "|" in self.url:

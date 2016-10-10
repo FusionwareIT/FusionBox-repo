@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
-# update_servers.py
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# streamondemand - XBMC Plugin
+# update_channels.py
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import glob
 import os

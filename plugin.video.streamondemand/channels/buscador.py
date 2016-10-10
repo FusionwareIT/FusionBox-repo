@@ -1,64 +1,58 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
-# streamondemand.- XBMC Plugin
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# streamondemand - XBMC Plugin
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
-
 import Queue
 import glob
-import imp
 import os
 import re
-import threading
 import time
+from threading import Thread
 
 from core import channeltools
 from core import config
 from core import logger
 from core.item import Item
 from lib.fuzzywuzzy import fuzz
-
-__channel__ = "buscador"
+from platformcode import platformtools
 
 logger.info("streamondemand.channels.buscador init")
 
 DEBUG = config.get_setting("debug")
 
-TIMEOUT_TOTAL = 90
-
-
-def isGeneric():
-    return True
+TIMEOUT_TOTAL = 75
 
 
 def mainlist(item, preferred_thumbnail="squares"):
     logger.info("streamondemand.channels.buscador mainlist")
 
     itemlist = [
-        Item(channel=__channel__,
+        Item(channel=item.channel,
              action="search",
-             category="film",
+             extra="movie",
              thumbnail="http://i.imgur.com/pE5WSZp.png",
              title="[COLOR yellow]Nuova ricerca film...[/COLOR]"),
-        Item(channel=__channel__,
+        Item(channel=item.channel,
              action="search",
-             category="serie",
+             extra="serie",
              thumbnail="http://i.imgur.com/pE5WSZp.png",
              title="[COLOR yellow]Nuova ricerca serie tv...[/COLOR]"),
+        Item(channel=item.channel,
+             thumbnail="http://i.imgur.com/pE5WSZp.png",
+             action="settings",
+             title="[COLOR green]Altre impostazioni[/COLOR]")
     ]
 
-    saved_searches_list = get_saved_searches(item.channel)
+    saved_searches_list = get_saved_searches()
 
     for saved_search_text in saved_searches_list:
-        itemlist.append(
-                Item(channel=__channel__,
-                     action="do_search",
-                     title=' "' + saved_search_text + '"',
-                     extra=saved_search_text))
+        itemlist.append(Item(channel=item.channel, action="do_search", title=' "' + saved_search_text.split('{}')[0] + '"',
+                             extra=saved_search_text))
 
     if len(saved_searches_list) > 0:
         itemlist.append(
-                Item(channel=__channel__,
+                Item(channel=item.channel,
                      action="clear_saved_searches",
                      thumbnail="http://i.imgur.com/pE5WSZp.png",
                      title="[COLOR red]Elimina cronologia ricerche[/COLOR]"))
@@ -66,24 +60,65 @@ def mainlist(item, preferred_thumbnail="squares"):
     return itemlist
 
 
+def settings(item):
+    return platformtools.show_channel_settings()
+
+
+def save_settings(item, dict_values):
+    for v in dict_values:
+        config.set_setting("include_in_global_search", dict_values[v], v)
+
+
 # Al llamar a esta función, el sistema pedirá primero el texto a buscar
 # y lo pasará en el parámetro "tecleado"
 def search(item, tecleado):
     logger.info("streamondemand.channels.buscador search")
 
-    if tecleado != "":
-        save_search(item.channel, tecleado)
+    item.extra = tecleado + '{}' + item.extra
 
-    item.extra = tecleado
+    if tecleado != "":
+        save_search(item.extra)
+
     return do_search(item)
+
+
+def channel_search(queue, channel_parameters, category, tecleado):
+    try:
+        search_results = []
+
+        exec "from channels import " + channel_parameters["channel"] + " as module"
+        mainlist = module.mainlist(Item(channel=channel_parameters["channel"]))
+
+        for item in mainlist:
+            if item.action != "search" or category and item.extra != category:
+                continue
+
+            for res_item in module.search(item.clone(), tecleado):
+                title = res_item.fulltitle
+
+                # Clean up a bit the returned title to improve the fuzzy matching
+                title = re.sub(r'\(.*\)', '', title)  # Anything within ()
+                title = re.sub(r'\[.*\]', '', title)  # Anything within []
+
+                # Check if the found title fuzzy matches the searched one
+                if fuzz.WRatio(tecleado, title) > 85:
+                    res_item.title = "[COLOR azure]" + res_item.title + "[/COLOR][COLOR orange] su [/COLOR][COLOR green]" + channel_parameters["title"] + "[/COLOR]"
+                    search_results.append(res_item)
+
+        queue.put(search_results)
+
+    except:
+        logger.error("No se puede buscar en: " + channel_parameters["title"])
+        import traceback
+        logger.error(traceback.format_exc())
 
 
 # Esta es la función que realmente realiza la búsqueda
 def do_search(item):
+
     logger.info("streamondemand.channels.buscador do_search")
 
-    tecleado = item.extra
-    mostra = tecleado.replace("+", " ")
+    tecleado, category = item.extra.split('{}')
 
     itemlist = []
 
@@ -96,35 +131,12 @@ def do_search(item):
         channel_language = "all"
         logger.info("streamondemand.channels.buscador channel_language=" + channel_language)
 
-    if config.is_xbmc():
-        show_dialog = True
-
-    try:
-        import xbmcgui
-        progreso = xbmcgui.DialogProgressBG()
-        progreso.create("Ricerca di " + mostra.title())
-    except:
-        show_dialog = False
-
-    def worker(infile, queue):
-        channel_result_itemlist = []
-        try:
-            basename_without_extension = os.path.basename(infile)[:-4]
-            # http://docs.python.org/library/imp.html?highlight=imp#module-imp
-            obj = imp.load_source(basename_without_extension, infile[:-4]+".py")
-            logger.info("streamondemand.channels.buscador cargado " + basename_without_extension + " de " + infile)
-            channel_result_itemlist.extend(obj.search(Item(extra=item.category), tecleado))
-            for local_item in channel_result_itemlist:
-                local_item.title = " [COLOR azure] " + local_item.title + " [/COLOR] [COLOR orange]su[/COLOR] [COLOR green]" + basename_without_extension + "[/COLOR]"
-                local_item.viewmode = "list"
-        except:
-            import traceback
-            logger.error(traceback.format_exc())
-        queue.put(channel_result_itemlist)
-
+    progreso = platformtools.dialog_progress_bg("Cercando " + tecleado, "")
     channel_files = glob.glob(channels_path)
 
-    channel_files_tmp = []
+    number_of_channels = 0
+    search_results = Queue.Queue()
+
     for infile in channel_files:
 
         basename_without_extension = os.path.basename(infile)[:-4]
@@ -135,8 +147,8 @@ def do_search(item):
         if channel_parameters["active"] != "true":
             continue
 
-        # No busca si es un canal excluido de la busqueda global
-        if channel_parameters["include_in_global_search"] != "true":
+        # En caso de busqueda por categorias
+        if category and category not in channel_parameters["categories"]:
             continue
 
         # No busca si es un canal para adultos, y el modo adulto está desactivado
@@ -147,20 +159,21 @@ def do_search(item):
         if channel_language != "all" and channel_parameters["language"] != channel_language:
             continue
 
-        channel_files_tmp.append(infile)
+        # No busca si es un canal excluido de la busqueda global
+        include_in_global_search = channel_parameters["include_in_global_search"]
+        if include_in_global_search == "":
+            # Buscar en la configuracion del canal
+            include_in_global_search = str(config.get_setting("include_in_global_search", basename_without_extension))
+        if include_in_global_search.lower() != "true":
+            continue
 
-    channel_files = channel_files_tmp
-
-    result = Queue.Queue()
-    threads = [threading.Thread(target=worker, args=(infile, result)) for infile in channel_files]
+        t = Thread(target=channel_search, args=[search_results, channel_parameters, category, tecleado])
+        t.setDaemon(True)
+        t.start()
+        number_of_channels += 1
 
     start_time = int(time.time())
 
-    for t in threads:
-        t.daemon = True  # NOTE: setting dameon to True allows the main thread to exit even if there are threads still running
-        t.start()
-
-    number_of_channels = len(channel_files)
     completed_channels = 0
     while completed_channels < number_of_channels:
 
@@ -172,75 +185,39 @@ def do_search(item):
         else:
             timeout = TIMEOUT_TOTAL - delta_time  # Still time to gather other results
 
-        if show_dialog:
-            progreso.update(completed_channels * 100 / number_of_channels)
+        progreso.update(completed_channels * 100 / number_of_channels)
 
         try:
-            result_itemlist = result.get(timeout=timeout)
+            itemlist.extend(search_results.get(timeout=timeout))
             completed_channels += 1
         except:
             # Expired timeout raise an exception
             break
 
-        for item in result_itemlist:
-            title = item.fulltitle
-
-            # Clean up a bit the returned title to improve the fuzzy matching
-            title = re.sub(r'\(.*\)', '', title)  # Anything within ()
-            title = re.sub(r'\[.*\]', '', title)  # Anything within []
-
-            # Check if the found title fuzzy matches the searched one
-            if fuzz.WRatio(mostra, title) > 85: itemlist.append(item)
-
-    if show_dialog:
-        progreso.close()
+    progreso.close()
 
     itemlist = sorted(itemlist, key=lambda item: item.fulltitle)
 
     return itemlist
 
 
-def save_search(channel, text):
-    saved_searches_limit = (10, 20, 30, 40,)[int(config.get_setting("saved_searches_limit"))]
+def save_search(text):
+    saved_searches_limit = int((10, 20, 30, 40,)[int(config.get_setting("saved_searches_limit", "buscador"))])
 
-    if os.path.exists(os.path.join(config.get_data_path(), "saved_searches.txt")):
-        f = open(os.path.join(config.get_data_path(), "saved_searches.txt"), "r")
-        saved_searches_list = f.readlines()
-        f.close()
-    else:
-        saved_searches_list = []
+    saved_searches_list = list(config.get_setting("saved_searches_list", "buscador"))
 
-    saved_searches_list.append(text)
+    if text in saved_searches_list:
+        saved_searches_list.remove(text)
 
-    if len(saved_searches_list) >= saved_searches_limit:
-        # Corta la lista por el principio, eliminando los más recientes
-        saved_searches_list = saved_searches_list[-saved_searches_limit:]
+    saved_searches_list.insert(0, text)
 
-    f = open(os.path.join(config.get_data_path(), "saved_searches.txt"), "w")
-    for saved_search in saved_searches_list:
-        f.write(saved_search + "\n")
-    f.close()
+    config.set_setting("saved_searches_list", saved_searches_list[:saved_searches_limit], "buscador")
 
 
 def clear_saved_searches(item):
-    f = open(os.path.join(config.get_data_path(), "saved_searches.txt"), "w")
-    f.write("")
-    f.close()
+    config.set_setting("saved_searches_list", list(), "buscador")
+    platformtools.dialog_ok("Ricerca", "Ricerche cancellate correttamente")
 
 
-def get_saved_searches(channel):
-    if os.path.exists(os.path.join(config.get_data_path(), "saved_searches.txt")):
-        f = open(os.path.join(config.get_data_path(), "saved_searches.txt"), "r")
-        saved_searches_list = f.readlines()
-        f.close()
-    else:
-        saved_searches_list = []
-
-    # Invierte la lista, para que el último buscado salga el primero
-    saved_searches_list.reverse()
-
-    trimmed = []
-    for saved_search_text in saved_searches_list:
-        trimmed.append(saved_search_text.strip())
-
-    return trimmed
+def get_saved_searches():
+    return list(config.get_setting("saved_searches_list", "buscador"))

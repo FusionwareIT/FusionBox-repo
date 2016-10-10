@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para 1fichier
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
+import urllib
 
-from core import scrapertools
-from core import logger
 from core import config
+from core import logger
+from core import scrapertools
 
 def test_video_exists( page_url ):
     return True,""

@@ -1,20 +1,29 @@
-﻿#------------------------------------------------------------
-# -*- coding: utf-8 -*-
-#------------------------------------------------------------
-# Download Tools
-# Based on the code from VideoMonkey XBMC Plugin
-#------------------------------------------------------------
-# streamondemand
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
-#------------------------------------------------------------
-# Creado por:
-# Jesús (tvalacarta@gmail.com)
-# jurrabi (jurrabi@gmail.com)
-# bandavi (xbandavix@gmail.com)
-# Licencia: GPL (http://www.gnu.org/licenses/gpl-3.0.html)
-#------------------------------------------------------------
-# Historial de cambios:
-#------------------------------------------------------------
+﻿# -*- coding: utf-8 -*-
+# ------------------------------------------------------------
+# streamondemand 5
+# Copyright 2015 tvalacarta@gmail.com
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
+#
+# Distributed under the terms of GNU General Public License v3 (GPLv3)
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ------------------------------------------------------------
+# This file is part of streamondemand 5.
+#
+# streamondemand 5 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# streamondemand 5 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
+# --------------------------------------------------------------------------------
+# Scraper tools for reading and processing web elements
+# --------------------------------------------------------------------------------
 
 import StringIO
 import gzip
@@ -38,16 +47,22 @@ CACHE_ACTIVA = "0"  # Automatica
 CACHE_SIEMPRE = "1" # Cachear todo
 CACHE_NUNCA = "2"   # No cachear nada
 
+DEFAULT_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0'
+DEFAULT_HEADERS = [['User-Agent', DEFAULT_USER_AGENT]]
+
 CACHE_PATH = config.get_setting("cache.dir")
+COOKIES_PATH = os.path.join(config.get_data_path(), "cookies")
+if not os.path.exists(COOKIES_PATH):
+  os.mkdir(COOKIES_PATH)
 
 DEFAULT_TIMEOUT = 20
 
 DEBUG = False
 
-def cache_page(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],modo_cache=CACHE_ACTIVA, timeout=DEFAULT_TIMEOUT):
+def cache_page(url,post=None,headers=DEFAULT_HEADERS,modo_cache=CACHE_ACTIVA, timeout=DEFAULT_TIMEOUT):
     return cachePage(url,post,headers,modo_cache,timeout=timeout)
 
-def cachePage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],modoCache=CACHE_ACTIVA, timeout=DEFAULT_TIMEOUT):
+def cachePage(url,post=None,headers=DEFAULT_HEADERS,modoCache=CACHE_ACTIVA, timeout=DEFAULT_TIMEOUT):
     logger.info("streamondemand.core.scrapertools cachePage url="+url)
 
     # Cache desactivada
@@ -66,33 +81,33 @@ def cachePage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; 
             import sys
             for line in sys.exc_info():
                 logger.error( "%s" % line )
-        
+
         return data
     '''
     # CACHE_NUNCA: Siempre va a la URL a descargar
     # obligatorio para peticiones POST
     if modoCache == CACHE_NUNCA or post is not None:
         logger.info("streamondemand.core.scrapertools MODO_CACHE=2 (no cachear)")
-        
+
         try:
             data = downloadpage(url,post,headers, timeout=timeout)
         except:
             data=""
-    
+
     # CACHE_SIEMPRE: Siempre descarga de cache, sin comprobar fechas, excepto cuando no está
     elif modoCache == CACHE_SIEMPRE:
         logger.info("streamondemand.core.scrapertools MODO_CACHE=1 (cachear todo)")
-        
+
         # Obtiene los handlers del fichero en la cache
         cachedFile, newFile = getCacheFileNames(url)
-    
+
         # Si no hay ninguno, descarga
         if cachedFile == "":
-            logger.debug("[scrapertools.py] No está en cache")
-    
+            logger.info("streamondemand.core.scrapertools No está en cache")
+
             # Lo descarga
             data = downloadpage(url,post,headers)
-    
+
             # Lo graba en cache
             outfile = open(newFile,"w")
             outfile.write(data)
@@ -104,48 +119,48 @@ def cachePage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; 
             infile = open( cachedFile )
             data = infile.read()
             infile.close()
-    
+
     # CACHE_ACTIVA: Descarga de la cache si no ha cambiado
     else:
         logger.info("streamondemand.core.scrapertools MODO_CACHE=0 (automática)")
-        
+
         # Datos descargados
         data = ""
-        
+
         # Obtiene los handlers del fichero en la cache
         cachedFile, newFile = getCacheFileNames(url)
-    
+
         # Si no hay ninguno, descarga
         if cachedFile == "":
-            logger.debug("[scrapertools.py] No está en cache")
-    
+            logger.info("streamondemand.core.scrapertools No está en cache")
+
             # Lo descarga
             data = downloadpage(url,post,headers)
-            
+
             # Lo graba en cache
             outfile = open(newFile,"w")
             outfile.write(data)
             outfile.flush()
             outfile.close()
             logger.info("streamondemand.core.scrapertools Grabado a " + newFile)
-    
+
         # Si sólo hay uno comprueba el timestamp (hace una petición if-modified-since)
         else:
             # Extrae el timestamp antiguo del nombre del fichero
             oldtimestamp = time.mktime( time.strptime(cachedFile[-20:-6], "%Y%m%d%H%M%S") )
-    
+
             logger.info("streamondemand.core.scrapertools oldtimestamp="+cachedFile[-20:-6])
             logger.info("streamondemand.core.scrapertools oldtimestamp="+time.ctime(oldtimestamp))
-            
+
             # Hace la petición
             updated,data = downloadtools.downloadIfNotModifiedSince(url,oldtimestamp)
-            
+
             # Si ha cambiado
             if updated:
                 # Borra el viejo
-                logger.debug("[scrapertools.py] Borrando "+cachedFile)
+                logger.info("streamondemand.core.scrapertools Borrando "+cachedFile)
                 os.remove(cachedFile)
-                
+
                 # Graba en cache el nuevo
                 outfile = open(newFile,"w")
                 outfile.write(data)
@@ -165,46 +180,46 @@ def getCacheFileNames(url):
 
     # Obtiene el directorio de la cache para esta url
     siteCachePath = getSiteCachePath(url)
-        
+
     # Obtiene el ID de la cache (md5 de la URL)
     cacheId = get_md5(url)
-        
-    logger.debug("[scrapertools.py] cacheId="+cacheId)
+
+    logger.info("streamondemand.core.scrapertools cacheId="+cacheId)
 
     # Timestamp actual
     nowtimestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-    logger.debug("[scrapertools.py] nowtimestamp="+nowtimestamp)
+    logger.info("streamondemand.core.scrapertools nowtimestamp="+nowtimestamp)
 
     # Nombre del fichero
     # La cache se almacena en una estructura CACHE + URL
     ruta = os.path.join( siteCachePath , cacheId[:2] , cacheId[2:] )
     newFile = os.path.join( ruta , nowtimestamp + ".cache" )
-    logger.debug("[scrapertools.py] newFile="+newFile)
+    logger.info("streamondemand.core.scrapertools newFile="+newFile)
     if not os.path.exists(ruta):
         os.makedirs( ruta )
 
     # Busca ese fichero en la cache
     cachedFile = getCachedFile(siteCachePath,cacheId)
 
-    return cachedFile, newFile 
+    return cachedFile, newFile
 
 # Busca ese fichero en la cache
 def getCachedFile(siteCachePath,cacheId):
     mascara = os.path.join(siteCachePath,cacheId[:2],cacheId[2:],"*.cache")
-    logger.debug("[scrapertools.py] mascara="+mascara)
+    logger.info("streamondemand.core.scrapertools mascara="+mascara)
     import glob
     ficheros = glob.glob( mascara )
-    logger.debug("[scrapertools.py] Hay %d ficheros con ese id" % len(ficheros))
+    logger.info("streamondemand.core.scrapertools Hay %d ficheros con ese id" % len(ficheros))
 
     cachedFile = ""
 
     # Si hay más de uno, los borra (serán pruebas de programación) y descarga de nuevo
     if len(ficheros)>1:
-        logger.debug("[scrapertools.py] Cache inválida")
+        logger.info("streamondemand.core.scrapertools Cache inválida")
         for fichero in ficheros:
-            logger.debug("[scrapertools.py] Borrando "+fichero)
+            logger.info("streamondemand.core.scrapertools Borrando "+fichero)
             os.remove(fichero)
-        
+
         cachedFile = ""
 
     # Hay uno: fichero cacheado
@@ -214,16 +229,16 @@ def getCachedFile(siteCachePath,cacheId):
     return cachedFile
 
 def getSiteCachePath(url):
-    # Obtiene el dominio principal de la URL    
+    # Obtiene el dominio principal de la URL
     dominio = urlparse.urlparse(url)[1]
-    logger.debug("[scrapertools.py] dominio="+dominio)
+    logger.info("streamondemand.core.scrapertools dominio="+dominio)
     nombres = dominio.split(".")
     if len(nombres)>1:
         dominio = nombres[len(nombres)-2]+"."+nombres[len(nombres)-1]
     else:
         dominio = nombres[0]
-    logger.debug("[scrapertools.py] dominio="+dominio)
-    
+    logger.info("streamondemand.core.scrapertools dominio="+dominio)
+
     # Crea un directorio en la cache para direcciones de ese dominio
     siteCachePath = os.path.join( CACHE_PATH , dominio )
     if not os.path.exists(CACHE_PATH):
@@ -237,8 +252,8 @@ def getSiteCachePath(url):
             os.mkdir( siteCachePath )
         except:
             logger.error("[scrapertools.py] Error al crear directorio "+siteCachePath)
-    
-    logger.debug("[scrapertools.py] siteCachePath="+siteCachePath)
+
+    logger.info("streamondemand.core.scrapertools siteCachePath="+siteCachePath)
 
     return siteCachePath
 
@@ -278,13 +293,13 @@ def cachePagePost(url,post):
     logger.info("Descargando " + url)
     inicio = time.clock()
     req = urllib2.Request(url,post)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+    req.add_header('User-Agent', DEFAULT_USER_AGENT)
 
     try:
         response = urllib2.urlopen(req)
     except:
         req = urllib2.Request(url.replace(" ","%20"),post)
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+        req.add_header('User-Agent', DEFAULT_USER_AGENT)
         response = urllib2.urlopen(req)
     data=response.read()
     response.close()
@@ -311,21 +326,24 @@ class NoRedirectHandler(urllib2.HTTPRedirectHandler):
     http_error_303 = http_error_302
     http_error_307 = http_error_302
 
-def downloadpage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],follow_redirects=True, timeout=DEFAULT_TIMEOUT, header_to_get=None):
+def downloadpage(url,post=None,headers=DEFAULT_HEADERS,follow_redirects=True, timeout=DEFAULT_TIMEOUT, header_to_get=None):
     logger.info("streamondemand.core.scrapertools downloadpage")
     logger.info("streamondemand.core.scrapertools url="+url)
-    
+
     if post is not None:
         logger.info("streamondemand.core.scrapertools post="+post)
     else:
         logger.info("streamondemand.core.scrapertools post=None")
-    
+
     # ---------------------------------
     # Instala las cookies
     # ---------------------------------
 
     #  Inicializa la librería de las cookies
-    ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+    #ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+
+    dominio = urlparse.urlparse(url)[1].replace("www.", "")
+    ficherocookies = os.path.join(COOKIES_PATH, dominio + ".dat" )
     logger.info("streamondemand.core.scrapertools ficherocookies="+ficherocookies)
 
     cj = None
@@ -424,7 +442,7 @@ def downloadpage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; 
         logger.info("streamondemand.core.scrapertools petición GET")
     else:
         logger.info("streamondemand.core.scrapertools petición POST")
-    
+
     # Añade las cabeceras
     logger.info("streamondemand.core.scrapertools ---------------------------")
     for header in headers:
@@ -438,15 +456,15 @@ def downloadpage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; 
         if timeout is None:
             logger.info("streamondemand.core.scrapertools Peticion sin timeout")
             handle=urlopen(req)
-        else:        
+        else:
             logger.info("streamondemand.core.scrapertools Peticion con timeout")
             #Para todas las versiones:
             deftimeout = socket.getdefaulttimeout()
             socket.setdefaulttimeout(timeout)
-            handle=urlopen(req)            
+            handle=urlopen(req)
             socket.setdefaulttimeout(deftimeout)
         logger.info("streamondemand.core.scrapertools ...hecha")
-        
+
         # Actualiza el almacén de cookies
         logger.info("streamondemand.core.scrapertools Grabando cookies...")
         cj.save(ficherocookies,ignore_discard=True) #  ,ignore_expires=True
@@ -495,14 +513,14 @@ def downloadpage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; 
     # Si falla la repite sustituyendo caracteres especiales
     except:
         req = urllib2.Request(url.replace(" ","%20"))
-    
+
         # Añade las cabeceras
         for header in headers:
             req.add_header(header[0],header[1])
 
         response = urllib2.urlopen(req)
     '''
-    
+
     # Tiempo transcurrido
     fin = time.clock()
     logger.info("streamondemand.core.scrapertools Descargado en %d segundos " % (fin-inicio+1))
@@ -544,7 +562,10 @@ def downloadpagewithcookies(url):
     # ---------------------------------
 
     #  Inicializa la librería de las cookies
-    ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+    #ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+
+    dominio = urlparse.urlparse(url)[1].replace("www.", "")
+    ficherocookies = os.path.join(COOKIES_PATH, dominio + ".dat" )
     logger.info("streamondemand.core.scrapertools Cookiefile="+ficherocookies)
 
     cj = None
@@ -612,10 +633,10 @@ def downloadpagewithcookies(url):
     # an example url that sets a cookie,
     # try different urls here and see the cookie collection you can make !
 
-    #txheaders =  {'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3',
+    #txheaders =  {'User-Agent':DEFAULT_USER_AGENT,
     #              'Referer':'http://www.megavideo.com/?s=signup'}
     txheaders =  {
-    'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3',
+    'User-Agent':DEFAULT_USER_AGENT,
     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Host':'www.meristation.com',
     'Accept-Language':'es-es,es;q=0.8,en-us;q=0.5,en;q=0.3',
@@ -633,18 +654,18 @@ def downloadpagewithcookies(url):
     handle.close()
 
     return data
-    
+
 def downloadpageWithoutCookies(url):
     logger.info("streamondemand.core.scrapertools Descargando " + url)
     inicio = time.clock()
     req = urllib2.Request(url)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 6.0; es-ES; rv:1.9.0.14) Gecko/2009082707 Firefox/3.0.14')
+    req.add_header('User-Agent', DEFAULT_USER_AGENT)
     req.add_header('X-Requested-With','XMLHttpRequest')
     try:
         response = urllib2.urlopen(req)
     except:
         req = urllib2.Request(url.replace(" ","%20"))
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 6.0; es-ES; rv:1.9.0.14) Gecko/2009082707 Firefox/3.0.14')
+        req.add_header('User-Agent', DEFAULT_USER_AGENT)
 
         response = urllib2.urlopen(req)
     data=response.read()
@@ -652,15 +673,18 @@ def downloadpageWithoutCookies(url):
     fin = time.clock()
     logger.info("streamondemand.core.scrapertools Descargado en %d segundos " % (fin-inicio+1))
     return data
-    
+
 
 def downloadpageGzip(url):
-    
+
     #  Inicializa la librería de las cookies
-    ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+    #ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+
+    dominio = urlparse.urlparse(url)[1].replace("www.", "")
+    ficherocookies = os.path.join(COOKIES_PATH, dominio + ".dat" )
     logger.info("Cookiefile="+ficherocookies)
     inicio = time.clock()
-    
+
     cj = None
     ClientCookie = None
     cookielib = None
@@ -730,14 +754,14 @@ def downloadpageGzip(url):
     # an example url that sets a cookie,
     # try different urls here and see the cookie collection you can make !
 
-    #txheaders =  {'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3',
+    #txheaders =  {'User-Agent':DEFAULT_USER_AGENT,
     #              'Referer':'http://www.megavideo.com/?s=signup'}
 
     parsedurl = urlparse.urlparse(url)
     logger.info("parsedurl="+str(parsedurl))
-        
+
     txheaders =  {
-    'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3',
+    'User-Agent':DEFAULT_USER_AGENT,
     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language':'es-es,es;q=0.8,en-us;q=0.5,en;q=0.3',
     'Accept-Charset':'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
@@ -755,10 +779,10 @@ def downloadpageGzip(url):
 
     data=handle.read()
     handle.close()
-    
+
     fin = time.clock()
     logger.info("streamondemand.core.scrapertools Descargado 'Gzipped data' en %d segundos " % (fin-inicio+1))
-        
+
     # Descomprime el archivo de datos Gzip
     try:
         fin = inicio
@@ -779,7 +803,7 @@ def printMatches(matches):
     for match in matches:
         logger.info("streamondemand.core.scrapertools %d %s" % (i , match))
         i = i + 1
-        
+
 def get_match(data,patron,index=0):
     matches = re.findall( patron , data , flags=re.DOTALL )
     return matches[index]
@@ -799,7 +823,7 @@ def entityunescape(cadena):
     return unescape(cadena)
 
 def unescape(text):
-    """Removes HTML or XML character references 
+    """Removes HTML or XML character references
        and entities from a text string.
        keep &amp;, &gt;, &lt; in the source code.
     from Fredrik Lundh
@@ -810,11 +834,11 @@ def unescape(text):
         if text[:2] == "&#":
             # character reference
             try:
-                if text[:3] == "&#x":   
+                if text[:3] == "&#x":
                     return unichr(int(text[3:-1], 16)).encode("utf-8")
                 else:
                     return unichr(int(text[2:-1])).encode("utf-8")
-                  
+
             except ValueError:
                 logger.info("error de valor")
                 pass
@@ -859,9 +883,9 @@ def decodeHtmlentities(string):
                 return unichr(cp).encode('utf-8')
             else:
                 return match.group()
-                
+
     return entity_re.subn(substitute_entity, string)[0]
-    
+
 def entitiesfix(string):
     # Las entidades comienzan siempre con el símbolo & , y terminan con un punto y coma ( ; ).
     string = string.replace("&aacute","&aacute;")
@@ -896,7 +920,7 @@ def htmlclean(cadena):
     cadena = cadena.replace("</u>","")
     cadena = cadena.replace("<li>","")
     cadena = cadena.replace("</li>","")
-    cadena = cadena.replace("<tbody>","")
+    cadena = cadena.replace("<turl>","")
     cadena = cadena.replace("</tbody>","")
     cadena = cadena.replace("<tr>","")
     cadena = cadena.replace("</tr>","")
@@ -917,16 +941,16 @@ def htmlclean(cadena):
     cadena = re.compile("<i[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</iframe>","")
     cadena = cadena.replace("</i>","")
-    
+
     cadena = re.compile("<table[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</table>","")
-    
+
     cadena = re.compile("<td[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</td>","")
-    
+
     cadena = re.compile("<div[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</div>","")
-    
+
     cadena = re.compile("<dd[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</dd>","")
 
@@ -935,7 +959,7 @@ def htmlclean(cadena):
 
     cadena = re.compile("<font[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</font>","")
-    
+
     cadena = re.compile("<strong[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</strong>","")
 
@@ -947,16 +971,16 @@ def htmlclean(cadena):
 
     cadena = re.compile("<a[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</a>","")
-    
+
     cadena = re.compile("<p[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</p>","")
 
     cadena = re.compile("<ul[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</ul>","")
-    
+
     cadena = re.compile("<h1[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</h1>","")
-    
+
     cadena = re.compile("<h2[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</h2>","")
 
@@ -967,9 +991,9 @@ def htmlclean(cadena):
     cadena = cadena.replace("</h4>","")
 
     cadena = re.compile("<!--[^-]+-->",re.DOTALL).sub("",cadena)
-    
+
     cadena = re.compile("<img[^>]*>",re.DOTALL).sub("",cadena)
-    
+
     cadena = re.compile("<object[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</object>","")
     cadena = re.compile("<param[^>]*>",re.DOTALL).sub("",cadena)
@@ -988,9 +1012,9 @@ def htmlclean(cadena):
 
 
 def slugify(title):
-    
+
     #print title
-    
+
     # Sustituye acentos y eñes
     title = title.replace("Á","a")
     title = title.replace("É","e")
@@ -1022,23 +1046,23 @@ def slugify(title):
     # Pasa a minúsculas
     title = title.lower().strip()
 
-    # Elimina caracteres no válidos 
+    # Elimina caracteres no válidos
     validchars = "abcdefghijklmnopqrstuvwxyz1234567890- "
     title = ''.join(c for c in title if c in validchars)
 
     # Sustituye espacios en blanco duplicados y saltos de línea
     title = re.compile("\s+",re.DOTALL).sub(" ",title)
-    
+
     # Sustituye espacios en blanco por guiones
     title = re.compile("\s",re.DOTALL).sub("-",title.strip())
 
     # Sustituye espacios en blanco duplicados y saltos de línea
     title = re.compile("\-+",re.DOTALL).sub("-",title)
-    
+
     # Arregla casos especiales
     if title.startswith("-"):
         title = title [1:]
-    
+
     if title=="":
         title = "-"+str(time.time())
 
@@ -1059,14 +1083,14 @@ def remove_show_from_title(title,show):
 
         if title.startswith("-"):
             title = title[ 1: ].strip()
-    
+
         if title=="":
             title = str( time.time() )
-        
+
         # Vuelve a utf-8
         title = title.encode("utf-8","ignore")
         show = show.encode("utf-8","ignore")
-    
+
     return title
 
 def getRandom(str):
@@ -1075,7 +1099,7 @@ def getRandom(str):
 def getLocationHeaderFromResponse(url):
     return get_header_from_response(url,header_to_get="location")
 
-def get_header_from_response(url,header_to_get="",post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']]):
+def get_header_from_response(url,header_to_get="",post=None,headers=DEFAULT_HEADERS):
     header_to_get = header_to_get.lower()
     logger.info("streamondemand.core.scrapertools get_header_from_response url="+url+", header_to_get="+header_to_get)
 
@@ -1083,9 +1107,12 @@ def get_header_from_response(url,header_to_get="",post=None,headers=[['User-Agen
         logger.info("streamondemand.core.scrapertools post="+post)
     else:
         logger.info("streamondemand.core.scrapertools post=None")
-    
+
     #  Inicializa la librería de las cookies
-    ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+    #ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+
+    dominio = urlparse.urlparse(url)[1].replace("www.", "")
+    ficherocookies = os.path.join(COOKIES_PATH, dominio + ".dat" )
     logger.info("streamondemand.core.scrapertools ficherocookies="+ficherocookies)
 
     cj = None
@@ -1128,14 +1155,7 @@ def get_header_from_response(url,header_to_get="",post=None,headers=[['User-Agen
         logger.info("streamondemand.core.scrapertools petición GET")
     else:
         logger.info("streamondemand.core.scrapertools petición POST")
-    
-    # Login y password Filenium
-    # http://abcd%40gmail.com:mipass@filenium.com/get/Oi8vd3d3/LmZpbGVz/ZXJ2ZS5j/b20vZmls/ZS9kTnBL/dm11/b0/?.zip
-    if "filenium" in url:
-        from servers import filenium
-        url , authorization_header = filenium.extract_authorization_header(url)
-        headers.append( [ "Authorization",authorization_header ] )
-    
+
     # Array de cabeceras
     logger.info("streamondemand.core.scrapertools ---------------------------")
     for header in headers:
@@ -1146,7 +1166,7 @@ def get_header_from_response(url,header_to_get="",post=None,headers=[['User-Agen
     # Construye el request
     req = Request(url, post, txheaders)
     handle = urlopen(req)
-    
+
     # Actualiza el almacén de cookies
     cj.save(ficherocookies)
 
@@ -1169,7 +1189,7 @@ def get_header_from_response(url,header_to_get="",post=None,headers=[['User-Agen
 
     return location_header
 
-def get_headers_from_response(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']]):
+def get_headers_from_response(url,post=None,headers=DEFAULT_HEADERS):
     return_headers = []
     logger.info("streamondemand.core.scrapertools get_headers_from_response url="+url)
 
@@ -1177,9 +1197,12 @@ def get_headers_from_response(url,post=None,headers=[['User-Agent', 'Mozilla/5.0
         logger.info("streamondemand.core.scrapertools post="+post)
     else:
         logger.info("streamondemand.core.scrapertools post=None")
-    
+
     #  Inicializa la librería de las cookies
-    ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+    #ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+
+    dominio = urlparse.urlparse(url)[1].replace("www.", "")
+    ficherocookies = os.path.join(COOKIES_PATH, dominio + ".dat" )
     logger.info("streamondemand.core.scrapertools ficherocookies="+ficherocookies)
 
     cj = None
@@ -1218,32 +1241,32 @@ def get_headers_from_response(url,post=None,headers=[['User-Agent', 'Mozilla/5.0
         logger.info("streamondemand.core.scrapertools petición GET")
     else:
         logger.info("streamondemand.core.scrapertools petición POST")
-    
+
     # Array de cabeceras
-    logger.info("streamondemand.core.scrapertools ---------------------------")
+    if DEBUG_LEVEL: logger.info("streamondemand.core.scrapertools ---------------------------")
     for header in headers:
-        logger.info("streamondemand.core.scrapertools header=%s" % str(header[0]))
+        if DEBUG_LEVEL: logger.info("streamondemand.core.scrapertools header=%s" % str(header[0]))
         txheaders[header[0]]=header[1]
-    logger.info("streamondemand.core.scrapertools ---------------------------")
+    if DEBUG_LEVEL: logger.info("streamondemand.core.scrapertools ---------------------------")
 
     # Construye el request
     req = Request(url, post, txheaders)
     handle = urlopen(req)
-    
+
     # Actualiza el almacén de cookies
     cj.save(ficherocookies)
 
     # Lee los datos y cierra
     #data=handle.read()
     info = handle.info()
-    logger.info("streamondemand.core.scrapertools Respuesta")
-    logger.info("streamondemand.core.scrapertools ---------------------------")
+    if DEBUG_LEVEL: logger.info("streamondemand.core.scrapertools Respuesta")
+    if DEBUG_LEVEL: logger.info("streamondemand.core.scrapertools ---------------------------")
     location_header=""
     for header in info:
-        logger.info("streamondemand.core.scrapertools "+header+"="+info[header])
+        if DEBUG_LEVEL: logger.info("streamondemand.core.scrapertools "+header+"="+info[header])
         return_headers.append( [header,info[header]] )
     handle.close()
-    logger.info("streamondemand.core.scrapertools ---------------------------")
+    if DEBUG_LEVEL: logger.info("streamondemand.core.scrapertools ---------------------------")
 
     # Tiempo transcurrido
     fin = time.clock()
@@ -1268,7 +1291,7 @@ def unseo(cadena):
 
 #scrapertools.get_filename_from_url(media_url)[-4:]
 def get_filename_from_url(url):
-    
+
     import urlparse
     parsed_url = urlparse.urlparse(url)
     try:
@@ -1286,7 +1309,7 @@ def get_filename_from_url(url):
     return filename
 
 def get_domain_from_url(url):
-    
+
     import urlparse
     parsed_url = urlparse.urlparse(url)
     try:
@@ -1310,7 +1333,7 @@ def get_season_and_episode(title):
     filename=matches[0][0]+"x"+matches[0][1]
 
     logger.info("get_season_and_episode('"+title+"') -> "+filename)
-    
+
     return filename
 
 def get_sha1(cadena):
@@ -1321,7 +1344,7 @@ def get_sha1(cadena):
         import sha
         import binascii
         devuelve = binascii.hexlify(sha.new(cadena).digest())
-    
+
     return devuelve
 
 def get_md5(cadena):
@@ -1332,7 +1355,7 @@ def get_md5(cadena):
         import md5
         import binascii
         devuelve = binascii.hexlify(md5.new(cadena).digest())
-    
+
     return devuelve
 
 def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, timeout=None):
@@ -1342,10 +1365,13 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
         logger.info("read_body_and_headers post="+post)
 
     if len(headers)==0:
-        headers.append(["User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:18.0) Gecko/20100101 Firefox/18.0"])
+        headers.append(["User-Agent",DEFAULT_USER_AGENT])
 
     # Start cookie lib
-    ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+    #ficherocookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+
+    dominio = urlparse.urlparse(url)[1].replace("www.", "")
+    ficherocookies = os.path.join(COOKIES_PATH, dominio + ".dat" )
     logger.info("read_body_and_headers cookies_file="+ficherocookies)
 
     cj = None
@@ -1436,7 +1462,7 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
         logger.info("read_body_and_headers GET request")
     else:
         logger.info("read_body_and_headers POST request")
-    
+
     # Añade las cabeceras
     logger.info("read_body_and_headers ---------------------------")
     for header in headers:
@@ -1447,20 +1473,20 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
     req = Request(url, post, txheaders)
     if timeout is None:
         handle=urlopen(req)
-    else:        
+    else:
         #Disponible en python 2.6 en adelante --> handle = urlopen(req, timeout=timeout)
         #Para todas las versiones:
         try:
             import socket
             deftimeout = socket.getdefaulttimeout()
             socket.setdefaulttimeout(timeout)
-            handle=urlopen(req)            
+            handle=urlopen(req)
             socket.setdefaulttimeout(deftimeout)
         except:
             import sys
             for line in sys.exc_info():
                 logger.info( "%s" % line )
-    
+
     # Actualiza el almacén de cookies
     cj.save(ficherocookies)
 
@@ -1490,21 +1516,20 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
     # Si falla la repite sustituyendo caracteres especiales
     except:
         req = urllib2.Request(url.replace(" ","%20"))
-    
+
         # Añade las cabeceras
         for header in headers:
             req.add_header(header[0],header[1])
 
         response = urllib2.urlopen(req)
     '''
-    
+
     # Tiempo transcurrido
     fin = time.clock()
     logger.info("read_body_and_headers Downloaded in %d seconds " % (fin-inicio+1))
     logger.info("read_body_and_headers body="+data)
 
     return data,returnheaders
-
 
 def internet(host="8.8.8.8", port=53, timeout=3):
     """
@@ -1543,7 +1568,7 @@ def parseJSString(s):
         pass
 
 
-def anti_cloudflare(url, headers):
+def anti_cloudflare(url, headers=DEFAULT_HEADERS):
     result = cache_page(url, headers=headers)
     try:
         jschl = re.compile('name="jschl_vc" value="(.+?)"/>').findall(result)[0]

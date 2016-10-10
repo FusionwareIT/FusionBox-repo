@@ -1,18 +1,16 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para junkyvideo
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
+import urllib
+import urllib2
 
-from core import scrapertools
 from core import logger
-from core import config
-
-
+from core import scrapertools
 
 USER_AGENT="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:18.0) Gecko/20100101 Firefox/18.0"
 
@@ -38,7 +36,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     
     return video_urls
 
-# Encuentra vÃ­deos de este servidor en el texto pasado
+# Encuentra vídeos de este servidor en el texto pasado
 def find_videos(text):
     encontrados = set()
     devuelve = []
@@ -65,9 +63,3 @@ def find_videos(text):
 
 
     return devuelve
-
-def test():
-
-    video_urls = get_video_url("http://www.junkyvideo.com/embed/sy6wen17")
-
-    return len(video_urls)>0

@@ -1,16 +1,15 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para streamcloud
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 def test_video_exists( page_url ):
     logger.info("[streamcloud.py] test_video_exists(page_url='%s')" % page_url)
@@ -27,28 +26,16 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     # Lo pide una vez
     headers = [['User-Agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14']]
     data = scrapertools.cache_page( page_url , headers=headers )
-    #logger.info("data="+data)
-
-    logger.info("[streamcloud.py] Esperando 10 segundos...")
-    import time
-    time.sleep(12)
-
-    logger.info("[streamcloud.py] Espera concluida")
     
     try:
         media_url = scrapertools.get_match( data , 'file\: "([^"]+)"' )
     except:
-        op = scrapertools.get_match(data,'<input type="hidden" name="op" value="([^"]+)"')
-        usr_login = ""
-        id = scrapertools.get_match(data,'<input type="hidden" name="id" value="([^"]+)"')
-        fname = scrapertools.get_match(data,'<input type="hidden" name="fname" value="([^"]+)"')
-        referer = scrapertools.get_match(data,'<input type="hidden" name="referer" value="([^"]*)"')
-        hashstring = scrapertools.get_match(data,'<input type="hidden" name="hash" value="([^"]*)"')
-        imhuman = scrapertools.get_match(data,'<input type="submit" name="imhuman".*?value="([^"]+)">').replace(" ","+")
-        
-        post = "op="+op+"&usr_login="+usr_login+"&id="+id+"&fname="+fname+"&referer="+referer+"&hash="+hashstring+"&imhuman="+imhuman
-        headers.append(["Referer",page_url])
-        data = scrapertools.cache_page( page_url , post=post, headers=headers )
+        post = ""
+        matches = scrapertools.find_multiple_matches(data, '<input.*?name="([^"]+)".*?value="([^"]*)">')
+        for inputname, inputvalue in matches:
+            post += inputname + "=" + inputvalue + "&"
+        post = post.replace("op=download1","op=download2")
+        data = scrapertools.cache_page( page_url , post=post)
 
         if 'id="justanotice"' in data:
             logger.info("[streamcloud.py] data="+data)
@@ -135,8 +122,3 @@ if __name__ == "__main__":
             premium=False
         
         print get_video_url(video_url,premium,login,password)
-
-def test():
-    video_urls = get_video_url("http://streamcloud.eu/132qd8f6gaj2")
-
-    return len(video_urls)>0

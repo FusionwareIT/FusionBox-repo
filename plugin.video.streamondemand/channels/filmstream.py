@@ -10,9 +10,9 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "filmstream"
 __category__ = "F"
@@ -33,19 +33,19 @@ def mainlist(item):
     logger.info("streamondemand.filmstream mainlist")
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Ultimi Film Inseriti[/COLOR]",
-                     extra="film",
+                     extra="movie",
                      action="peliculas",
                      url=host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Per Genere[/COLOR]",
-                     extra="film",
+                     extra="movie",
                      action="categorias",
                      url=host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
-                     extra="film",
+                     extra="movie",
                      action="search",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
@@ -105,7 +105,7 @@ def search(item, texto):
     logger.info("[filmstream.py] " + item.url + " search " + texto)
     item.url = "%s/?s=%s&x=0&y=0" % (host, texto)
     try:
-        if item.extra == "film":
+        if item.extra == "movie":
             return peliculas(item)
         if item.extra == "serie":
             return peliculas_tv(item)

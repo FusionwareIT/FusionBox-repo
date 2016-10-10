@@ -1,91 +1,73 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para powvideo
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
 
-from core import scrapertools
-from core import logger
-from core import config
 from core import jsunpack
+from core import logger
+from core import scrapertools
+
+headers = [['User-Agent','Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0']]
+
 
 def test_video_exists( page_url ):
-    logger.info("streamondemand.powvideo test_video_exists(page_url='%s')" % page_url)
+    logger.info("streamondemand.servers.powvideo test_video_exists(page_url='%s')" % page_url)
+    
+    data = scrapertools.cache_page(page_url)
+    if "File Not Found" in data: return False, "[powvideo] El archivo no existe o  ha sido borrado"
     
     return True,""
 
+
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
-    logger.info("streamondemand.powvideo get_video_url(page_url='%s')" % page_url)
+    logger.info("streamondemand.servers.powvideo get_video_url(page_url='%s')" % page_url)
 
-    # Lo pide una vez
-    if not "embed" in page_url:
-      page_url = page_url.replace("http://powvideo.net/","http://powvideo.net/embed-") + "-640x360.html"
-      
-    headers = [['User-Agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14'],['Referer',page_url]]
-    page_url= page_url.replace("embed","iframe")
+    url = page_url.replace("http://powvideo.net/","http://powvideo.net/iframe-") + "-640x360.html"     
+    headers.append(['Referer',url.replace("iframe","embed")])
     
-    data = scrapertools.cache_page( page_url , headers=headers )
-    #logger.info("data="+data)
-    
-    #Quitado porque funciona mas rapido asi y no veo necesidad de esto:
-    '''
-    try:
-        op = scrapertools.get_match(data,'<input type="hidden" name="op" value="(down[^"]+)"')
-        usr_login = ""
-        id = scrapertools.get_match(data,'<input type="hidden" name="id" value="([^"]+)"')
-        fname = scrapertools.get_match(data,'<input type="hidden" name="fname" value="([^"]+)"')
-        referer = scrapertools.get_match(data,'<input type="hidden" name="referer" value="([^"]*)"')
-        hashvalue = scrapertools.get_match(data,'<input type="hidden" name="hash" value="([^"]*)"')
-        submitbutton = scrapertools.get_match(data,'<input type="submit" name="imhuman" value="([^"]+)"').replace(" ","+")
+    data = scrapertools.cache_page(url, headers=headers)
 
-        import time
-        time.sleep(30)
-
-        # Lo pide una segunda vez, como si hubieras hecho click en el banner
-        #op=download1&usr_login=&id=auoxxtvyquoy&fname=Star.Trek.Into.Darkness.2013.HD.m720p.LAT.avi&referer=&hash=1624-83-46-1377796019-c2b422f91da55d12737567a14ea3dffe&imhuman=Continue+to+Video
-        #op=search&usr_login=&id=auoxxtvyquoy&fname=Star.Trek.Into.Darkness.2013.HD.m720p.LAT.avi&referer=&hash=1624-83-46-1377796398-8020e5629f50ff2d7b7de99b55bdb177&imhuman=Continue+to+Video
-        post = "op="+op+"&usr_login="+usr_login+"&id="+id+"&fname="+fname+"&referer="+referer+"&hash="+hashvalue+"&imhuman="+submitbutton
-        headers.append(["Referer",page_url])
-        data = scrapertools.cache_page( page_url , post=post, headers=headers )
-        #logger.info("data="+data)
-    except:
-        import traceback
-        traceback.print_exc()
-    '''
     # Extrae la URL
     data = scrapertools.find_single_match(data,"<script type='text/javascript'>(.*?)</script>")
-    data = jsunpack.unpack(data)
+    data = jsunpack.unpack(data).replace("\\","")
 
     data = scrapertools.find_single_match(data,"sources\=\[([^\]]+)\]")
-    data = data.replace("\\","")
+    logger.info("data="+data)
 
-    '''
-    {image:image,tracks:tracks,file:'rtmp://5.39.70.113:19350/vod/mp4:01/00219/dw5tbqp6dr3i_n?h=m4ohputqpiikkfn2mda7ymaimgo5n34f7uvpizy5vkjn7ifqrv6y2y6n5y',description:'dw5tbqp6dr3i'},
-    {image:image,tracks:tracks,file:'http://powvideo.net/m4ohputqpiikkfn2mda7ymaimgo5n34f7uvpizy5vkjn7ifqrv6y2y6n5y.m3u8',description:'dw5tbqp6dr3i'},{image:image,tracks:tracks,file:'http://5.39.70.113:8777/m4ohputqpiikkfn2mda7ymaimgo5n34f7uvpizy5vkjn7ifqrv6y2y6n5y/v.mp4',description:'dw5tbqp6dr3i'}
-    '''
-    patron = "file:'([^']+)'"
-    matches = re.compile(patron,re.DOTALL).findall(data)
+    matches = scrapertools.find_multiple_matches(data, "src:'([^']+)'")
     video_urls = []
-    for match in matches:
-        video_urls.append( [ scrapertools.get_filename_from_url(match)[-4:]+" [powvideo]",match])
+    for video_url in matches:
+        filename = scrapertools.get_filename_from_url(video_url)[-4:]
+        if video_url.startswith("rtmp"):
+            rtmp, playpath = video_url.split("vod/",1)
+            video_url = "%s playpath=%s swfUrl=http://powvideo.net/player6/jwplayer.flash.swf pageUrl=%s" % (rtmp+"vod/", playpath, page_url)
+            filename = "RTMP"
+        elif "m3u8" in video_url:
+            video_url += "|User-Agent="+headers[0][1]
+
+        video_urls.append( [ filename + " [powvideo]", video_url])
 
     for video_url in video_urls:
-        logger.info("[powvideo.py] %s - %s" % (video_url[0],video_url[1]))
+        logger.info("streamondemand.servers.powvideo %s - %s" % (video_url[0],video_url[1]))
 
     return video_urls
+
 
 # Encuentra vídeos del servidor en el texto pasado
 def find_videos(data):
     encontrados = set()
     devuelve = []
 
+    # http://powvideo.net/sbb9ptsfqca2
     # http://powvideo.net/embed-sbb9ptsfqca2
-    patronvideos  = 'powvideo.net/embed-([a-z0-9]+)'
-    logger.info("streamondemand.powvideo find_videos #"+patronvideos+"#")
+    # http://powvideo.net/iframe-sbb9ptsfqca2
+    # http://powvideo.net/preview-sbb9ptsfqca2
+    patronvideos  = 'powvideo.net/(?:embed-|iframe-|preview-|)([a-z0-9]+)'
+    logger.info("streamondemand.servers.powvideo find_videos #"+patronvideos+"#")
     matches = re.compile(patronvideos,re.DOTALL).findall(data)
 
     for match in matches:
@@ -97,25 +79,5 @@ def find_videos(data):
             encontrados.add(url)
         else:
             logger.info("  url duplicada="+url)
-
-    # http://powvideo.net/auoxxtvyoy
-    patronvideos  = 'powvideo.net/([a-z0-9]+)'
-    logger.info("streamondemand.powvideo find_videos #"+patronvideos+"#")
-    matches = re.compile(patronvideos,re.DOTALL).findall(data)
-
-    for match in matches:
-        titulo = "[powvideo]"
-        url = "http://powvideo.net/"+match
-        if url not in encontrados and match!="embed":
-            logger.info("  url="+url)
-            devuelve.append( [ titulo , url , 'powvideo' ] )
-            encontrados.add(url)
-        else:
-            logger.info("  url duplicada="+url)
             
     return devuelve
-
-def test():
-    video_urls = get_video_url("http://powvideo.net/auoxxtvyquoy")
-
-    return len(video_urls)>0

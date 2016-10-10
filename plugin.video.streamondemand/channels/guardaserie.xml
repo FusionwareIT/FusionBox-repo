@@ -12,8 +12,8 @@
 	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/guardaserie.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>3</version>
-	<date>16/09/2016</date>
+	<version>2</version>
+	<date>16/06/2016</date>
 	<changes>update</changes>
 
 	<categories>
@@ -23,6 +23,11 @@
 	</categories>
 
 	<settings>
-		<include_in_global_search>true</include_in_global_search>
+		<id>include_in_global_search</id>
+		<type>bool</type>
+		<label>Includi ricerca globale</label>
+		<default>true</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
 	</settings>
 </channel>

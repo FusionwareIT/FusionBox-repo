@@ -1,500 +1,346 @@
-"""Simple AES cipher implementation in pure Python following PEP-272 API
-
-Homepage: https://bitbucket.org/intgr/pyaes/
-
-The goal of this module is to be as fast as reasonable in Python while still
-being Pythonic and readable/understandable. It is licensed under the permissive
-MIT license.
-
-Hopefully the code is readable and commented enough that it can serve as an
-introduction to the AES cipher for Python coders. In fact, it should go along
-well with the Stick Figure Guide to AES:
-http://www.moserware.com/2009/09/stick-figure-guide-to-advanced.html
-
-Contrary to intuition, this implementation numbers the 4x4 matrices from top to
-bottom for efficiency reasons::
-
-  0  4  8 12
-  1  5  9 13
-  2  6 10 14
-  3  7 11 15
-
-Effectively it's the transposition of what you'd expect. This actually makes
-the code simpler -- except the ShiftRows step, but hopefully the explanation
-there clears it up.
-
-"""
-
-####
-# Copyright (c) 2010 Marti Raudsepp <marti@juffo.org>
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------
+# streamondemand 5
+# Copyright 2015 tvalacarta@gmail.com
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# Distributed under the terms of GNU General Public License v3 (GPLv3)
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ------------------------------------------------------------
+# This file is part of streamondemand 5.
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# streamondemand 5 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-####
+# streamondemand 5 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
+# ------------------------------------------------------------
+# AES para Mi tele by Truenon
+#------------------------------------------------------------
+
+import datetime
+import math
+import time
 
 
-from array import array
+class AES:
+    BIT_KEY_128 = 128
+    BIT_KEY_192 = 192
+    BIT_KEY_256 = 256
 
-# Globals mandated by PEP 272:
-# http://www.python.org/dev/peps/pep-0272/
-MODE_ECB = 1
-MODE_CBC = 2
-# MODE_CTR = 6
+    # Sbox is pre-computed multiplicative inverse in GF(2^8) used in subBytes and keyExpansion [§5.1.1]
+    SBOX = [0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
+         0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,
+         0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,
+         0x04,0xc7,0x23,0xc3,0x18,0x96,0x05,0x9a,0x07,0x12,0x80,0xe2,0xeb,0x27,0xb2,0x75,
+         0x09,0x83,0x2c,0x1a,0x1b,0x6e,0x5a,0xa0,0x52,0x3b,0xd6,0xb3,0x29,0xe3,0x2f,0x84,
+         0x53,0xd1,0x00,0xed,0x20,0xfc,0xb1,0x5b,0x6a,0xcb,0xbe,0x39,0x4a,0x4c,0x58,0xcf,
+         0xd0,0xef,0xaa,0xfb,0x43,0x4d,0x33,0x85,0x45,0xf9,0x02,0x7f,0x50,0x3c,0x9f,0xa8,
+         0x51,0xa3,0x40,0x8f,0x92,0x9d,0x38,0xf5,0xbc,0xb6,0xda,0x21,0x10,0xff,0xf3,0xd2,
+         0xcd,0x0c,0x13,0xec,0x5f,0x97,0x44,0x17,0xc4,0xa7,0x7e,0x3d,0x64,0x5d,0x19,0x73,
+         0x60,0x81,0x4f,0xdc,0x22,0x2a,0x90,0x88,0x46,0xee,0xb8,0x14,0xde,0x5e,0x0b,0xdb,
+         0xe0,0x32,0x3a,0x0a,0x49,0x06,0x24,0x5c,0xc2,0xd3,0xac,0x62,0x91,0x95,0xe4,0x79,
+         0xe7,0xc8,0x37,0x6d,0x8d,0xd5,0x4e,0xa9,0x6c,0x56,0xf4,0xea,0x65,0x7a,0xae,0x08,
+         0xba,0x78,0x25,0x2e,0x1c,0xa6,0xb4,0xc6,0xe8,0xdd,0x74,0x1f,0x4b,0xbd,0x8b,0x8a,
+         0x70,0x3e,0xb5,0x66,0x48,0x03,0xf6,0x0e,0x61,0x35,0x57,0xb9,0x86,0xc1,0x1d,0x9e,
+         0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf,
+         0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16]
+    
+    # Rcon is Round Constant used for the Key Expansion [1st col is 2^(r-1) in GF(2^8)] [§5.2]
+    RCON = [[0x00, 0x00, 0x00, 0x00],
+         [0x01, 0x00, 0x00, 0x00],
+         [0x02, 0x00, 0x00, 0x00],
+         [0x04, 0x00, 0x00, 0x00],
+         [0x08, 0x00, 0x00, 0x00],
+         [0x10, 0x00, 0x00, 0x00],
+         [0x20, 0x00, 0x00, 0x00],
+         [0x40, 0x00, 0x00, 0x00],
+         [0x80, 0x00, 0x00, 0x00],
+         [0x1b, 0x00, 0x00, 0x00],
+         [0x36, 0x00, 0x00, 0x00]]
 
-block_size = 16
-# variable length key: 16, 24 or 32 bytes
-key_size = None
+    def encrypt(self, plaintext, password, nBits):
+        blockSize = 16;  # block size fixed at 16 bytes / 128 bits (Nb=4) for AES
+        if (not(nBits == self.BIT_KEY_128 or nBits == self.BIT_KEY_192 or nBits == self.BIT_KEY_256)):
+                # standard allows 128/192/256 bit keys
+                raise Exception("Must be a key mode of either 128, 192, 256 bits")
+        
+        plaintext = plaintext.encode('utf-8');
+        password = password.encode('utf-8');
+        
+        # use AES itself to encrypt password to get cipher key (using plain password as source for key 
+        # expansion) - gives us well encrypted key
+        nBytes = nBits / 8  # no bytes in key
+        pwBytes = [];
+        for i in range(nBytes):
+            if((i+1)>len(password)):
+                pwBytes.append(0)
+            else:
+                pwBytes.append(ord(password[i]))
+        
+        key = self.cipher(pwBytes, self.keyExpansion(pwBytes))  # gives us 16-byte key
+        key = key + key[0 : nBytes - 16]  # expand key to 16/24/32 bytes long
+        # initialise counter block (NIST SP800-38A §B.2): millisecond time-stamp for nonce in 1st 8 bytes,
+        # block counter in 2nd 8 bytes
+        counterBlock = [0] * blockSize
+        now = datetime.datetime.now()
+        nonce = time.mktime( now.timetuple() )*1000 + now.microsecond//1000
+        nonceSec = int(nonce // 1000)
+        nonceMs  = int(nonce % 1000)
+        import random
+        nonceRnd = int(random.random()*0xffff)
+        
+        # encode nonce with seconds in 1st 4 bytes, and (repeated) ms part filling 2nd 4 bytes
+        for i in range(2): 
+            counterBlock[i] = (self.urs(nonceMs, i*8) & 0xff)
+        for i in range(2): 
+            counterBlock[i+2] = (self.urs(nonceRnd, i*8) & 0xff)
+        for i in range(4): 
+            counterBlock[i+4] = (self.urs(nonceSec, i*8) & 0xff)
+        # and convert it to a string to go on the front of the ciphertext
+        ctrTxt = ''
+        for i in range(8): 
+            ctrTxt += chr(counterBlock[i])
+        
+        # generate key schedule - an expansion of the key into distinct Key Rounds for each round
+        keySchedule = self.keyExpansion(key)
+        blockCount = int(math.ceil(float(len(plaintext)) / float(blockSize)))
+        ciphertxt = [0] * blockCount  # ciphertext as array of strings
+        
+        for b in range(blockCount): 
+            # set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
+            # done in two stages for 32-bit ops: using two words allows us to go past 2^32 blocks (68GB)
+            for c in range(4): 
+                counterBlock[15 - c] = self.urs(b, c*8) & 0xff
+                
+            for c in range(4): 
+                counterBlock[15 - c - 4] = self.urs(b/0x100000000, c*8)
+            
+            cipherCntr = self.cipher(counterBlock, keySchedule)  # -- encrypt counter block --
+            
+            # block size is reduced on final block
+            blockLength = 0;
+            if(b < blockCount - 1):
+                blockLenght = blockSize
+            else : 
+                blockLenght = (len(plaintext) - 1) % blockSize + 1
+                
+            cipherChar = [0] * blockLenght
+            cipherChar2 = [0] * blockLenght
+                    
+            for i in range(blockLenght): 
+                # -- xor plaintext with ciphered counter char-by-char --
+                cipherChar[i] = cipherCntr[i] ^ ord(plaintext[b * blockSize + i])
+                cipherChar2[i] = cipherChar[i]
+                cipherChar[i] = chr(cipherChar[i])
+            ciphertxt[b] = ''.join(cipherChar)
+        
+                      
+        # Array.join is more efficient than repeated string concatenation in IE
+        ciphertext = ctrTxt + ''.join(ciphertxt)
+        base = Base64() 
+        ciphertext = base.encode(ciphertext)
+          
+        #alert((new Date()) - t);
+        return ciphertext
+    
+    def expires(self):
+        future = datetime.datetime.now() + datetime.timedelta(minutes=5)
+        return time.mktime(future.timetuple())
+
+    def cipher(self, input, w):    
+        # main cipher function [§5.1]
+        Nb = 4               #block size (in words): no of columns in state (fixed at 4 for AES)
+        Nr = len(w) / Nb - 1 # no of rounds: 10/12/14 for 128/192/256-bit keys
+        
+        state = [];  # initialise 4xNb byte-array 'state' with input [§3.4]
+        i=0
+        while i < 4 * Nb :
+            y = []
+            if(i>3):            
+                y = state [i%4]
+            y.append(input[i])
+            if(i<4):
+                state.append(y)    
+            #state[i % 4][int(math.floor(i / 4))].append(input[i])
+            i = i + 1
+             
+        state = self.addRoundKey(state, w, 0, Nb)
+        
+        round = 1
+        while round < Nr:
+            state = self.subBytes(state, Nb)
+            state = self.shiftRows(state, Nb)
+            state = self.mixColumns(state)
+            state = self.addRoundKey(state, w, round, Nb)
+            round = round + 1
+        
+        state = self.subBytes(state, Nb)
+        state = self.shiftRows(state, Nb)
+        state = self.addRoundKey(state, w, Nr, Nb)
+        
+        output = []  # convert state to 1-d array before returning [§3.4]
+        for i in range(4 * Nb):
+            output.append(state[i % 4][int(math.floor(i / 4))])
+        
+        return output
 
 
-def new(key, mode, IV=None):
-    if mode == MODE_ECB:
-        return ECBMode(AES(key))
-    elif mode == MODE_CBC:
-        if IV is None:
-            raise ValueError, "CBC mode needs an IV value!"
 
-        return CBCMode(AES(key), IV)
-    else:
-        raise NotImplementedError
+    def keyExpansion(self, key): 
+        # generate Key Schedule (byte-array Nr+1 x Nb) from Key [§5.2]
+        Nb = 4            # block size (in words): no of columns in state (fixed at 4 for AES)
+        Nk = len(key) / 4  # key length (in words): 4/6/8 for 128/192/256-bit keys
+        Nr = Nk + 6       # no of rounds: 10/12/14 for 128/192/256-bit keys
+        
+        w = []
+        
+        for i in range(Nk):
+            r = [key[4 * i], key[4 * i + 1], key[4 * i + 2], key[4 * i + 3]]
+            w.append(r)
+        
+        
+        i = Nk
+        while i < (Nb * (Nr + 1)): 
+            temp = []
+            for t in range(4):
+                temp.append(w[i - 1][t])
+            
+            
+            if (i % Nk == 0):
+                temp = self.subWord(self.rotWord(temp))
+                for t in range(4):
+                    temp[t] ^= self.RCON[i / Nk][t];
+            else:
+                if (Nk > 6 and i % Nk == 4) :
+                        temp = self.subWord(temp)
+            
+            temp2 = []
+            for t in range(4):
+                temp2.append(w[i - Nk][t] ^ temp[t]) 
+                
+            w.append(temp2)
+        
+            i = i + 1
+        
+        return w
+    
 
 
-#### AES cipher implementation
+    def subBytes(self, s, Nb):   
+        # apply SBox to state S [§5.1.1]
+        for r in range(4):
+            for c in range(Nb): 
+                s[r][c] = self.SBOX[s[r][c]]
+        return s
+       
+    def shiftRows(self,s, Nb):   
+        # shift row r of state S left by r bytes [§5.1.2]
+        t = [0] * 4
+        r=1
+        while r<4 :       
+            for c in range(4): 
+                t[c] = s[r][(c + r) % Nb]  # shift into temp copy            
+            for c in range(4): 
+                s[r][c] = t[c]         # and copy back
+            r = r + 1 # note that this will work for Nb=4,5,6, but not 7,8 (always 4 for AES):
+    
+        return s;  # see asmaes.sourceforge.net/rijndael/rijndaelImplementation.pdf
 
-class AES(object):
-    block_size = 16
+    def mixColumns(self,s):  
+        # combine bytes of each col of state S [§5.1.3]
+        for c in range(4):
+            a = []  # 'a' is a copy of the current column from 's'
+            b = []  # 'b' is a·{02} in GF(2^8)
+            for i in range(4):
+                a.append(s[i][c])
+                if(s[i][c] & 0x80):
+                    b.append(s[i][c] << 1 ^ 0x011b)
+                else:
+                    b.append(s[i][c] << 1)
+            
+            # a[n] ^ b[n] is a·{03} in GF(2^8)
+            s[0][c] = b[0] ^ a[1] ^ b[1] ^ a[2] ^ a[3] # 2*a0 + 3*a1 + a2 + a3
+            s[1][c] = a[0] ^ b[1] ^ a[2] ^ b[2] ^ a[3] # a0 * 2*a1 + 3*a2 + a3
+            s[2][c] = a[0] ^ a[1] ^ b[2] ^ a[3] ^ b[3] # a0 + a1 + 2*a2 + 3*a3
+            s[3][c] = a[0] ^ b[0] ^ a[1] ^ a[2] ^ b[3] # 3*a0 + a1 + a2 + 2*a3
+        return s
 
-    def __init__(self, key):
-        self.setkey(key)
-
-    def setkey(self, key):
-        """Sets the key and performs key expansion."""
-
-        self.key = key
-        self.key_size = len(key)
-
-        if self.key_size == 16:
-            self.rounds = 10
-        elif self.key_size == 24:
-            self.rounds = 12
-        elif self.key_size == 32:
-            self.rounds = 14
+    def addRoundKey(self,state, w, rnd, Nb): 
+        # xor Round Key into state S [§5.1.4]
+        for r in range(4): 
+            for c in range(Nb):
+                state[r][c] ^= w[rnd * 4 + c][r]       
+        return state    
+    
+    def subWord(self, w):   
+        # apply SBox to 4-byte word w
+        for i in range(4): 
+            w[i] = self.SBOX[w[i]]    
+        return w
+                
+    
+    def rotWord(self, w):   
+        # rotate 4-byte word w left by one byte
+        tmp = w[0]
+        for i in range(3): 
+            w[i] = w[i + 1]
+        w[3] = tmp    
+        return w
+    def urs(self, a, b):
+        a &= 0xffffffff
+        b &= 0x1f
+        if a&0x80000000 and b>0:
+            a = (a>>1) & 0x7fffffff
+            a = a >> (b-1)
         else:
-            raise ValueError, "Key length must be 16, 24 or 32 bytes"
-
-        self.expand_key()
-
-    def expand_key(self):
-        """Performs AES key expansion on self.key and stores in self.exkey"""
-
-        # The key schedule specifies how parts of the key are fed into the
-        # cipher's round functions. "Key expansion" means performing this
-        # schedule in advance. Almost all implementations do this.
-        #
-        # Here's a description of AES key schedule:
-        # http://en.wikipedia.org/wiki/Rijndael_key_schedule
-
-        # The expanded key starts with the actual key itself
-        exkey = array('B', self.key)
-
-        # extra key expansion steps
-        if self.key_size == 16:
-            extra_cnt = 0
-        elif self.key_size == 24:
-            extra_cnt = 2
-        else:
-            extra_cnt = 3
-
-        # 4-byte temporary variable for key expansion
-        word = exkey[-4:]
-        # Each expansion cycle uses 'i' once for Rcon table lookup
-        for i in xrange(1, 11):
-
-            #### key schedule core:
-            # left-rotate by 1 byte
-            word = word[1:4] + word[0:1]
-
-            # apply S-box to all bytes
-            for j in xrange(4):
-                word[j] = aes_sbox[word[j]]
-
-            # apply the Rcon table to the leftmost byte
-            word[0] ^= aes_Rcon[i]
-            #### end key schedule core
-
-            for z in xrange(4):
-                for j in xrange(4):
-                    # mix in bytes from the last subkey
-                    word[j] ^= exkey[-self.key_size + j]
-                exkey.extend(word)
-
-            # Last key expansion cycle always finishes here
-            if len(exkey) >= (self.rounds + 1) * self.block_size:
-                break
-
-            # Special substitution step for 256-bit key
-            if self.key_size == 32:
-                for j in xrange(4):
-                    # mix in bytes from the last subkey XORed with S-box of
-                    # current word bytes
-                    word[j] = aes_sbox[word[j]] ^ exkey[-self.key_size + j]
-                exkey.extend(word)
-
-            # Twice for 192-bit key, thrice for 256-bit key
-            for z in xrange(extra_cnt):
-                for j in xrange(4):
-                    # mix in bytes from the last subkey
-                    word[j] ^= exkey[-self.key_size + j]
-                exkey.extend(word)
-
-        self.exkey = exkey
-
-    def add_round_key(self, block, round):
-        """AddRoundKey step in AES. This is where the key is mixed into plaintext"""
-
-        offset = round * 16
-        exkey = self.exkey
-
-        for i in xrange(16):
-            block[i] ^= exkey[offset + i]
-
-            # print 'AddRoundKey:', block
-
-    def sub_bytes(self, block, sbox):
-        """SubBytes step, apply S-box to all bytes
-
-        Depending on whether encrypting or decrypting, a different sbox array
-        is passed in.
-        """
-
-        for i in xrange(16):
-            block[i] = sbox[block[i]]
-
-            # print 'SubBytes   :', block
-
-    def shift_rows(self, b):
-        """ShiftRows step. Shifts 2nd row to left by 1, 3rd row by 2, 4th row by 3
-
-        Since we're performing this on a transposed matrix, cells are numbered
-        from top to bottom first::
-
-          0  4  8 12   ->    0  4  8 12    -- 1st row doesn't change
-          1  5  9 13   ->    5  9 13  1    -- row shifted to left by 1 (wraps around)
-          2  6 10 14   ->   10 14  2  6    -- shifted by 2
-          3  7 11 15   ->   15  3  7 11    -- shifted by 3
-        """
-
-        b[1], b[5], b[9], b[13] = b[5], b[9], b[13], b[1]
-        b[2], b[6], b[10], b[14] = b[10], b[14], b[2], b[6]
-        b[3], b[7], b[11], b[15] = b[15], b[3], b[7], b[11]
-
-        # print 'ShiftRows  :', b
-
-    def shift_rows_inv(self, b):
-        """Similar to shift_rows above, but performed in inverse for decryption."""
-
-        b[5], b[9], b[13], b[1] = b[1], b[5], b[9], b[13]
-        b[10], b[14], b[2], b[6] = b[2], b[6], b[10], b[14]
-        b[15], b[3], b[7], b[11] = b[3], b[7], b[11], b[15]
-
-        # print 'ShiftRows  :', b
-
-    def mix_columns(self, block):
-        """MixColumns step. Mixes the values in each column"""
-
-        # Cache global multiplication tables (see below)
-        mul_by_2 = gf_mul_by_2
-        mul_by_3 = gf_mul_by_3
-
-        # Since we're dealing with a transposed matrix, columns are already
-        # sequential
-        for col in xrange(0, 16, 4):
-            v0, v1, v2, v3 = block[col: col + 4]
-
-            block[col] = mul_by_2[v0] ^ v3 ^ v2 ^ mul_by_3[v1]
-            block[col + 1] = mul_by_2[v1] ^ v0 ^ v3 ^ mul_by_3[v2]
-            block[col + 2] = mul_by_2[v2] ^ v1 ^ v0 ^ mul_by_3[v3]
-            block[col + 3] = mul_by_2[v3] ^ v2 ^ v1 ^ mul_by_3[v0]
-
-            # print 'MixColumns :', block
-
-    def mix_columns_inv(self, block):
-        """Similar to mix_columns above, but performed in inverse for decryption."""
-
-        # Cache global multiplication tables (see below)
-        mul_9 = gf_mul_by_9
-        mul_11 = gf_mul_by_11
-        mul_13 = gf_mul_by_13
-        mul_14 = gf_mul_by_14
-
-        # Since we're dealing with a transposed matrix, columns are already
-        # sequential
-        for col in xrange(0, 16, 4):
-            v0, v1, v2, v3 = block[col: col + 4]
-
-            block[col] = mul_14[v0] ^ mul_9[v3] ^ mul_13[v2] ^ mul_11[v1]
-            block[col + 1] = mul_14[v1] ^ mul_9[v0] ^ mul_13[v3] ^ mul_11[v2]
-            block[col + 2] = mul_14[v2] ^ mul_9[v1] ^ mul_13[v0] ^ mul_11[v3]
-            block[col + 3] = mul_14[v3] ^ mul_9[v2] ^ mul_13[v1] ^ mul_11[v0]
-
-            # print 'MixColumns :', block
-
-    def encrypt_block(self, block):
-        """Encrypts a single block. This is the main AES function"""
-
-        # For efficiency reasons, the state between steps is transmitted via a
-        # mutable array, not returned
-        self.add_round_key(block, 0)
-
-        for round in xrange(1, self.rounds):
-            self.sub_bytes(block, aes_sbox)
-            self.shift_rows(block)
-            self.mix_columns(block)
-            self.add_round_key(block, round)
-
-        self.sub_bytes(block, aes_sbox)
-        self.shift_rows(block)
-        # no mix_columns step in the last round
-        self.add_round_key(block, self.rounds)
-
-    def decrypt_block(self, block):
-        """Decrypts a single block. This is the main AES decryption function"""
-
-        # For efficiency reasons, the state between steps is transmitted via a
-        # mutable array, not returned
-        self.add_round_key(block, self.rounds)
-
-        # count rounds down from (self.rounds) ... 1
-        for round in xrange(self.rounds - 1, 0, -1):
-            self.shift_rows_inv(block)
-            self.sub_bytes(block, aes_inv_sbox)
-            self.add_round_key(block, round)
-            self.mix_columns_inv(block)
-
-        self.shift_rows_inv(block)
-        self.sub_bytes(block, aes_inv_sbox)
-        self.add_round_key(block, 0)
-        # no mix_columns step in the last round
-
-
-#### ECB mode implementation
-
-class ECBMode(object):
-    """Electronic CodeBook (ECB) mode encryption.
-
-    Basically this mode applies the cipher function to each block individually;
-    no feedback is done. NB! This is insecure for almost all purposes
-    """
-
-    def __init__(self, cipher):
-        self.cipher = cipher
-        self.block_size = cipher.block_size
-
-    def ecb(self, data, block_func):
-        """Perform ECB mode with the given function"""
-
-        if len(data) % self.block_size != 0:
-            raise ValueError, "Input length must be multiple of 16"
-
-        block_size = self.block_size
-        data = array('B', data)
-
-        for offset in xrange(0, len(data), block_size):
-            block = data[offset: offset + block_size]
-            block_func(block)
-            data[offset: offset + block_size] = block
-
-        return data.tostring()
-
-    def encrypt(self, data):
-        """Encrypt data in ECB mode"""
-
-        return self.ecb(data, self.cipher.encrypt_block)
-
-    def decrypt(self, data):
-        """Decrypt data in ECB mode"""
-
-        return self.ecb(data, self.cipher.decrypt_block)
-
-
-#### CBC mode
-
-class CBCMode(object):
-    """Cipher Block Chaining (CBC) mode encryption. This mode avoids content leaks.
-
-    In CBC encryption, each plaintext block is XORed with the ciphertext block
-    preceding it; decryption is simply the inverse.
-    """
-
-    # A better explanation of CBC can be found here:
-    # http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
-
-    def __init__(self, cipher, IV):
-        self.cipher = cipher
-        self.block_size = cipher.block_size
-        self.IV = array('B', IV)
-
-    def encrypt(self, data):
-        """Encrypt data in CBC mode"""
-
-        block_size = self.block_size
-        if len(data) % block_size != 0:
-            raise ValueError, "Plaintext length must be multiple of 16"
-
-        data = array('B', data)
-        IV = self.IV
-
-        for offset in xrange(0, len(data), block_size):
-            block = data[offset: offset + block_size]
-
-            # Perform CBC chaining
-            for i in xrange(block_size):
-                block[i] ^= IV[i]
-
-            self.cipher.encrypt_block(block)
-            data[offset: offset + block_size] = block
-            IV = block
-
-        self.IV = IV
-        return data.tostring()
-
-    def decrypt(self, data):
-        """Decrypt data in CBC mode"""
-
-        block_size = self.block_size
-        if len(data) % block_size != 0:
-            raise ValueError, "Ciphertext length must be multiple of 16"
-
-        data = array('B', data)
-        IV = self.IV
-
-        for offset in xrange(0, len(data), block_size):
-            ctext = data[offset: offset + block_size]
-            block = ctext[:]
-            self.cipher.decrypt_block(block)
-
-            # Perform CBC chaining
-            # for i in xrange(block_size):
-            #    data[offset + i] ^= IV[i]
-            for i in xrange(block_size):
-                block[i] ^= IV[i]
-            data[offset: offset + block_size] = block
-
-            IV = ctext
-            # data[offset : offset+block_size] = block
-
-        self.IV = IV
-        return data.tostring()
-
-
-####
-
-def galois_multiply(a, b):
-    """Galois Field multiplicaiton for AES"""
-    p = 0
-    while b:
-        if b & 1:
-            p ^= a
-        a <<= 1
-        if a & 0x100:
-            a ^= 0x1b
-        b >>= 1
-
-    return p & 0xff
-
-
-# Precompute the multiplication tables for encryption
-gf_mul_by_2 = array('B', [galois_multiply(x, 2) for x in range(256)])
-gf_mul_by_3 = array('B', [galois_multiply(x, 3) for x in range(256)])
-# ... for decryption
-gf_mul_by_9 = array('B', [galois_multiply(x, 9) for x in range(256)])
-gf_mul_by_11 = array('B', [galois_multiply(x, 11) for x in range(256)])
-gf_mul_by_13 = array('B', [galois_multiply(x, 13) for x in range(256)])
-gf_mul_by_14 = array('B', [galois_multiply(x, 14) for x in range(256)])
-
-####
-
-# The S-box is a 256-element array, that maps a single byte value to another
-# byte value. Since it's designed to be reversible, each value occurs only once
-# in the S-box
-#
-# More information: http://en.wikipedia.org/wiki/Rijndael_S-box
-
-aes_sbox = array('B',
-                 '637c777bf26b6fc53001672bfed7ab76'
-                 'ca82c97dfa5947f0add4a2af9ca472c0'
-                 'b7fd9326363ff7cc34a5e5f171d83115'
-                 '04c723c31896059a071280e2eb27b275'
-                 '09832c1a1b6e5aa0523bd6b329e32f84'
-                 '53d100ed20fcb15b6acbbe394a4c58cf'
-                 'd0efaafb434d338545f9027f503c9fa8'
-                 '51a3408f929d38f5bcb6da2110fff3d2'
-                 'cd0c13ec5f974417c4a77e3d645d1973'
-                 '60814fdc222a908846eeb814de5e0bdb'
-                 'e0323a0a4906245cc2d3ac629195e479'
-                 'e7c8376d8dd54ea96c56f4ea657aae08'
-                 'ba78252e1ca6b4c6e8dd741f4bbd8b8a'
-                 '703eb5664803f60e613557b986c11d9e'
-                 'e1f8981169d98e949b1e87e9ce5528df'
-                 '8ca1890dbfe6426841992d0fb054bb16'.decode('hex')
-                 )
-
-# This is the inverse of the above. In other words:
-# aes_inv_sbox[aes_sbox[val]] == val
-
-aes_inv_sbox = array('B',
-                     '52096ad53036a538bf40a39e81f3d7fb'
-                     '7ce339829b2fff87348e4344c4dee9cb'
-                     '547b9432a6c2233dee4c950b42fac34e'
-                     '082ea16628d924b2765ba2496d8bd125'
-                     '72f8f66486689816d4a45ccc5d65b692'
-                     '6c704850fdedb9da5e154657a78d9d84'
-                     '90d8ab008cbcd30af7e45805b8b34506'
-                     'd02c1e8fca3f0f02c1afbd0301138a6b'
-                     '3a9111414f67dcea97f2cfcef0b4e673'
-                     '96ac7422e7ad3585e2f937e81c75df6e'
-                     '47f11a711d29c5896fb7620eaa18be1b'
-                     'fc563e4bc6d279209adbc0fe78cd5af4'
-                     '1fdda8338807c731b11210592780ec5f'
-                     '60517fa919b54a0d2de57a9f93c99cef'
-                     'a0e03b4dae2af5b0c8ebbb3c83539961'
-                     '172b047eba77d626e169146355210c7d'.decode('hex')
-                     )
-
-# The Rcon table is used in AES's key schedule (key expansion)
-# It's a pre-computed table of exponentation of 2 in AES's finite field
-#
-# More information: http://en.wikipedia.org/wiki/Rijndael_key_schedule
-
-aes_Rcon = array('B',
-                 '8d01020408102040801b366cd8ab4d9a'
-                 '2f5ebc63c697356ad4b37dfaefc59139'
-                 '72e4d3bd61c29f254a943366cc831d3a'
-                 '74e8cb8d01020408102040801b366cd8'
-                 'ab4d9a2f5ebc63c697356ad4b37dfaef'
-                 'c5913972e4d3bd61c29f254a943366cc'
-                 '831d3a74e8cb8d01020408102040801b'
-                 '366cd8ab4d9a2f5ebc63c697356ad4b3'
-                 '7dfaefc5913972e4d3bd61c29f254a94'
-                 '3366cc831d3a74e8cb8d010204081020'
-                 '40801b366cd8ab4d9a2f5ebc63c69735'
-                 '6ad4b37dfaefc5913972e4d3bd61c29f'
-                 '254a943366cc831d3a74e8cb8d010204'
-                 '08102040801b366cd8ab4d9a2f5ebc63'
-                 'c697356ad4b37dfaefc5913972e4d3bd'
-                 '61c29f254a943366cc831d3a74e8cb'.decode('hex')
-                 )
+            a = (a >> b)
+        return a
+
+class Base64:
+    CODE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    
+    def encode (self, str) :  # http://tools.ietf.org/html/rfc4648       
+                   
+        b64 = self.CODE
+        plain = str
+        pad = ''
+        c = len(plain) % 3;  # pad string to length of multiple of 3
+        if (c > 0):
+            while (c < 3) :
+                pad += '=' 
+                plain += '\0' 
+                c = c + 1
+                
+        # note: doing padding here saves us doing special-case packing for trailing 1 or 2 chars
+        c=0
+        e = [0] * int(math.ceil(float(len(plain)) / float(3)))
+        while(c<len(plain)): # pack three octets into four hexets
+            o1 = ord(plain[c])
+            o2 = ord(plain[c+1])
+            o3 = ord(plain[c+2])
+            bits = o1<<16 | o2<<8 | o3
+          
+            h1 = bits>>18 & 0x3f
+            h2 = bits>>12 & 0x3f
+            h3 = bits>>6 & 0x3f
+            h4 = bits & 0x3f
+        
+            # use hextets to index into code string
+            e[c/3] = b64[h1] + b64[h2] + b64[h3] + b64[h4]
+            
+            c = c+3
+            
+        coded =  ''.join(e)  #join() is far faster than repeated string concatenation in IE
+      
+        # replace 'A's from padded nulls with '='s
+        coded = coded[0 : len(coded)-len(pad)] + pad
+       
+        return coded

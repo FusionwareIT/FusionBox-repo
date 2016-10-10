@@ -12,9 +12,9 @@
 	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/altadefinizioneciclk.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>5</version>
-	<date>06/09/2016</date>
-	<changes>Fix Host</changes>
+	<version>4</version>
+	<date>16/06/2016</date>
+	<changes>update</changes>
 
 	<categories>
 		<category>movie</category>
@@ -22,6 +22,11 @@
 	</categories>
 
 	<settings>
-		<include_in_global_search>true</include_in_global_search>
+		<id>include_in_global_search</id>
+		<type>bool</type>
+		<label>Includi ricerca globale</label>
+		<default>true</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
 	</settings>
 </channel>

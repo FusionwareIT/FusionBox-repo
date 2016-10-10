@@ -1,16 +1,16 @@
 # s-*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para Youtube
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
-import urlparse,urllib2,urllib,re,httplib
-from core import config
+import cgi
+import re
+import urllib
+
 from core import logger
 from core import scrapertools
-from core.item import Item
 
-import cgi
 try:
     import simplejson as json
 except ImportError:
@@ -25,7 +25,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
         page_url = "http://www.youtube.com/watch?v=%s" % page_url
         logger.info("[youtube.py] page_url->'%s'" % page_url)
         
-    # Lee la página del video
+    # Lee la pï¿½gina del video
     data = scrapertools.cache_page( page_url , headers=[['User-Agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3']] , )
     '''
     data = scrapertools.get_match(data,"yt.playerConfig \= (.*?)yt.setConfig")
@@ -278,7 +278,3 @@ def find_videos(data):
             logger.info("  url duplicada="+url)
 
     return devuelve
-
-def test():
-    video_urls = get_video_url("http://www.youtube.com/watch?v=Kk-435429-M")
-    return len(video_urls)>0

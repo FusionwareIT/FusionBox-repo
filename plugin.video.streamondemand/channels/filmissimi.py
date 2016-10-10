@@ -31,14 +31,42 @@ def isGeneric():
 # -------------------------------------------------------------------------------------------------------------------------------------------
 def mainlist(item):
     log("mainlist", "init")
-    itemlist = []
-
-    itemlist.append(Item(channel=__channel__, action="elenco", title="[COLOR yellow]Novita'[/COLOR]"       , url=host                     , thumbnail=NovitaThumbnail, fanart=FilmFanart))
-    itemlist.append(Item(channel=__channel__, action="elenco", title="[COLOR azure]Film al Cinema[/COLOR]" , url=host+"/genere/cinema"    , thumbnail=NovitaThumbnail, fanart=FilmFanart))
-    itemlist.append(Item(channel=__channel__, action="elenco", title="[COLOR azure]Film Sub-Ita[/COLOR]"   , url=host+"/genere/sub-ita"   , thumbnail=NovitaThumbnail, fanart=FilmFanart))
-    itemlist.append(Item(channel=__channel__, action="elenco", title="[COLOR azure]Film HD[/COLOR]"        , url=host+"/genere/film-in-hd", thumbnail=NovitaThumbnail, fanart=FilmFanart))
-    itemlist.append(Item(channel=__channel__, action="genere", title="[COLOR azure]Genere[/COLOR]"         , url=host                     , thumbnail=GenereThumbnail, fanart=FilmFanart))
-    itemlist.append(Item(channel=__channel__, action="search", title="[COLOR orange]Cerca..[/COLOR]"       ,                                thumbnail=CercaThumbnail , fanart=FilmFanart))
+    itemlist = [Item(channel=__channel__,
+                     action="elenco",
+                     title="[COLOR yellow]Novita'[/COLOR]",
+                     url=host,
+                     thumbnail=NovitaThumbnail,
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     action="elenco",
+                     title="[COLOR azure]Film al Cinema[/COLOR]",
+                     url=host + "/genere/cinema",
+                     thumbnail=NovitaThumbnail,
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     action="elenco",
+                     title="[COLOR azure]Film Sub-Ita[/COLOR]",
+                     url=host + "/genere/sub-ita",
+                     thumbnail=NovitaThumbnail,
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     action="elenco",
+                     title="[COLOR azure]Film HD[/COLOR]",
+                     url=host + "/genere/film-in-hd",
+                     thumbnail=NovitaThumbnail,
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     action="genere",
+                     title="[COLOR azure]Genere[/COLOR]",
+                     url=host,
+                     thumbnail=GenereThumbnail,
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     action="search",
+                     extra="movie",
+                     title="[COLOR orange]Cerca..[/COLOR]",
+                     thumbnail=CercaThumbnail,
+                     fanart=FilmFanart)]
 
     return itemlist
 
@@ -53,7 +81,13 @@ def genere(item):
     patron = '<a href="(.*?)">(.*?)</a>'
     for scrapedurl, scrapedtitle in scrapedSingle(item.url, '<h3 class="title">Categorie</h3><ul>(.*?)</ul>', patron):
         log("genere", "title=[" + scrapedtitle + "] url=[" + scrapedurl + "]")
-        itemlist.append(Item(channel=__channel__, action="elenco", title="[COLOR azure]"+ scrapedtitle+"[/COLOR]", url=scrapedurl, thumbnail=NovitaThumbnail, fanart=FilmFanart))
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="elenco",
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=scrapedurl,
+                 thumbnail=NovitaThumbnail,
+                 fanart=FilmFanart))
 
     return itemlist
 
@@ -66,7 +100,8 @@ def elenco(item):
     itemlist = []
 
     patron = '<img src="(.*?)"[^=]+=.*?[^=]+="Thumbnail[^>]+>[^>]+><h2><a.*?href="(.*?)"[^>]+>(.*?)</a></h2>'
-    for scrapedthumbnail, scrapedurl, scrapedtitle in scrapedSingle(item.url, '<ul class="recent-posts">(.*?)</ul>', patron):
+    for scrapedthumbnail, scrapedurl, scrapedtitle in scrapedSingle(item.url, '<ul class="recent-posts">(.*?)</ul>',
+                                                                    patron):
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         log("elenco", "title=[" + scrapedtitle + "] url=[" + scrapedurl + "] thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(

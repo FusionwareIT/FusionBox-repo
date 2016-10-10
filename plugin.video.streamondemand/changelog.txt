@@ -1,3 +1,7 @@
+v5.3.7
+- Megamerge pelisa
+- Major update
+
 v5.3.6
 - openload big fix
 - jjdecode lib
@@ -28,4 +32,3 @@ v5.3.1
 v5.3.0
 - Megamerge pelisa
 - Major update
-

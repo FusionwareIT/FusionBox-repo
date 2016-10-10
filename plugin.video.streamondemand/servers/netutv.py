@@ -1,17 +1,17 @@
 ﻿# -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para yaske-netutv, netutv, hqqtv waawtv
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
 import base64
+import re
+import urllib
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
     logger.info("[netutv.py] url="+page_url)
@@ -83,8 +83,8 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
         ## Doble decode y escape
         utf8 = double_b64(b64_data)
-
-        match_at = '<input name="at" id="text" value="([^"]+)">'
+        
+        match_at = '<input name="at" type="text" value="([^"]+)">'
         at = scrapertools.get_match(utf8, match_at)
 
         ### b_m3u8 ###
@@ -125,10 +125,10 @@ def find_videos(data):
     # http://waaw.tv/watch_video.php?v=96WDAAA71A8K
     patterns = [
         '/netu/tv/embed_(.*?$)',
-        'hqq.tv/[^=]+=([A-Z0-9]+)',
-        'netu.tv/[^=]+=([A-Z0-9]+)',
-        'waaw.tv/[^=]+=([A-Z0-9]+)',
-        'netu.php\?nt=([A-Z0-9]+)'
+        'hqq.tv/[^=]+=([a-zA-Z0-9]+)',
+        'netu.tv/[^=]+=([a-zA-Z0-9]+)',
+        'waaw.tv/[^=]+=([a-zA-Z0-9]+)',
+        'netu.php\?nt=([a-zA-Z0-9]+)'
     ]
 
     if '/netu/tv/embed_' in data:
@@ -148,17 +148,12 @@ def find_videos(data):
                 logger.info("  url="+url)
                 devuelve.append( [ titulo , url , 'netutv' ] )
                 encontrados.add(url)
+                break
             else:
                 logger.info("  url duplicada="+url)
 
     return devuelve
 
-def test():
-
-    #http://www.peliculasid.net/player/netu.php?id=NA44292KD53O
-    video_urls = get_video_url("http://netu.tv/watch_video.php?v=NA44292KD53O")
-
-    return len(video_urls)>0
 
 ## --------------------------------------------------------------------------------
 ## --------------------------------------------------------------------------------

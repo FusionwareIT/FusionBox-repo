@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para animestream.it
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #  By Costaplus
 # ------------------------------------------------------------
 import re
@@ -50,6 +50,7 @@ def mainlist(item):
                      action="search",
                      title="[COLOR orange]Cerca...[/COLOR]",
                      url="http://www.leserie.tv/index.php?do=search",
+                     extra="anime",
                      thumbnail=CercaThumbnail,
                      fanart=CercaFanart)]
 

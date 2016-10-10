@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para italiafilm
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 import urlparse
@@ -10,9 +10,9 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "italiafilm"
 __category__ = "F,S,A"
@@ -39,7 +39,7 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Film - Novita'[/COLOR]",
                      action="peliculas",
-                     url="%s/category/category/film-streaming-2016/" % host,
+                     url="%s/category/film-streaming-2016-1/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film HD[/COLOR]",
@@ -51,9 +51,15 @@ def mainlist(item):
                      action="peliculas",
                      url="%s/category/anime-e-cartoon/" % host,
                      thumbnail="http://orig09.deviantart.net/df5a/f/2014/169/2/a/fist_of_the_north_star_folder_icon_by_minacsky_saya-d7mq8c8.png"),
+                # Item(channel=__channel__,
+                #      title="[COLOR azure]Contenuti per Genere[/COLOR]",
+                #      action="categorias",
+                #      url=host,
+                #      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
+                     extra="movie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
@@ -73,11 +79,11 @@ def mainlist(item):
                       extra="serie",
                       url="%s/ultimi-telefilm-streaming/" % host,
                       thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),   
-                 Item(channel=__channel__,
-                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
-                      action="search",
-                      extra="serie",
-                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
+                Item(channel=__channel__,
+                     title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
+                     action="search",
+                     extra="serie",
+                     thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
     return itemlist
 
 
@@ -115,12 +121,11 @@ def search(item, texto):
     logger.info("[italiafilm.py] search " + texto)
 
     try:
-        if item.extra == "serie":
-            item.url = host + "/?s=" + texto
-            return peliculas_tv(item)
-        else:
-            item.url = host + "/?s=" + texto
+        item.url = host + "/?s=" + texto
+        if item.extra == "movie":
             return peliculas(item)
+        if item.extra == "serie":
+            return peliculas_tv(item)
     # Se captura la excepcion, para no interrumpir al buscador global si un canal falla
     except:
         import sys

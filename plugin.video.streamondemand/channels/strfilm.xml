@@ -1,27 +1,32 @@
-
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <channel>
-	<id>strfilm</id>
-	<name>Strfilm</name>
+    <id>strfilm</id>
+    <name>Strfilm</name>
 
-	<active>true</active>
-	<adult>false</adult>
-	<language>it</language>
+    <active>true</active>
+    <adult>false</adult>
+    <language>it</language>
 
-	<fanart></fanart>
-	<thumbnail>http://imgur.com/qekZtQal.png</thumbnail>
-	<bannermenu>http://imgur.com/qekZtQal.png</bannermenu>
+    <fanart></fanart>
+    <thumbnail>http://imgur.com/qekZtQal.png</thumbnail>
+    <bannermenu>http://imgur.com/qekZtQal.png</bannermenu>
 
-	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>1</version>
-	<date>22/06/2016</date>
-	<changes>update</changes>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/
+    </update_url>
+    <version>1</version>
+    <date>22/06/2016</date>
+    <changes>update</changes>
 
-	<categories>
-		<category>movie</category>
-	</categories>
+    <categories>
+        <category>movie</category>
+    </categories>
 
-	<settings>
-		<include_in_global_search>true</include_in_global_search>
-	</settings>
+    <settings>
+        <id>include_in_global_search</id>
+        <type>bool</type>
+        <label>Includi ricerca globale</label>
+        <default>true</default>
+        <enabled>true</enabled>
+        <visible>true</visible>
+    </settings>
 </channel>

@@ -15,7 +15,7 @@
 </gui>
 <playlistasfolders1>false</playlistasfolders1>
 <audio>
-    <defaultplayer>dvdplayer</defaultplayer> 
+    <defaultplayer>dvdplayer</defaultplayer>
 </audio>
     <imageres>540</imageres>
     <fanartres>720</fanartres>

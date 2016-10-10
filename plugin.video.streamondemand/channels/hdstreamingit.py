@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para hdstreamingit
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import base64
 import re
@@ -41,21 +41,25 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Ultimi Film Inseriti[/COLOR]",
                      action="peliculas",
+                     extra="movie",
                      url="%s/event_categories/film/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Per Categoria[/COLOR]",
                      action="categorias",
+                     extra="movie",
                      url=host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film 3D[/COLOR]",
                      action="pelis3d",
+                     extra="movie",
                      url="%s/event_categories/film-3d/" % host,
                      thumbnail="http://i.imgur.com/wXMmQie.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
+                     extra="movie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
@@ -109,6 +113,7 @@ def categorias(item):
         itemlist.append(
             Item(channel=__channel__,
                  action="peliculas",
+                 extra=item.extra,
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=urlparse.urljoin(host, scrapedurl),
                  thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png",
@@ -147,9 +152,10 @@ def peliculas(item):
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
-                 url=scrapedurl if item.extra == "serie" else scrapedurl,
+                 url=scrapedurl,
                  thumbnail=scrapedthumbnail,
                  plot=scrapedplot,
+                 extra=item.extra,
                  folder=True), tipo='movie'))
 
     # Extrae el paginador
@@ -166,6 +172,7 @@ def peliculas(item):
         itemlist.append(
             Item(channel=__channel__,
                  action="peliculas",
+                 extra=item.extra,
                  title="[COLOR orange]Successivo >>[/COLOR]",
                  url=scrapedurl,
                  thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png",
@@ -211,6 +218,7 @@ def pelis3d(item):
                  url=scrapedurl if item.extra == 'serie' else scrapedurl,
                  thumbnail=scrapedthumbnail,
                  plot=scrapedplot,
+                 extra=item.extra,
                  folder=True), tipo='movie'))
 
     # Extrae el paginador
@@ -227,6 +235,7 @@ def pelis3d(item):
         itemlist.append(
             Item(channel=__channel__,
                  action="pelis3d",
+                 extra=item.extra,
                  title="[COLOR orange]Successivo >>[/COLOR]",
                  url=scrapedurl,
                  thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png",

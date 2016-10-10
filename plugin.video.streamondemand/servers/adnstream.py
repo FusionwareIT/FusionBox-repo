@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para adnstream
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import re, sys
-import urlparse, urllib, urllib2
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 def get_video_url( page_url , premium = False , user="" , password="" , video_password="" ):
     logger.info("[adnstream.py] get_video_url(page_url='%s')" % page_url)
 
-    # Saca el código del vídeo
+    # Saca el cÃ³digo del vÃ­deo
     if page_url.startswith("http://"):
         try:
             code = scrapertools.get_match(page_url,"http\://www.adnstream.com/video/([a-zA-Z]+)/")
@@ -37,7 +36,7 @@ def get_video_url( page_url , premium = False , user="" , password="" , video_pa
 
     return video_urls
 
-# Encuentra vídeos del servidor en el texto pasado
+# Encuentra vÃ­deos del servidor en el texto pasado
 def find_videos(data):
     logger.info("[adnstream.py] find_videos")
 
@@ -62,9 +61,3 @@ def find_videos(data):
             logger.info("  url duplicada="+url)
 
     return devuelve
-
-def test():
-
-    video_urls = get_video_url("http://www.adnstream.com/video/jvaRziGkoP/")
-
-    return len(video_urls)>0

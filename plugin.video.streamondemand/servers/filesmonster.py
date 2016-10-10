@@ -1,26 +1,64 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
-# Conector para uploaz
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# streamondemand - XBMC Plugin
+# Conector para filesmonster
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
-    logger.info("[filesmonster.py] get_video_url(page_url='%s')" % page_url)
+    logger.info("[filesmonster.py] get_video_url( page_url='%s')" )
     video_urls = []
-    return video_urls
+    itemlist=[]
+    data1=''
+    data2=''
+    url=''
+    alerta='[filesmonster premium]'
+    enlace="no"
+    post2 = "username="+user+"&password="+password
+    login_url="http://filesmonster.com/api/public/login"
+    data1=scrapertools.cache_page(login_url, post=post2)
+    partes1=data1.split('"')
+    estado=partes1[3]
+    if estado!='success': alerta="[error de filesmonster premium]: "+estado
+    
+    id=page_url
+    id=id.replace("http://filesmonster.com/download.php","")
+    post=id.replace("?", "")
+    url = 'http://filesmonster.com/api/public/premiumDownload'
+    data2=scrapertools.cache_page(url, post=post)
+    
+    partes=data2.split('"')
+    url=partes[7]
+    if "http" not in url:alerta="[error de filesmonster premium]: "+url
+    
+    video_urls.append( [alerta ,url] )
 
-# Encuentra vídeos del servidor en el texto pasado
+
+
+     
+		
+    return video_urls
+	
+
+    	
+	
+
+
+
+
+
+# Encuentra vÃ­deos del servidor en el texto pasado
 def find_videos(data):
     encontrados = set()
     devuelve = []
+
+
 
     # http://uploaz.com/file/
     patronvideos  = '"filesmonster.com/download(.*?)"'

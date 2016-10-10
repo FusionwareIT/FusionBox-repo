@@ -1,18 +1,17 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Convierte una lista de vídeos en xml a una playlist PLS
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
-import re, os
-import urlparse, urllib, urllib2
+import os
+import re
 
-from core import scrapertools
-from core import logger
 from core import config
-from core import downloadtools
+from core import logger
+from core import scrapertools
 
-DEBUG = True
+DEBUG = config.get_setting("debug")
 CHANNELNAME = "xmltoplaylist"
 PLAYLIST_XML_FILENAME_TEMP = "video_playlist.xml.temp.pls"
 FULL_FILENAME_PATH_XML = os.path.join( config.get_setting("downloadpath"), PLAYLIST_XML_FILENAME_TEMP )
@@ -33,7 +32,7 @@ def MakePlaylistFromXML(xmlurl,title="default"):
         nombrefichero = FULL_FILENAME_PATH_XML
     else:
         nombrefichero = os.path.join( config.get_setting("downloadpath"),title + ".pls")
-    xmldata = scrapertools.cache_page(xmlurl)
+    xmldata = scrapertools.cachePage(xmlurl)
     patron = '<title>([^<]+)</title>.*?<location>([^<]+)</location>'
     matches = re.compile(patron,re.DOTALL).findall(xmldata)
     if len(matches)>0:

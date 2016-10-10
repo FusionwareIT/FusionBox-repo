@@ -6,7 +6,8 @@
 	<active>false</active>
 	<adult>false</adult>
 	<language>it</language>
-
+	<include_in_global_search>disabled</include_in_global_search>
+	
 	<fanart></fanart>
 	<thumbnail></thumbnail>
 	<bannermenu></bannermenu>
@@ -19,8 +20,36 @@
 	<categories>
 		<category></category>
 	</categories>
-
+	
 	<settings>
-		<include_in_global_search>false</include_in_global_search>
+		<id>multithread</id>
+		<type>bool</type>
+		<label>Ricerca MultiThread</label>
+		<default>true</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
 	</settings>
+	<settings>
+		<id>result_mode</id>
+		<type>list</type>
+		<label>Mostra risultati:</label>
+    	<default>0</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
+		<lvalues>Per canale</lvalues>
+		<lvalues>Tutti insieme</lvalues>
+	</settings>
+	<settings>
+		<id>saved_searches_limit</id>
+		<type>list</type>
+		<label>Numero ricerce salvate:</label>
+    	<default>0</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
+		<lvalues>10</lvalues>
+		<lvalues>20</lvalues>
+		<lvalues>30</lvalues>
+		<lvalues>40</lvalues>
+	</settings>
+
 </channel>

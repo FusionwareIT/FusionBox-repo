@@ -10,9 +10,9 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "filmpertutti"
 __category__ = "F,S,A"
@@ -34,19 +34,19 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Ultimi film inseriti[/COLOR]",
                      action="peliculas",
-                     extra="film",
+                     extra="movie",
                      url="%s/category/film/news_film/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Categorie film[/COLOR]",
                      action="categorias",
-                     extra="film",
+                     extra="movie",
                      url="%s/category/film/" % host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
-                     extra="film",
+                     extra="movie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
@@ -286,7 +286,7 @@ def search(item, texto):
     logger.info("streamondemand.filmpertutti " + item.url + " search " + texto)
     item.url = host + "/?s=" + texto
     try:
-        if item.extra == "film":
+        if item.extra == "movie":
             return src_movie(item)
         if item.extra == "serie":
             return src_movie(item)
@@ -356,7 +356,6 @@ def src_movie(item):
                  folder=True))
 
     return itemlist
-
 def episodios(item):
     logger.info("streamondemand.filmpertutti episodios")
 
@@ -469,7 +468,7 @@ def findvideos(item):
     logger.info("streamondemand.filmpertutti findvideos")
 
     # Descarga la página
-    data = scrapertools.cache_page(item.url) if item.extra == 'film' else item.url
+    data = scrapertools.cache_page(item.url) if item.extra == "movie" else item.url
 
     itemlist = servertools.find_video_items(data=data)
 

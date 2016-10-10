@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para videos externos de divxstage
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 # Credits:
 # Unwise and main algorithm taken from Eldorado url resolver
 # https://github.com/Eldorados/script.module.urlresolver/blob/master/lib/urlresolver/plugins/divxstage.py
 
-import urlparse,urllib2,urllib,re
-import os
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
 from core import unwise
 
 def test_video_exists( page_url ):
@@ -75,8 +73,3 @@ def find_videos(data):
             
             
     return devuelve
-
-def test():
-    video_urls = get_video_url("http://www.divxstage.net/video/of7ww1tdv62gf")
-
-    return len(video_urls)>0

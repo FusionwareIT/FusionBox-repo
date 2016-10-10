@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <channel>
 	<id>tengourl</id>
@@ -7,7 +6,8 @@
 	<active>false</active>
 	<adult>false</adult>
 	<language>it</language>
-
+	<include_in_global_search>disabled</include_in_global_search>
+	
 	<fanart></fanart>
 	<thumbnail>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/tengourl.png</thumbnail>
 	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/bannermenu/tengourl.png</bannermenu>
@@ -20,8 +20,4 @@
 	<categories>
 		<category>all</category>
 	</categories>
-
-	<settings>
-		<include_in_global_search>true</include_in_global_search>
-	</settings>
 </channel>

@@ -2,18 +2,16 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para itafilmtv
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #  By Costaplus
 # ------------------------------------------------------------
 import re
-
 import xbmc
-
-import filmontv
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
+from core.tmdb import infoSod
 
 __channel__ = "megafiletube"
 __category__ = "F"
@@ -25,117 +23,92 @@ DEBUG = config.get_setting("debug")
 
 host = "http://megafiletube.xyz"
 film =host + "/browse.php?search=&cat=1&t_lang=4"
+cartoni=host +"/browse.php?search=&cat=13&t_lang=4"
+serie=host + "/browse.php?search=&cat=14&t_lang=4"
+
 
 def isGeneric():
     return True
 
 #-----------------------------------------------------------------
 def mainlist(item):
-    log("mainlist","mainlist")
+    logger.info("megafiletube mainlist")
+
     itemlist =[]
-    itemlist.append(Item(channel=__channel__,action="elenco_film",title="[COLOR azure]Novità Film[/COLOR]"    ,url=film    ,thumbnail=thumbnovita,fanart=fanart))
-    itemlist.append(Item(channel=__channel__, title="[COLOR yellow]Cerca...[/COLOR]", action="search",thumbnail=thumbcerca,fanart=fanart))
+    itemlist.append(Item(channel=__channel__,action="elenco_film",title="[COLOR orange]Novità torrent [/COLOR][COLOR azure] Film[/COLOR]" ,url=film,thumbnail=thumbnovita,fanart=fanart))
+    itemlist.append(Item(channel=__channel__,action="elenco_film",title="[COLOR orange]Novità torrent [/COLOR][COLOR azure] Serie[/COLOR]",url=serie,thumbnail=thumbnovita,fanart=fanart))
+    itemlist.append(Item(channel=__channel__,action="elenco_film",title="[COLOR orange]Novità torrent [/COLOR][COLOR azure] Cartoni[/COLOR]",url=cartoni,thumbnail=thumbnovita,fanart=fanart))
+    itemlist.append(Item(channel=__channel__,action="search",     title="[COLOR yellow]Cerca film...[/COLOR]",extra="film", thumbnail=thumbcerca, fanart=fanart))
 
     return itemlist
 #=================================================================
 
 #-----------------------------------------------------------------
 def elenco_film(item):
-    log("elenco_film", "elenco_film")
+    logger.info("megafiletube elenco_film")
     itemlist=[]
 
-    patron="img.*?src=.'(.*?)'.*?href=\"(.*?)\"[^>]+>(.*?)</a>"
-    for scrapedimg,scrapedurl,scrapedtitolo in scrapedAll(item.url,patron):
+    patron="href='magnet:?(.*?)'[^>]+>[^>]+>[^>]+>.*?img.*?src=.'(.*?)'.*?target='.*?'>(.*?)</a>"
+    for scrapedurl,scrapedimg,scrapedtitolo in scrapedAll(item.url,patron):
         scrapedimg = scrapedimg.replace('\\','')
         base=scrapedtitolo.replace(".","")
         base=base.replace("(","")
         titolo=base.split("20")[0]
-        itemlist.append(Item(channel=__channel__, action="dettaglio_film", title="[COLOR darkkhaki].torrent [/COLOR]""[COLOR azure]"+titolo+"[/COLOR]",fulltitle=scrapedtitolo, url=host+scrapedurl,thumbnail=scrapedimg, fanart=scrapedimg))
+
+        itemlist.append(infoSod(Item(channel=__channel__,
+                                     action="torrent",
+                                     title="[COLOR darkkhaki].torrent [/COLOR]""[COLOR azure]"+scrapedtitolo+"[/COLOR]",
+                                     fulltitle=scrapedtitolo,
+                                     url=scrapedurl,
+                                     thumbnail=scrapedimg,
+                                     fanart=scrapedimg),
+                                tipo="movie"))
 
     # Paginazione
     # ===========================================================
     pagina = scrapedAll(item.url, '<td class="highlight">.*?class="pager"><a.*?href="(.*?)"')
     if len(pagina) > 0:
         pagina=scrapertools.decodeHtmlentities(pagina[0])
-        log("megafiletube", "Pagina url: " + pagina)
         itemlist.append(Item(channel=__channel__, action="elenco_film", title=AvantiTxt, url=pagina,thumbnail=AvantiImg, folder=True))
-        itemlist.append(Item(channel=__channel__, action="HomePage", title=HomeTxt, folder=True))
-    return itemlist
-#=================================================================
-
-#-----------------------------------------------------------------
-def dettaglio_film(item):
-    log("dettaglio_film", "dettaglio_film")
-    itemlist=[]
-
-    #patronMagnet = "red3'>.*?<div class='icon3'>.*?href=\"(.*?)\".*?class='fa fa-magnet"
-    patronMagnet = '<div class=\'icon3\'> <a href="(magnet[^&]+)[^>]+>'
-    patronMagnet = patronMagnet.replace("&amp;","&")
-    titolo=scrapedAll(item.url, patronMagnet)
-
-    patronTorrent = "<div class='icon3'>.*?href=\"(.*?)\".*?class='fa fa-download"
-    torrent =scrapedAll(item.url,patronTorrent)
-
-    patronTriler='<embed.*?src=\'(.*?)\''
-    Triler = scrapedAll(item.url,patronTriler)
-
-    xbmc.log("titolo " + titolo[0] + "torrent " + torrent[0] + " " + Triler[0] )
-
-    itemlist.append(Item(channel=__channel__, action="torrent", title="[COLOR yellow] Torrent [/COLOR] - [COLOR azure]Download[/COLOR] [I](" + host+torrent[0]+ ")[/I]",url=host+torrent[0], folder=True))
-    itemlist.append(Item(channel=__channel__, action="torrent",server="torrent", title="[COLOR yellow] Magnet [/COLOR] - [COLOR azure]Streaming[/COLOR] [I](" + titolo[0] + ")[/I]",url=titolo[0], folder=True))
-    itemlist.append(Item(channel=__channel__, action="findvideos", title="[COLOR yellow]Trailer [/COLOR]", url=item.url,folder=True))
-    itemlist.append(Item(channel=__channel__, action="cerca", title="[COLOR orange]Cerca in tutti i canali [/COLOR] "+ item.title, folder=True))
-    itemlist.append(Item(channel=__channel__,action="",title="[COLOR azure]Info Qualità:[/COLOR] [I]"+ item.fulltitle + "[/I]",folder=False))
+        itemlist.append(Item(channel=__channel__, action="HomePage", title=HomeTxt,thumbnail=ThumbnailHome, folder=True))
     return itemlist
 #=================================================================
 
 #-----------------------------------------------------------------
 def search(item,texto):
-    log("serach","search " + texto)
+    logger.info("megafiletube search " + texto)
+
     itemlist = []
-    item.url = host+"/browse.php?search=" + texto +"&cat=1&t_lang=4"
+
+    item.url = "http://megafiletube.xyz/browse.php?search=" + texto + "&cat=0&t_lang=4"
+
     return elenco_film(item)
 #=================================================================
 
-#-----------------------------------------------------------------
-def cerca(item):
-    itemlist=[]
-    item.title=item.title.replace("[COLOR orange]Cerca nei canali [/COLOR]","")
-    xbmc.log("titolo:"+item.title)
-    itemlist=filmontv.do_search(item)
-    if len(itemlist)==0:
-        itemlist.append(Item(channel=__channel__,action="mainlist",title="[COLOR red]Nessun canale dispone di questo titolo![/COLOR]"))
-    return itemlist
-#=================================================================
 
 #-----------------------------------------------------------------
 def torrent(item):
-    logger.info("[corsaronero.py] play")
+    logger.info("megafiletube torrent")
     itemlist = []
-
-    itemlist.append( Item(channel=__channel__, action="play", server="torrent", title=item.title , url=item.url , thumbnail=item.thumbnail , plot=item.plot , folder=False) )
+    magnet = "magnet:"+item.url
+    itemlist.append( Item(channel=__channel__, action="play", server="torrent", title=item.title , url=magnet , thumbnail=item.thumbnail , plot=item.plot , folder=False) )
 
     return itemlist
 #=================================================================
+
 
 #=================================================================
 # Funzioni di servizio
 #-----------------------------------------------------------------
 def scrapedAll(url="",patron=""):
     matches = []
-
     data = scrapertools.cache_page(url)
-    if DEBUG: logger.info("data:"+data)
+    logger.info("data:"+data)
     MyPatron = patron
     matches = re.compile(MyPatron, re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
 
     return matches
-#=================================================================
-
-#-----------------------------------------------------------------
-def log(funzione="",stringa="",canale=__channel__):
-    if DEBUG:logger.info("[" + canale + "].[" + funzione + "] " + stringa)
 #=================================================================
 
 #-----------------------------------------------------------------
@@ -149,3 +122,4 @@ fanart="http://www.virgilioweb.it/wp-content/uploads/2015/06/film-streaming.jpg"
 HomeTxt = "[COLOR yellow]Torna Home[/COLOR]"
 AvantiTxt="[COLOR orange]Successivo>>[/COLOR]"
 AvantiImg="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png"
+ThumbnailHome="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Dynamic-blue-up.svg/580px-Dynamic-blue-up.svg.png"

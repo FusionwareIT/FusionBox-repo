@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand - XBMC Plugin
 # Canal para darkstream
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 import urlparse
@@ -58,10 +58,12 @@ def mainlist(item):
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
+                     extra="movie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
                      action="search",
+                     extra="serie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
 
     return itemlist
@@ -211,9 +213,9 @@ def search(item, texto):
     logger.info("[darkstream.py] " + item.url + " search " + texto)
     item.url = host + "/?s=" + texto
     try:
-        if item.extra == "serie":
+        if item.extra == "movie":
             return peliculas(item)
-        else:
+        if item.extra == "serie":
             return peliculas(item)
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
     except:

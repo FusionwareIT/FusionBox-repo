@@ -1,30 +1,37 @@
 ﻿# -*- coding: utf-8 -*-
-#------------------------------------------------------------
-# streamondemand
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand
-# XBMC Plugin
-#------------------------------------------------------------
+# ------------------------------------------------------------
+# streamondemand 5
+# Copyright 2015 tvalacarta@gmail.com
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
+#
+# Distributed under the terms of GNU General Public License v3 (GPLv3)
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ------------------------------------------------------------
+# This file is part of streamondemand 5.
+#
+# streamondemand 5 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# streamondemand 5 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
+# --------------------------------------------------------------------------------
+# Updater daemon
+# --------------------------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
 import os
-import os.path
-import sys
-import scrapertools
+import re
 import time
+
 import config
 import logger
-
-# FIXME: Esto está repetido en el channelselector, debería ir a config
-thumbnail_type = config.get_setting("thumbnail_type")
-if thumbnail_type=="":
-    thumbnail_type="2"
-logger.info("thumbnail_type="+thumbnail_type)
-if thumbnail_type=="0":
-    IMAGES_PATH = 'http://media.tvalacarta.info/pelisalacarta/posters/'
-elif thumbnail_type=="1":
-    IMAGES_PATH = 'http://media.tvalacarta.info/pelisalacarta/banners/'
-elif thumbnail_type=="2":
-    IMAGES_PATH = 'http://media.tvalacarta.info/pelisalacarta/squares/'
+import scrapertools
 
 ROOT_DIR = config.get_runtime_path()
 
@@ -32,52 +39,14 @@ REMOTE_VERSION_FILE = "https://raw.githubusercontent.com/streamondemand/plugin.v
 LOCAL_VERSION_FILE = os.path.join( ROOT_DIR , "version.xml" )
 LOCAL_FILE = os.path.join( ROOT_DIR , config.PLUGIN_NAME+"-" )
 
-try:
-    # Añadida a la opcion : si plataforma xbmcdharma es "True", no debe ser con la plataforma de la xbox
-    # porque seria un falso "True", ya que el xbmc en las xbox no son dharma por lo tanto no existen los addons
-    logger.info("streamondemand.core.updater get_platform="+config.get_platform())
-    logger.info("streamondemand.core.updater get_system_platform="+config.get_system_platform())
-    if config.get_platform()=="kodi-jarvis":
-        import xbmc
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="kodi-isengard":
-        import xbmc
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="kodi-helix":
-        import xbmc
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="xbmc-eden":
-        import xbmc
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="xbmc-frodo":
-        import xbmc
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="xbmc-gotham":
-        import xbmc
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="xbmc":
-        import xbmc
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = xbmc.translatePath( "special://home/plugins/video")
-    elif config.get_platform()=="wiimc":
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = os.path.join(config.get_runtime_path(),"..")
-    elif config.get_platform()=="rss":
-        REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-        DESTINATION_FOLDER = os.path.join(config.get_runtime_path(),"..")
+#DESTINATION_FOLDER sera siempre el lugar donde este la carpeta del plugin,
+#No hace falta "xbmc.translatePath", get_runtime_path() ya tiene que devolver la ruta correcta
+DESTINATION_FOLDER = os.path.join(config.get_runtime_path(),"..")
 
-except:
-    import xbmc
-    REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
-    DESTINATION_FOLDER = xbmc.translatePath("special://home/addons")
+REMOTE_FILE = "https://github.com/streamondemand/plugin.video.streamondemand/archive/master.zip"
 
-def checkforupdates(plugin_mode=True):
+
+def checkforupdates():
     logger.info("streamondemand.core.updater checkforupdates")
 
     # Descarga el fichero con la versión en la web
@@ -85,31 +54,17 @@ def checkforupdates(plugin_mode=True):
     logger.info("streamondemand.core.updater Version remota: "+REMOTE_VERSION_FILE)
     data = scrapertools.cachePage( REMOTE_VERSION_FILE )
 
-    '''    
-    <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-    <version>
-            <name>streamondemand</name>
-            <tag>4.0     </tag>
-            <version>4000</tag>
-            <date>20/03/2015</date>
-            <changes>New release</changes>
-    </version>
-    '''
-
     version_publicada = scrapertools.find_single_match(data,"<version>([^<]+)</version>").strip()
     tag_publicada = scrapertools.find_single_match(data,"<tag>([^<]+)</tag>").strip()
     logger.info("streamondemand.core.updater version remota="+tag_publicada+" "+version_publicada)
     
     # Lee el fichero con la versión instalada
-    localFileName = LOCAL_VERSION_FILE
-    logger.info("streamondemand.core.updater fichero local version: "+localFileName)
-    infile = open( localFileName )
-    data = infile.read()
-    infile.close();
-    #logger.info("xml local="+data)
+    logger.info("streamondemand.core.updater fichero local version: "+LOCAL_VERSION_FILE)
+    data = open(LOCAL_VERSION_FILE).read()
 
     version_local = scrapertools.find_single_match(data,"<version>([^<]+)</version>").strip()
     tag_local = scrapertools.find_single_match(data,"<tag>([^<]+)</tag>").strip()
+    
     logger.info("streamondemand.core.updater version local="+tag_local+" "+version_local)
 
     try:
@@ -118,91 +73,34 @@ def checkforupdates(plugin_mode=True):
     except:
         import traceback
         logger.info(traceback.format_exc())
-        version_publicada = ""
-        version_local = ""
-
-    if version_publicada=="" or version_local=="":
-        arraydescargada = tag_publicada.split(".")
-        arraylocal = tag_local.split(".")
-
-        # local 2.8.0 - descargada 2.8.0 -> no descargar
-        # local 2.9.0 - descargada 2.8.0 -> no descargar
-        # local 2.8.0 - descargada 2.9.0 -> descargar
-        if len(arraylocal) == len(arraydescargada):
-            logger.info("caso 1")
-            hayqueactualizar = False
-            for i in range(0, len(arraylocal)):
-                print arraylocal[i], arraydescargada[i], int(arraydescargada[i]) > int(arraylocal[i])
-                if int(arraydescargada[i]) > int(arraylocal[i]):
-                    hayqueactualizar = True
-        # local 2.8.0 - descargada 2.8 -> no descargar
-        # local 2.9.0 - descargada 2.8 -> no descargar
-        # local 2.8.0 - descargada 2.9 -> descargar
-        if len(arraylocal) > len(arraydescargada):
-            logger.info("caso 2")
-            hayqueactualizar = False
-            for i in range(0, len(arraydescargada)):
-                #print arraylocal[i], arraydescargada[i], int(arraydescargada[i]) > int(arraylocal[i])
-                if int(arraydescargada[i]) > int(arraylocal[i]):
-                    hayqueactualizar = True
-        # local 2.8 - descargada 2.8.8 -> descargar
-        # local 2.9 - descargada 2.8.8 -> no descargar
-        # local 2.10 - descargada 2.9.9 -> no descargar
-        # local 2.5 - descargada 3.0.0
-        if len(arraylocal) < len(arraydescargada):
-            logger.info("caso 3")
-            hayqueactualizar = True
-            for i in range(0, len(arraylocal)):
-                #print arraylocal[i], arraydescargada[i], int(arraylocal[i])>int(arraydescargada[i])
-                if int(arraylocal[i]) > int(arraydescargada[i]):
-                    hayqueactualizar =  False
-                elif int(arraylocal[i]) < int(arraydescargada[i]):
-                    hayqueactualizar =  True
-                    break
+        version_publicada = None
+        version_local = None
+    
+    hayqueactualizar = False
+    #Si no tenemos la versión, comprobamos el tag
+    if version_publicada is None or version_local is None:
+        logger.info("streamondemand.core.updater comprobando el tag")
+        from distutils.version import StrictVersion
+        hayqueactualizar = StrictVersion(tag_publicada) > StrictVersion(tag_local)
+        
     else:
-        hayqueactualizar = (numero_version_publicada > numero_version_local)
+        logger.info("streamondemand.core.updater comprobando la version")
+        hayqueactualizar = numero_version_publicada > numero_version_local
 
+    #Si hay actualización disponible, devuelve la Nueva versión para que cada plataforma se encargue de mostrar los avisos
     if hayqueactualizar:
-    
-        if plugin_mode:
-    
-            logger.info("streamondemand.core.updater actualizacion disponible")
-            
-            # Añade al listado de XBMC
-            import xbmcgui
-            #thumbnail = IMAGES_PATH+"Crystal_Clear_action_info.png"
-            thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "service_update.png")
-            logger.info("thumbnail="+thumbnail)
-            listitem = xbmcgui.ListItem( "Scarica la versione "+tag_publicada, thumbnailImage=thumbnail )
-            itemurl = '%s?action=update&version=%s' % ( sys.argv[ 0 ] , tag_publicada )
-            import xbmcplugin
-            xbmcplugin.addDirectoryItem( handle = int(sys.argv[ 1 ]), url = itemurl , listitem=listitem, isFolder=True)
-            
-            # Avisa con un popup
-            dialog = xbmcgui.Dialog()
-            dialog.ok("Versione "+tag_publicada+" disponibile","E' possibile scaricare la nuova versione del plugin\nattraverso l'opzione nel menù principale.")
+        return  tag_publicada
+    else:
+      return None
 
-        else:
 
-            import xbmcgui
-            yes_pressed = xbmcgui.Dialog().yesno( "Versione "+tag_publicada+" disponibile" , "Installarla?" )
-
-            if yes_pressed:
-                params = {"version":tag_publicada}
-                update(params)
-
-    '''
-    except:
-        logger.info("No se han podido verificar actualizaciones...")
-        import sys
-        for line in sys.exc_info():
-            logger.error( "%s" % line )
-    '''
-def update(params):
+def update(item):
     # Descarga el ZIP
     logger.info("streamondemand.core.updater update")
     remotefilename = REMOTE_FILE
-    localfilename = LOCAL_FILE+params.get("version")+".zip"
+    localfilename = LOCAL_FILE+item.version+".zip"
+    if os.path.exists(localfilename):
+      os.remove(localfilename)
     logger.info("streamondemand.core.updater remotefilename=%s" % remotefilename)
     logger.info("streamondemand.core.updater localfilename=%s" % localfilename)
     logger.info("streamondemand.core.updater descarga fichero...")
@@ -229,7 +127,9 @@ def update(params):
     logger.info("streamondemand.core.updater ...fichero borrado")
 
 def get_channel_remote_url(channel_name):
+
     _remote_channel_url_ = "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/"
+
     if channel_name <> "channelselector":
         _remote_channel_url_+= "channels/"
 
@@ -291,7 +191,7 @@ def updatechannel(channel_name):
     if os.path.exists( local_version_path ):
         infile = open( local_version_path )
         data = infile.read()
-        infile.close();
+        infile.close()
         logger.info("streamondemand.core.updater local_data="+data)
 
         if "<tag>" in data:
@@ -300,10 +200,10 @@ def updatechannel(channel_name):
             patronvideos  = '<version>([^<]+)</version>' 
 
         matches = re.compile(patronvideos,re.DOTALL).findall(data)
+
         local_version = int(matches[0])
     else:
         local_version = 0
-    
     logger.info("streamondemand.core.updater local_version=%d" % local_version)
     
     # Comprueba si ha cambiado
@@ -349,6 +249,127 @@ def download_channel(channel_name):
         import sys
         for line in sys.exc_info():
             logger.error( "%s" % line )
+
+    if os.path.exists(local_compiled_path):
+        os.remove(local_compiled_path)
+
+
+def get_server_remote_url(server_name):
+    _remote_server_url_ = "https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/"
+
+    remote_server_url = _remote_server_url_ + server_name + ".py"
+    remote_version_url = _remote_server_url_ + server_name + ".xml"
+
+    logger.info("streamondemand.core.updater remote_server_url=" + remote_server_url)
+    logger.info("streamondemand.core.updater remote_version_url=" + remote_version_url)
+
+    return remote_server_url, remote_version_url
+
+
+def get_server_local_path(server_name):
+    local_server_path = os.path.join(config.get_runtime_path(), 'servers', server_name + ".py")
+    local_version_path = os.path.join(config.get_runtime_path(), 'servers', server_name + ".xml")
+    local_compiled_path = os.path.join(config.get_runtime_path(), 'servers', server_name + ".pyo")
+
+    logger.info("streamondemand.core.updater local_servers_path=" + local_server_path)
+    logger.info("streamondemand.core.updater local_version_path=" + local_version_path)
+    logger.info("streamondemand.core.updater local_compiled_path=" + local_compiled_path)
+
+    return local_server_path, local_version_path, local_compiled_path
+
+
+def updateserver(server_name):
+    logger.info("streamondemand.core.updater updateserver('" + server_name + "')")
+
+    # Canal remoto
+    remote_server_url, remote_version_url = get_server_remote_url(server_name)
+
+    # Canal local
+    local_server_path, local_version_path, local_compiled_path = get_server_local_path(server_name)
+
+    # if not os.path.exists(local_server_path):
+    #    return False;
+
+    # Version remota
+    try:
+        data = scrapertools.cachePage(remote_version_url)
+        logger.info("streamondemand.core.updater remote_data=" + data)
+
+        if "<tag>" in data:
+            patronvideos = '<tag>([^<]+)</tag>'
+        elif "<version>" in data:
+            patronvideos = '<version>([^<]+)</version>'
+
+        matches = re.compile(patronvideos, re.DOTALL).findall(data)
+        remote_version = int(matches[0])
+    except:
+        remote_version = 0
+
+    logger.info("streamondemand.core.updater remote_version=%d" % remote_version)
+
+    # Version local
+    if os.path.exists(local_version_path):
+        infile = open(local_version_path)
+        data = infile.read()
+        infile.close()
+        logger.info("streamondemand.core.updater local_data=" + data)
+
+        if "<tag>" in data:
+            patronvideos = '<tag>([^<]+)</tag>'
+        elif "<version>" in data:
+            patronvideos = '<version>([^<]+)</version>'
+
+        matches = re.compile(patronvideos, re.DOTALL).findall(data)
+
+        local_version = int(matches[0])
+    else:
+        local_version = 0
+    logger.info("streamondemand.core.updater local_version=%d" % local_version)
+
+    # Comprueba si ha cambiado
+    updated = remote_version > local_version
+
+    if updated:
+        logger.info("streamondemand.core.updater updated")
+        download_server(server_name)
+
+    return updated
+
+
+def download_server(server_name):
+    logger.info("streamondemand.core.updater download_server('" + server_name + "')")
+    # Canal remoto
+    remote_server_url, remote_version_url = get_server_remote_url(server_name)
+
+    # Canal local
+    local_server_path, local_version_path, local_compiled_path = get_server_local_path(server_name)
+
+    # Descarga el canal
+    updated_server_data = scrapertools.cachePage(remote_server_url)
+    try:
+        outfile = open(local_server_path, "wb")
+        outfile.write(updated_server_data)
+        outfile.flush()
+        outfile.close()
+        logger.info("streamondemand.core.updater Grabado a " + local_server_path)
+    except:
+        logger.info("streamondemand.core.updater Error al grabar " + local_server_path)
+        import sys
+        for line in sys.exc_info():
+            logger.error("%s" % line)
+
+    # Descarga la version (puede no estar)
+    try:
+        updated_version_data = scrapertools.cachePage(remote_version_url)
+        outfile = open(local_version_path, "w")
+        outfile.write(updated_version_data)
+        outfile.flush()
+        outfile.close()
+        logger.info("streamondemand.core.updater Grabado a " + local_version_path)
+    except:
+        import sys
+        for line in sys.exc_info():
+            logger.error("%s" % line)
 
     if os.path.exists(local_compiled_path):
         os.remove(local_compiled_path)

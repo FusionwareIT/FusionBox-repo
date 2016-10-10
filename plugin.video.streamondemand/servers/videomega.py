@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para videomega
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 
 import re
@@ -13,7 +13,6 @@ from core import logger
 from core import scrapertools
 
 headers = [
-    ['Accept-Encoding', 'gzip, deflate'],
     ['User-Agent',
      'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25'],
 ]
@@ -33,6 +32,7 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
 
         location = scrapertools.find_single_match(data, r'"src"\s*,\s*"([^"]+)')
         location += '|' + urllib.urlencode(dict(headers))
+        logger.info("streamondemand.videomega location=" + location)
 
         video_urls.append([scrapertools.get_filename_from_url(location)[-4:] + " [videomega]", location])
 

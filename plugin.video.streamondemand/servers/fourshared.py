@@ -1,16 +1,14 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para 4shared
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
-import urlparse,urllib2,urllib,re,httplib
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
 
-import os
 
 # Returns an array of possible video url's from the page_url
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
@@ -106,8 +104,3 @@ def find_videos(data):
             logger.info("  url duplicada="+url)
 
     return devuelve
-
-def test():
-    video_urls = get_video_url("http://www.4shared.com/embed/392975628/ff297d3f")
-
-    return len(video_urls)>0

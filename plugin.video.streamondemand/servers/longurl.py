@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para longurl (acortador de url)
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
-from core import scrapertools
-from core import logger
-from core import config
+import re
 import urllib
+
+from core import config
+from core import logger
+from core import scrapertools
 
 DEBUG = config.get_setting("debug")
 
@@ -48,11 +48,3 @@ def get_long_urls(data):
           long_url=""
         if (long_url<> ""):data=data.replace(short_url,long_url)
     return data
-
-def test():
-    
-    location = get_long_urls("http://sh.st/saBL8")
-    ok = ("meuvideos.com" in location)
-    print "Funciona:",ok
-
-    return ok

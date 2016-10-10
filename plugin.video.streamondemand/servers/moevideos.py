@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para moevideos
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 def test_video_exists( page_url ):
     logger.info("[moevideos.py] test_video_exists(page_url='%s')" % page_url)
@@ -212,9 +211,3 @@ def find_videos(data):
             logger.info("  url duplicada="+url)
 
     return devuelve
-
-def test():
-    video_urls = get_video_url("http://www.moevideos.net/online/243989")
-    #video_urls = get_video_url("http://moevideo.net/?page=video&uid=60823.6717786f74cd87a6cbeeb8c9e48d")
-
-    return len(video_urls)>0

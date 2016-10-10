@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector for publicvideohost.org
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # by DrZ3r0
 # ------------------------------------------------------------
 
 import re
 
-from core import scrapertools
 from core import logger
+from core import scrapertools
 
 
 def get_video_url(page_url, premium=False, user="", password="", video_password=""):

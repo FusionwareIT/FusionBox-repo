@@ -2,16 +2,16 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para filmsenzalimiti
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "filmsenzalimiti"
 __category__ = "F"
@@ -35,24 +35,24 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Film Del Cinema[/COLOR]",
                      action="novedades",
-                     extra="film",
+                     extra="movie",
                      url="%s/genere/film" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Dvdrip[/COLOR]",
                      action="novedades",
-                     extra="film",
+                     extra="movie",
                      url="%s/genere/dvd-rip" % host,
                      thumbnail="http://repository-butchabay.googlecode.com/svn/branches/eden/skin.cirrus.extended.v2/extras/moviegenres/Box%20Sets%20HD.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Sub Ita[/COLOR]",
                      action="novedades",
-                     extra="film",
+                     extra="movie",
                      url="%s/genere/subita" % host,
                      thumbnail="http://i.imgur.com/qUENzxl.png"),
                 Item(channel=__channel__,
                      action="search",
-                     extra="film",
+                     extra="movie",
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
@@ -101,7 +101,7 @@ def search(item, texto):
     logger.info("[filmsenzalimiti.py] " + item.url + " search " + texto)
     item.url = host + "/?s=" + texto
     try:
-        if item.extra == "film":
+        if item.extra == "movie":
             return novedades(item)
         if item.extra == "serie":
             return novedades_tv(item)

@@ -1,108 +1,79 @@
 # -*- coding: utf-8 -*-
-#------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# ------------------------------------------------------------
+# streamondemand - XBMC Plugin
 # Conector para nosvideo
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
-#------------------------------------------------------------
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
+# ------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import base64
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
 
-def test_video_exists( page_url ):
-    logger.info("[nosvideo.py] test_video_exists(page_url='%s')" % page_url)
+
+def test_video_exists(page_url):
+    logger.info("streamondemand.servers.nosvideo.py test_video_exists(page_url='%s')" % page_url)
 
     data = scrapertools.cache_page(page_url)
-    
-    if "The file is being converted" in data:
-        return False,"El fichero está en proceso"
 
-    return True,""
+    if "404 Page no found" in data:
+        return False, "[nosvideo] El archivo no existe o ha sido borrado"
 
-def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
-    logger.info("[nosvideo.py] get_video_url(page_url='%s')" % page_url)
+    return True, ""
+
+
+def get_video_url(page_url, premium=False, user="", password="", video_password=""):
+    logger.info("streamondemand.servers.nosvideo.py get_video_url(page_url='%s')" % page_url)
     video_urls = []
-    
+
     # Lee la URL
-    data = scrapertools.cache_page( page_url )
-    bloque = scrapertools.get_match(data,'<Form method="POST"(.*)</.orm>')
-    #logger.info("bloque="+bloque)
-    op = scrapertools.get_match(bloque,'<input type="hidden" name="op" value="([^"]+)"')
-    id = scrapertools.get_match(bloque,'<input type="hidden" name="id" value="([^"]+)"')
-    rand = scrapertools.get_match(bloque,'<input type="hidden" name="rand" value="([^"]*)"')
-    referer = scrapertools.get_match(bloque,'<input type="hidden" name="referer" value="([^"]*)"')
-    usr_login = scrapertools.get_match(bloque,'<input type="hidden" name="usr_login" value="([^"]*)"')
-    fname = scrapertools.get_match(bloque,'<input type="hidden" name="fname" value="([^"]+)"')
-    method_free = scrapertools.get_match(bloque,'<input type="[^"]+" name="method_free" value="([^"]*)"')
-    method_premium = scrapertools.get_match(bloque,'<input type="[^"]+" name="method_premium" value="([^"]*)"')
+    data = scrapertools.cache_page(page_url)
+    decode = scrapertools.find_single_match(data, 'tracker: "([^"]+)"')
+    media_url = base64.b64decode(decode)
 
-    # Simula el botón
-    #op=download1&id=iij5rw25kh4c&rand=&referer=&usr_login=&fname=TED-TS-Screener.Castellano.Ro_dri.avi&method_free=&method_premium=&down_script=1&method_free=Continue+to+Video
-    post = "op="+op+"&id="+id+"&rand="+rand+"&referer="+referer+"&usr_login="+usr_login+"&fname="+fname+"&method_free=&method_premium="+method_premium+"&down_script=1&method_free="+method_free
-    data = scrapertools.cache_page( page_url , post=post )
-    #logger.info("data="+data)
-
-    # Saca el bloque packed y lo descifra
-    packed = scrapertools.get_match(data,"(<script type='text/javascript'>eval\(function\(p,a,c,k,e,d\).*?</script>)")
-    from core import jsunpack
-    unpacked = jsunpack.unpack(packed)
-    logger.info("unpacked="+unpacked)
-    
-    # Extrae el descriptor
-    playlist = scrapertools.get_match(unpacked,"playlist\=(.*?\.xml)")
-    data = scrapertools.cache_page( playlist )
-    location = scrapertools.get_match(data,"<file>([^<]+)</file>")
-    
-    video_urls.append( [ scrapertools.get_filename_from_url(location)[-4:] + " [nosvideo]",location ] )
+    video_urls.append([scrapertools.get_filename_from_url(media_url)[-4:] + " [nosvideo]", media_url])
 
     for video_url in video_urls:
-        logger.info("[nosvideo.py] %s - %s" % (video_url[0],video_url[1]))
+        logger.info("streamondemand.servers.nosvideo.py %s - %s" % (video_url[0], video_url[1]))
 
     return video_urls
+
 
 # Encuentra vídeos del servidor en el texto pasado
 def find_videos(data):
     encontrados = set()
     devuelve = []
 
-    #http://nosvideo.com/?v=iij5rw25kh4c
-    patronvideos  = '(nosvideo.com/\?v\=[a-z0-9]+)'
-    logger.info("[nosvideo.py] find_videos #"+patronvideos+"#")
-    matches = re.compile(patronvideos,re.DOTALL).findall(data)
+    # http://nosvideo.com/?v=iij5rw25kh4c
+    # http://nosvideo.com/vj/video.php?u=27cafd27ce64900d&w=640&h=380
+    patronvideos = 'nosvideo.com/(?:\?v=|vj/video.php\?u=|)([a-z0-9]+)'
+    logger.info("streamondemand.servers.nosvideo.py find_videos #" + patronvideos + "#")
+    matches = re.compile(patronvideos, re.DOTALL).findall(data)
 
     for match in matches:
         titulo = "[nosvideo]"
-        url = "http://"+match
+        url = "http://nosvideo.com/vj/videomain.php?u=%s&w=&h=530" % match
         if url not in encontrados:
-            logger.info("  url="+url)
-            devuelve.append( [ titulo , url , 'nosvideo' ] )
+            logger.info("  url=" + url)
+            devuelve.append([titulo, url, 'nosvideo'])
             encontrados.add(url)
         else:
-            logger.info("  url duplicada="+url)
+            logger.info("  url duplicada=" + url)
 
-    #http://nosupload.com/?v=iij5rw25kh4c
-    patronvideos  = 'nosupload.com(/\?v\=[a-z0-9]+)'
-    logger.info("[nosvideo.py] find_videos #"+patronvideos+"#")
-    matches = re.compile(patronvideos,re.DOTALL).findall(data)
+    # http://nosupload.com/?v=iij5rw25kh4c
+    patronvideos = 'nosupload.com(/\?v\=[a-z0-9]+)'
+    logger.info("streamondemand.servers.nosvideo.py find_videos #" + patronvideos + "#")
+    matches = re.compile(patronvideos, re.DOTALL).findall(data)
 
     for match in matches:
         titulo = "[nosvideo]"
-        url = "http://nosvideo.com"+match
+        url = "http://nosvideo.com" + match
         if url not in encontrados:
-            logger.info("  url="+url)
-            devuelve.append( [ titulo , url , 'nosvideo' ] )
+            logger.info("  url=" + url)
+            devuelve.append([titulo, url, 'nosvideo'])
             encontrados.add(url)
         else:
-            logger.info("  url duplicada="+url)
+            logger.info("  url duplicada=" + url)
 
     return devuelve
-
-
-def test():
-
-    video_urls = get_video_url("http://nosvideo.com/?v=zuxl97lozqmp")
-
-    return len(video_urls)>0

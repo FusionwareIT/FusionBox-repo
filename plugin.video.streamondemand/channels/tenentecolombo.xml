@@ -1,27 +1,32 @@
-
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <channel>
-	<id>tenentecolombo</id>
-	<name>Tenente Colombo Streaming</name>
+    <id>tenentecolombo</id>
+    <name>Tenente Colombo Streaming</name>
 
-	<active>true</active>
-	<adult>false</adult>
-	<language>it</language>
+    <active>true</active>
+    <adult>false</adult>
+    <language>it</language>
 
-	<fanart></fanart>
-	<thumbnail>http://biografieonline.it/img/bio/p/Peter_Falk.jpg</thumbnail>
-	<bannermenu>http://biografieonline.it/img/bio/p/Peter_Falk.jpg</bannermenu>
+    <fanart></fanart>
+    <thumbnail>http://biografieonline.it/img/bio/p/Peter_Falk.jpg</thumbnail>
+    <bannermenu>http://biografieonline.it/img/bio/p/Peter_Falk.jpg</bannermenu>
 
-	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>1</version>
-	<date>22/06/2016</date>
-	<changes>update</changes>
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/
+    </update_url>
+    <version>1</version>
+    <date>22/06/2016</date>
+    <changes>update</changes>
 
-	<categories>
-		<category>serie</category>
-	</categories>
+    <categories>
+        <category>serie</category>
+    </categories>
 
-	<settings>
-		<include_in_global_search>true</include_in_global_search>
-	</settings>
+    <settings>
+        <id>include_in_global_search</id>
+        <type>bool</type>
+        <label>Includi ricerca globale</label>
+		<default>false</default>
+		<enabled>false</enabled>
+		<visible>false</visible>
+    </settings>
 </channel>

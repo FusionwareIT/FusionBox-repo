@@ -1,16 +1,16 @@
 ﻿# -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para userporn
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import os,re
 import base64
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 HOSTER_KEY="NTI2NzI5Cgo="
 # Returns an array of possible video url's from the page_url
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
@@ -28,7 +28,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     # Descarga el json con los detalles del vídeo
     #http://www.userporn.com/player_control/settings.php?v=dvthddkC7l4J&em=TRUE&fv=v1.1.45
     controluri = "http://userporn.com/player_control/settings.php?v=" + code + "&em=TRUE&fv=v1.1.45"
-    datajson = scrapertools.cache_page(controluri)
+    datajson = scrapertools.cachePage(controluri)
     #logger.info("response="+datajson);
 
     # Convierte el json en un diccionario

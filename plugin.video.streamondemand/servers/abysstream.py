@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # StreamOnDemand - Kodi Plugin
 # Server per abysstream.com
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # by DrZ3r0
 # Fix trovato qui (per varie ed eventuali - Zanzibar82) https://github.com/FusionwareIT/FusionBox-repo/
 # ------------------------------------------------------------

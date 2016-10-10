@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para eurostreaminginfo
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 
@@ -43,6 +43,7 @@ def mainlist(item):
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
+                     extra="movie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
@@ -62,9 +63,9 @@ def search(item, texto):
     logger.info("[eurostreaminginfo.py] " + item.url + " search " + texto)
     item.url = host + "/?s=" + texto
     try:
-        if item.extra == "serie":
+        if item.extra == "movie":
             return pelisrc(item)
-        else:
+        if item.extra == "serie":
             return pelisrc(item)
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
     except:

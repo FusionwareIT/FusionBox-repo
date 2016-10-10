@@ -2,12 +2,10 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para seriehd - based on guardaserie channel
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import base64
 import re
-import time
-import urllib
 import urlparse
 
 from core import config
@@ -52,6 +50,7 @@ def mainlist(item):
                      thumbnail="http://i37.photobucket.com/albums/e88/xzener/NewIcons.png"),
                 Item(channel=__channel__,
                      action="search",
+                     extra="serie",
                      title="[COLOR green]Cerca...[/COLOR]",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
 

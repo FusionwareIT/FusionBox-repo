@@ -12,7 +12,7 @@ from core import logger
 from core import scrapertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
+from core import servertools
 
 __channel__ = "casacinema"
 __category__ = "F,S,A"
@@ -52,7 +52,7 @@ def mainlist(item):
                      title="[COLOR azure]Categorie[/COLOR]",
                      action="categorias",
                      extra="film",
-                     url=host,
+                     url="%s/genere/film" % host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Sub - Ita[/COLOR]",
@@ -107,19 +107,13 @@ def peliculas(item):
     data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
-    patron = '<div class="box-single-movies">\s*'
-    patron += '<a href="([^>"]+)".*?title="([^>"]+)" >.*?<img class.*?<img.*?src="([^>"]+)"'
+    patron = '<li><a href="([^"]+)" data-thumbnail="([^"]+)"><div><div class="title">(.*?)<'
 
     matches = re.compile(patron, re.DOTALL).findall(data)
 
-    for scrapedurl, scrapedtitle, scrapedthumbnail in matches:
+    for scrapedurl, scrapedthumbnail, scrapedtitle in matches:
         title = scrapertools.decodeHtmlentities(scrapedtitle)
-        html = scrapertools.cache_page(scrapedurl)
-        start = html.find("<div class=\"row content-post\" >")
-        end = html.find("<a class=\"addthis_button_facebook_like\" fb:like:layout=\"button_count\"></a>", start)
-        scrapedplot = html[start:end]
-        scrapedplot = re.sub(r'<[^>]*>', '', scrapedplot)
-        scrapedplot = scrapertools.decodeHtmlentities(scrapedplot).strip()
+        scrapedplot = ""
         itemlist.append(infoSod(
             Item(channel=__channel__,
                  action="episodios" if item.extra == "serie" else "findvideos",
@@ -133,7 +127,7 @@ def peliculas(item):
                  folder=True), tipo='movie'))
 
     ## Paginación
-    next_page = scrapertools.find_single_match(data, 'rel="next" href="([^"]+)"')
+    next_page = scrapertools.find_single_match(data, '<li class="active"><a href=[^>]+>[^>]+>[^>]+>[^>]+><a href="([^"]+)">')
 
     if next_page != "":
         itemlist.append(
@@ -161,19 +155,13 @@ def peliculas_tv(item):
     data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
-    patron = '<div class="box-single-movies">\s*'
-    patron += '<a href="([^>"]+)".*?title="([^>"]+)" >.*?<img class.*?<img.*?src="([^>"]+)"'
+    patron = '<li><a href="([^"]+)" data-thumbnail="([^"]+)"><div><div class="title">(.*?)<'
 
     matches = re.compile(patron, re.DOTALL).findall(data)
 
-    for scrapedurl, scrapedtitle, scrapedthumbnail in matches:
+    for scrapedurl, scrapedthumbnail, scrapedtitle in matches:
         title = scrapertools.decodeHtmlentities(scrapedtitle)
-        html = scrapertools.cache_page(scrapedurl)
-        start = html.find("<div class=\"row content-post\" >")
-        end = html.find("<a class=\"addthis_button_facebook_like\" fb:like:layout=\"button_count\"></a>", start)
-        scrapedplot = html[start:end]
-        scrapedplot = re.sub(r'<[^>]*>', '', scrapedplot)
-        scrapedplot = scrapertools.decodeHtmlentities(scrapedplot).strip()
+        scrapedplot = ""
         itemlist.append(infoSod(
             Item(channel=__channel__,
                  action="episodios" if item.extra == "serie" else "findvideos",
@@ -187,7 +175,7 @@ def peliculas_tv(item):
                  folder=True), tipo='tv'))
 
     ## Paginación
-    next_page = scrapertools.find_single_match(data, 'rel="next" href="([^"]+)"')
+    next_page = scrapertools.find_single_match(data, '<li class="active"><a href=[^>]+>[^>]+>[^>]+>[^>]+><a href="([^"]+)">')
 
     if next_page != "":
         itemlist.append(
@@ -218,10 +206,12 @@ def categorias(item):
 
     data = scrapertools.anti_cloudflare(item.url, headers)
 
-    # The categories are the options for the combo
-    patron = '<div class="col-xs-6[^=]+="Categoria"[^>]+>[^=]+="(.*?)">(.*?)</a>'
+    # Narrow search by selecting only the combo
+    bloque = scrapertools.get_match(data, 'Categorie(.*?)</ul>')
 
-    matches = re.compile(patron, re.DOTALL).findall(data)
+    # The categories are the options for the combo
+    patron = '<a href="(.*?)">(.*?)</a></li>'
+    matches = re.compile(patron, re.DOTALL).findall(bloque)
 
     for scrapedurl, scrapedtitle in matches:
         itemlist.append(

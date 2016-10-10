@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para safelinking (ocultador de url)
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
-
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 def get_long_url( short_url ):
     logger.info("[safelinking.py] get_long_url(short_url='%s')" % short_url)
@@ -19,10 +16,3 @@ def get_long_url( short_url ):
     logger.info("location="+location)
 
     return location
-
-def test():
-    
-    location = get_long_url("https://safelinking.net/d/b038a2ed6e")
-    ok = ("http://played.to" in location)
-
-    return ok

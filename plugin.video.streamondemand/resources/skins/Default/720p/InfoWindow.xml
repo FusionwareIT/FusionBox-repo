@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window>
+    <allowoverlays>false</allowoverlays>
+    <controls>
+      <control type="group" id="10001">
+        <centerleft>640</centerleft>
+        <centertop>360</centertop>
+        <width>800</width>
+        <height>480</height>
+        <control type="image">
+          <texture>InfoWindow/DialogBack.png</texture>
+        </control>
+        <control type="image">
+          <height>40</height>
+          <texture>InfoWindow/dialogheader.png</texture>
+        </control>
+        <control type="label" id="10002">
+          <top>10</top>
+          <height>34</height>
+          <font>font12_title</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>center</align>
+          <aligny>center</aligny>
+          <label></label>
+        </control>
+        <control type="button" id="10003">
+          <right>15</right>
+          <top>15</top>
+          <width>50</width>
+          <height>30</height>
+          <texturefocus>InfoWindow/DialogCloseButton-focus.png</texturefocus>
+          <texturenofocus>InfoWindow/DialogCloseButton.png</texturenofocus>
+        </control>
+        <control type="image" id="10004">
+          <left>11</left>
+          <top>41</top>
+          <width>522</width>
+          <height>424</height>
+          <texture></texture>
+          <colordiffuse>55FFFFFF</colordiffuse>
+        </control>
+        <control type="image" id="10005">
+          <left>535</left>
+          <top>41</top>
+          <width>255</width>
+          <height>424</height>
+          <texture></texture>
+        </control>
+        <control type="label" id="10006">
+          <top>50</top>
+          <left>20</left>
+          <height>40</height>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="10007">
+          <top>50</top>
+          <left>140</left>
+          <height>40</height>
+          <width>365</width>
+          <font>font10</font>
+          <scrollsuffix> | </scrollsuffix>
+          <scroll>true</scroll>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="10008">
+          <top>70</top>
+          <left>20</left>
+          <height>40</height>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="10009">
+          <top>70</top>
+          <left>140</left>
+          <height>40</height>
+          <width>365</width>
+          <font>font10</font>
+          <scrollsuffix> | </scrollsuffix>
+          <scroll>true</scroll>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100010">
+          <top>90</top>
+          <left>20</left>
+          <height>40</height>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100011">
+          <top>90</top>
+          <left>140</left>
+          <height>40</height>
+          <width>365</width>
+          <font>font10</font>
+          <scrollsuffix> | </scrollsuffix>
+          <scroll>true</scroll>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100012">
+          <top>110</top>
+          <left>20</left>
+          <height>40</height>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100013">
+          <top>110</top>
+          <left>140</left>
+          <height>40</height>
+          <width>365</width>
+          <font>font10</font>
+          <scrollsuffix> | </scrollsuffix>
+          <scroll>true</scroll>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100014">
+          <top>130</top>
+          <left>20</left>
+          <height>40</height>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100015">
+          <top>130</top>
+          <left>140</left>
+          <height>40</height>
+          <width>365</width>
+          <font>font10</font>
+          <scrollsuffix> | </scrollsuffix>
+          <scroll>true</scroll>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100016">
+          <top>150</top>
+          <left>20</left>
+          <height>40</height>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100017">
+          <top>150</top>
+          <left>140</left>
+          <height>40</height>
+          <width>365</width>
+          <font>font10</font>
+          <scrollsuffix> | </scrollsuffix>
+          <scroll>true</scroll>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100018">
+          <top>170</top>
+          <left>20</left>
+          <height>40</height>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100019">
+          <top>170</top>
+          <left>140</left>
+          <height>40</height>
+          <width>365</width>
+          <font>font10</font>
+          <scrollsuffix> | </scrollsuffix>
+          <scroll>true</scroll>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100020">
+          <top>190</top>
+          <left>20</left>
+          <height>40</height>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100021">
+          <top>190</top>
+          <left>140</left>
+          <height>40</height>
+          <width>365</width>
+          <font>font10</font>
+          <scrollsuffix> | </scrollsuffix>
+          <scroll>true</scroll>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <align>left</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="label" id="100022">
+          <top>210</top>
+          <left>20</left>
+          <height>40</height>
+          <width>505</width>
+          <font>font10</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>center</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+        <control type="textbox" id="100023">
+          <top>230</top>
+          <left>20</left>
+          <height>185</height>
+          <width>505</width>
+          <font>font10</font>
+          <textcolor>0xFFFFFFFF</textcolor>
+          <wrapmultiline>true</wrapmultiline>
+          <autoscroll delay="2000" time="1500" repeat="2000">true</autoscroll>
+          <align>justify</align>
+          <aligny>top</aligny>
+          <label></label>
+        </control>
+
+        <control type="group" id="10024">
+          <left>20</left>
+          <width>760</width>
+          <bottom>20</bottom>
+          <height>30</height>
+
+          <control type="button" id="10025">
+            <width>110</width>
+            <height>30</height>
+            <texturefocus>ChannelSettings/KeyboardKey.png</texturefocus>
+            <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>
+            <align>center</align>
+            <aligny>center</aligny>
+            <label>Anterior</label>
+          </control>
+          <control type="button" id="10026">
+            <left>115</left>
+            <width>110</width>
+            <height>30</height>
+            <texturefocus>ChannelSettings/KeyboardKey.png</texturefocus>
+            <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>
+            <align>center</align>
+            <aligny>center</aligny>
+            <label>Siguiente</label>
+          </control>
+          <control type="button" id="10027">
+            <left>253</left>
+            <width>110</width>
+            <height>30</height>
+            <texturefocus>ChannelSettings/KeyboardKey.png</texturefocus>
+            <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>
+            <align>center</align>
+            <aligny>center</aligny>
+            <label>Cancelar</label>
+          </control>
+          <control type="button" id="10028">
+            <left>390</left>
+            <width>120</width>
+            <height>30</height>
+            <texturefocus>ChannelSettings/KeyboardKey.png</texturefocus>
+            <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>
+            <align>center</align>
+            <aligny>center</aligny>
+            <label>Aceptar</label>
+          </control>
+          <control type="label" id="100029">
+            <right>0</right>
+            <width>110</width>
+            <font>font10</font>
+            <textcolor>0xFFFFA500</textcolor>
+            <align>right</align>
+            <aligny>center</aligny>
+            <label></label>
+          </control>
+        </control>
+      </control>
+    </controls>
+</window>

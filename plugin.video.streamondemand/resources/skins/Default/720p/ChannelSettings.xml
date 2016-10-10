@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window>
+    <allowoverlays>false</allowoverlays>  
+    <controls>
+      <control type="group" id="10001">
+        <centerleft>640</centerleft>
+        <centertop>360</centertop>
+        <width>800</width>
+        <height>500</height>
+        <control type="image">
+          <texture>ChannelSettings/DialogBack.png</texture>
+        </control>
+        <control type="image">
+          <height>50</height>
+          <texture>ChannelSettings/dialogheader.png</texture>
+        </control>
+        <control type="label" id="10002">
+          <top>10</top>
+          <height>40</height>
+          <font>font20_title</font>
+          <textcolor>0xFFFFA500</textcolor>
+          <align>center</align>
+          <aligny>center</aligny>
+          <label>Opciones</label>
+        </control>
+        <control type="button" id="10003">
+          <right>15</right>
+          <top>15</top>
+          <width>70</width>
+          <height>40</height>
+          <texturefocus>ChannelSettings/DialogCloseButton-focus.png</texturefocus>
+          <texturenofocus>ChannelSettings/DialogCloseButton.png</texturenofocus>    
+        </control>
+        <control type="button" id="10004">
+          <centerleft>230</centerleft>
+          <bottom>30</bottom>
+          <width>150</width>
+          <height>40</height>
+          <texturefocus>ChannelSettings/KeyboardKey.png</texturefocus>
+          <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>  
+          <align>center</align>
+          <aligny>center</aligny>  
+          <label>OK</label>
+        </control>
+        <control type="button" id="10005">
+          <centerleft>400</centerleft>
+          <bottom>30</bottom>
+          <width>150</width>
+          <height>40</height>
+          <texturefocus>ChannelSettings/KeyboardKey.png</texturefocus>
+          <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>   
+          <align>center</align>
+          <aligny>center</aligny> 
+          <label>Cancelar</label>
+        </control>
+        <control type="button" id="10006">
+          <centerleft>570</centerleft>
+          <bottom>30</bottom>
+          <width>150</width>
+          <height>40</height>
+          <texturefocus>ChannelSettings/KeyboardKey.png</texturefocus>
+          <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>    
+          <align>center</align>
+          <aligny>center</aligny>
+          <label>Por defecto</label>
+        </control>
+          <control type="group" id="10007">
+          <top>60</top>
+          <left>25</left>
+          <right>50</right>
+          <bottom>80</bottom>
+          <control type="image">
+            <texture>ChannelSettings/BackControls.png</texture>
+          </control>
+
+        </control>
+        <control type="image" id="10008">
+          <top>60</top>
+          <left>765</left>
+          <right>25</right>
+          <bottom>80</bottom>
+          <texture>ChannelSettings/ScrollBack.png</texture>
+        </control>
+        <control type="image" id="10009">
+          <top>60</top>
+          <left>765</left>
+          <right>25</right>
+          <bottom>80</bottom>
+          <texture>ChannelSettings/ScrollBar.png</texture>
+        </control>
+      </control>
+    </controls>
+</window>

@@ -13,8 +13,8 @@
 	<bannermenu>http://megafiletube.xyz/themes/default/images/logo.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>1</version>
-	<date>22/06/2016</date>
+	<version>2</version>
+	<date>03/10/2016</date>
 	<changes>update</changes>
 
 	<categories>
@@ -22,6 +22,11 @@
 	</categories>
 
 	<settings>
-		<include_in_global_search>true</include_in_global_search>
+		<id>include_in_global_search</id>
+		<type>bool</type>
+		<label>Includi ricerca globale</label>
+		<default>true</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
 	</settings>
 </channel>

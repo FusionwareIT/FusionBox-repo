@@ -46,17 +46,13 @@ def _filterargs(source):
     """Juice from a source file the four args needed by decoder."""
     juicers = [(r"}\('(.*)', *(\d+), *(\d+), *'(.*)'\.split\('\|'\), *(\d+), *(.*)\)\)"),
                (r"}\('(.*)', *(\d+), *(\d+), *'(.*)'\.split\('\|'\)"),
-               (r"} *\( *(.*?) *, *(\d+) *, *(\d+) *, *\(['\s]*([^'\)]*)['\s]*.*?\) *\.split\([\"'\s]*(.*?)[\"'\s]*\)")
                ]
-    for i, juicer in enumerate(juicers):
+    for juicer in juicers:
         args = re.search(juicer, source, re.DOTALL)
         if args:
             a = args.groups()
             try:
-                if i < len(juicers) - 1:
-                    return a[0], a[3].split('|'), int(a[1]), int(a[2])
-                else:
-                    return openload_clean(a[0]), a[3].split(a[4]), int(a[1]), int(a[2])
+                return a[0], a[3].split('|'), int(a[1]), int(a[2])
             except ValueError:
                 raise UnpackingError('Corrupted p.a.c.k.e.r. data.')
     # could not find a satisfying regex
@@ -73,29 +69,6 @@ def _replacestrings(source):
             source = source.replace(variable % index, '"%s"' % value)
         return source[startpoint:]
     return source
-
-def openload_clean(string):
-    import urllib2
-    if "function" in string:
-        matches = re.findall(r"=\"([^\"]+).*?} *\((\d+)\)", string, re.DOTALL)[0]
-
-        def substr(char):
-            char = char.group(0)
-            number = ord(char) + int(matches[1])
-            if char <= "Z":
-                char_value = 90
-            else:
-                char_value = 122
-            if char_value >= number:
-                return chr(ord(char))
-            else:
-                return chr(number - 26)
-
-        string = re.sub(r"[A-z]", substr, matches[0])
-        string = urllib2.unquote(string)
-
-    return string
-
 class Unbaser(object):
     """Functor for a given base. Will efficiently convert
     strings to natural numbers."""
@@ -134,4 +107,3 @@ class UnpackingError(Exception):
     """Badly packed source or general error. Argument is a
     meaningful description."""
     pass
-

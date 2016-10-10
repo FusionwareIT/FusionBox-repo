@@ -75,6 +75,13 @@
     <string id="30045">Video list URL / file</string>
     <string id="30047">Elements per page</string>
 
+    <!-- Filtros -->
+    <string id="30068">Filter by servers:</string>
+    <string id="30069">White List:</string>
+    <string id="30070">Black List:</string>
+    <string id="30071">To add several servers use "," as separator</string>
+
+
     <!-- =============================================================== -->
     <!-- 30050 to 30099: Info / error messages                           -->
     <!-- =============================================================== -->
@@ -103,7 +110,6 @@
     <string id="30101">Downloads</string> <!-- Descargas -->
     <string id="30102">Favorites</string> <!-- Favoritos -->
     <string id="30103">Global search</string> <!-- Buscador -->
-    <string id="40103">Youtube Trailers</string> <!-- Youtube Buscador -->
     <string id="30104">Help</string> <!-- Ayuda -->
     
     <string id="30105">Removed from favorites</string> <!-- Se ha quitado de favoritos -->
@@ -215,6 +221,7 @@
     <string id="30500">Login</string>
     <string id="30501">Path</string>
     <string id="30502">Other</string>
+    <string id="30503">Filters</string>
     
     <!-- LetMeWatchThis -->
     <string id="40001">Movies - Just added</string>

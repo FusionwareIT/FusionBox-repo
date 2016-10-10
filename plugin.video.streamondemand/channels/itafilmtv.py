@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para itafilmtv
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 import urlparse
@@ -10,9 +10,9 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "itafilmtv"
 __category__ = "F,S"
@@ -62,6 +62,7 @@ def mainlist(item):
                      thumbnail="http://orig08.deviantart.net/8008/f/2013/080/9/4/movies_by_musicopath-d5ysmxe.png"),
                 Item(channel=__channel__,
                      action="search",
+                     extra="movie",
                      title="[COLOR yellow]Cerca Film...[/COLOR]",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
@@ -85,10 +86,10 @@ def search(item, texto):
     item.url = host + "/?do=search&subaction=search&story=" + texto
 
     try:
+        if item.extra == "movie":
+            return fichas(item)
         if item.extra == "serie":
             return serietv(item)
-        else:
-            return fichas(item)
 
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
     except:

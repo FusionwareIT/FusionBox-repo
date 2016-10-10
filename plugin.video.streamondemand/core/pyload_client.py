@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import urllib
+import urlparse
 
-import scrapertools
 import config
 import logger
-import urlparse
+import scrapertools
 
 def login(username,password):
     logger.info("pyload_client.login")

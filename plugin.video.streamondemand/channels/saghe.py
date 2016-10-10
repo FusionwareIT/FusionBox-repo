@@ -194,16 +194,20 @@ def do_search(item):
         if channel_parameters["active"] != "true":
             continue
 
-        # No busca si es un canal excluido de la busqueda global
-        if channel_parameters["include_in_global_search"] != "true":
-            continue
-
         # No busca si es un canal para adultos, y el modo adulto está desactivado
         if channel_parameters["adult"] == "true" and config.get_setting("adult_mode") == "false":
             continue
 
         # No busca si el canal es en un idioma filtrado
         if channel_language != "all" and channel_parameters["language"] != channel_language:
+            continue
+
+        # No busca si es un canal excluido de la busqueda global
+        include_in_global_search = channel_parameters["include_in_global_search"]
+        if include_in_global_search == "":
+            # Buscar en la configuracion del canal
+            include_in_global_search = str(config.get_setting("include_in_global_search", basename_without_extension))
+        if include_in_global_search.lower() != "true":
             continue
 
         channel_files_tmp.append(infile)

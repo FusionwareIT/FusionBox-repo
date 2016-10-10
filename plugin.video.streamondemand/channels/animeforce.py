@@ -15,7 +15,7 @@ from core import logger
 from core import scrapertools
 from core.item import Item
 from servers import adfly
-from servers import servertools
+from core import servertools
 
 __channel__ = "animeforce"
 __category__ = "A"

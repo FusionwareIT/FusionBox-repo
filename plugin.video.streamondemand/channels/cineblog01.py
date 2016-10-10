@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para cineblog01
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
 import urlparse
@@ -10,9 +10,9 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "cineblog01"
 __category__ = "F,S,A"
@@ -43,36 +43,36 @@ def mainlist(item):
                      action="peliculas",
                      title="[COLOR azure]Cinema - Novita'[/COLOR]",
                      url=sito,
-                     extra="film",
+                     extra="movie",
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      action="peliculas",
                      title="[COLOR azure]Alta Definizione [HD][/COLOR]",
                      url="%s/tag/film-hd-altadefinizione/" % sito,
-                     extra="film",
+                     extra="movie",
                      thumbnail="http://jcrent.com/apple%20tv%20final/HD.png"),
                 Item(channel=__channel__,
                      action="menuhd",
                      title="[COLOR azure]Menù HD[/COLOR]",
                      url=sito,
-                     extra="film",
+                     extra="movie",
                      thumbnail="http://files.softicons.com/download/computer-icons/disks-icons-by-wil-nichols/png/256x256/Blu-Ray.png"),
                 Item(channel=__channel__,
                      action="menugeneros",
                      title="[COLOR azure]Per Genere[/COLOR]",
                      url=sito,
-                     extra="film",
+                     extra="movie",
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      action="menuanyos",
                      title="[COLOR azure]Per Anno[/COLOR]",
                      url=sito,
-                     extra="film",
+                     extra="movie",
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/Movie%20Year.png"),
                 Item(channel=__channel__,
                      action="search",
                      title="[COLOR yellow]Cerca Film[/COLOR]",
-                     extra="film",
+                     extra="movie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      action="listserie",
@@ -264,7 +264,7 @@ def search(item, texto):
 
     try:
 
-        if item.extra == "film":
+        if item.extra == "movie":
             item.url = "http://www.cb01.me/?s=" + texto
             return peliculas(item)
         if item.extra == "serie":
@@ -470,7 +470,7 @@ def episodios_serie(item):
 
 
 def findvideos(item):
-    if item.extra == 'film':
+    if item.extra == "movie":
         return findvid_film(item)
     if item.extra == 'serie':
         return findvid_serie(item)

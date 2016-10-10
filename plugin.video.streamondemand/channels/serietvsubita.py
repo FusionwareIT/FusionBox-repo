@@ -45,6 +45,7 @@ def mainlist(item):
                      folder=True),
                 Item(channel=__channel__,
                      action="search",
+                     extra="serie",
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search",
                      folder=True)]

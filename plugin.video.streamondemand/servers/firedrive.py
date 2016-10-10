@@ -1,16 +1,16 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para firedrive
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
+import urllib
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 def test_video_exists( page_url ):
     logger.info("[firedrive.py] test_video_exists(page_url='%s')" % page_url)
@@ -52,7 +52,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     url = scrapertools.find_single_match(data,"file\: loadURL\('([^']+)'")
     logger.info("url="+url)
 
-    # URL del vÃ­deo
+    # URL del vídeo
     media_url = scrapertools.get_header_from_response(url,header_to_get="location")
     video_urls.append( [ scrapertools.get_filename_from_url(media_url)[-4:] + " [firedrive]",media_url ] )    
 
@@ -61,7 +61,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     return video_urls
 
-# Encuentra vÃ­deos de este servidor en el texto pasado
+# Encuentra vídeos de este servidor en el texto pasado
 def find_videos(text):
     encontrados = set()
     devuelve = []
@@ -172,9 +172,3 @@ def find_videos(text):
             logger.info("  url duplicada="+url)    
     
     return devuelve
-
-def test():
-
-    video_urls = get_video_url("http://www.firedrive.com/embed/C31F4FD09113E884")
-
-    return len(video_urls)>0

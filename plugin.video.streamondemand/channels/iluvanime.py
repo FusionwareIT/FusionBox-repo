@@ -7,11 +7,13 @@
 # ------------------------------------------------------------
 import re
 import urlparse
-from servers import servertools
+
+import xbmc
+
 from core import config
 from core import logger
 from core import scrapertools
-
+from core import servertools
 from core.item import Item
 from servers import adfly
 
@@ -145,3 +147,5 @@ def scrapedSingle(url="",single="",patron=""):
 # -----------------------------------------------------------------
 AnimeThumbnail = "http://img15.deviantart.net/f81c/i/2011/173/7/6/cursed_candies_anime_poster_by_careko-d3jnzg9.jpg"
 AnimeFanart = "https://superrepo.org/static/images/fanart/original/plugin.video.animeram.jpg"
+
+

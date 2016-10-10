@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+    <channel>
+       <id>filmhdstreaming</id>
+       <name>Filmhdstreaming</name>
+
+       <active>true</active>
+       <adult>false</adult>
+       <language>it</language>
+
+       <fanart></fanart>
+       <thumbnail>http://filmhdstreaming.net/css/images/logo3.png</thumbnail>
+       <bannermenu>http://filmhdstreaming.net/css/images/logo3.png</bannermenu>
+
+       <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
+       <version>1</version>
+       <date>05/10/2016</date>
+       <changes>New channel</changes>
+
+       <categories>
+          <category>movie</category>
+
+       </categories>
+
+       <settings>
+          <id>include_in_global_search</id>
+          <type>bool</type>
+          <label>Includi ricerca globale</label>
+          <default>true</default>
+          <enabled>true</enabled>
+          <visible>true</visible>
+       </settings>
+    </channel>
+

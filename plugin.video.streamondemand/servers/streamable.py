@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para streamable
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
-from core import jsunpack
+from core import scrapertools
+
 
 def test_video_exists( page_url ):
     logger.info("streamable test_video_exists(page_url='%s')" % page_url)
@@ -22,7 +20,6 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     logger.info("streamable get_video_url(page_url='%s')" % page_url)
 
     data = scrapertools.cache_page(page_url)
-
 
     # Extrae la URL
     data = scrapertools.find_single_match(data,'<embed(.*?)</embed>')
@@ -49,7 +46,7 @@ def find_videos(data):
     devuelve = []
 
     # http://powvideo.net/embed-sbb9ptsfqca2
-    patronvideos  = 'http://www.streamable.ch/video/([a-z0-9]+)'
+    patronvideos  = 'http://www.streamable.ch/video/([a-zA-Z0-9]+)'
     logger.info("streamable find_videos #"+patronvideos+"#")
     matches = re.compile(patronvideos,re.DOTALL).findall(data)
 
@@ -64,8 +61,3 @@ def find_videos(data):
             logger.info("  url duplicada="+url)
             
     return devuelve
-
-def test():
-    video_urls = get_video_url("http://www.streamable.ch/video/zC87XnmL4")
-
-    return len(video_urls)>0

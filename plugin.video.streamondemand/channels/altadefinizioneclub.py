@@ -5,7 +5,7 @@
 # http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import re
-import urlparse
+
 import xbmc
 
 from core import config
@@ -21,7 +21,6 @@ __title__ = "AltaDefinizioneclub"
 __language__ = "IT"
 
 host = "http://altadefinizione.club"
-
 
 
 DEBUG = config.get_setting("debug")

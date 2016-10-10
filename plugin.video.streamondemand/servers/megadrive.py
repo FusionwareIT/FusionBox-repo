@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para megadrive
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # by DrZ3r0
 # ------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
-from core import jsunpack
+from core import scrapertools
 
 
 # Returns an array of possible video url's from the page_url
@@ -20,10 +17,22 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
     logger.info("[megadrive.py] get_video_url(page_url='%s')" % page_url)
     video_urls = []
 
-    data = scrapertools.cache_page( page_url )
-    media_url = scrapertools.get_match(data,'file: "([^"]+)",')
-    video_urls = []
-    video_urls.append( [ scrapertools.get_filename_from_url(media_url)[-3:]+" [megadrive]",media_url])
+    data = scrapertools.cache_page(page_url)
+
+    data_pack = scrapertools.find_single_match(data, "(eval.function.p,a,c,k,e,.*?)\s*</script>")
+    if data_pack != "":
+        from core import unpackerjs3
+        data_unpack = unpackerjs3.unpackjs(data_pack)
+        if data_unpack == "":
+            from core import jsunpack
+            data_unpack = jsunpack.unpack(data_pack)
+        data = data_unpack
+
+    video_url = scrapertools.find_single_match(data, 'file"?\s*:\s*"([^"]+)",')
+    video_urls.append(["[megadrive]", video_url])
+
+    for video_url in video_urls:
+        logger.info("[megadrive.py] %s - %s" % (video_url[0], video_url[1]))
 
     return video_urls
 

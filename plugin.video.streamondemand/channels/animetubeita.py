@@ -2,18 +2,15 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Canal para animetubeita.com
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #  By Costaplus
 # ------------------------------------------------------------
 import re
-import sys
-import urlparse
-import urllib2
+
 from core import config
 from core import logger
 from core import scrapertools
 from core.item import Item
-from servers import servertools
 
 __channel__ = "animetubeita"
 __category__ = "F"
@@ -108,8 +105,6 @@ def lista_home(item):
                  title=HomeTxt,
                  folder=True))
     # ===========================================================
-
-
     return itemlist
 #=================================================================
 
@@ -165,7 +160,6 @@ def lista_generi(item):
     log("animetubeita","lista_generi")
 
     itemlist =[]
-
     patron = '<h2 class="title"><a href="(.*?)" rel="bookmark" title=".*?">.*?<img.*?src="(.*?)".*?<strong>Titolo</strong></td>.*?<td>(.*?)</td>.*?<td><strong>Trama</strong></td>.*?<td>(.*?)</'
     for scrapedurl,scrapedthumbnail,scrapedtitle,scrapedplot in scrapedAll(item.url, patron):
         title=scrapertools.decodeHtmlentities(scrapedtitle)
@@ -202,7 +196,6 @@ def lista_generi(item):
 
     return itemlist
 #=================================================================
-
 
 #-----------------------------------------------------------------
 def lista_in_corso(item):
@@ -241,8 +234,6 @@ def lista_in_corso(item):
                  title=HomeTxt,
                  folder=True))
     # ===========================================================
-
-        
     return itemlist
 #=================================================================
 
@@ -285,7 +276,6 @@ def dl_s(item):
     return itemlist
 #=================================================================
 
-
 #-----------------------------------------------------------------
 def dettaglio(item):
     log("animetubeita","dettaglio")
@@ -295,7 +285,6 @@ def dettaglio(item):
     patron='<tr[^<]+?<[^<]+?<strong>(.*?)</strong></td>[^<]+?<[^<]+?<.*?href="http://.*?http://([^"]+?)"'
     scrapedAll(item.url, patron)
     for scrapedtitle,scrapedurl in scrapedAll(item.url, patron):
-        
         title= "Episodio "+ str(episodio)
         episodio+=1
         url = "http://"+scrapedurl
@@ -359,6 +348,7 @@ def log(funzione="",stringa="",canale=__channel__):
 
 #-----------------------------------------------------------------
 def HomePage(item):
+    import xbmc
     xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
 #=================================================================
 

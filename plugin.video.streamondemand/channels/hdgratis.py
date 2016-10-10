@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # streamondemand.- XBMC Plugin
 # Sito hdgratis.org  by SchisM
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand.
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import base64
 import re
@@ -11,9 +11,9 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
 
 __channel__ = "hdgratis"
 __category__ = "F,S,A"
@@ -67,6 +67,7 @@ def mainlist(item):
         Item(channel=__channel__,
              title="[COLOR orange]Cerca...[/COLOR]",
              action="search",
+             extra="movie",
              thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
 
     return itemlist
@@ -95,9 +96,11 @@ def genere(item):
     data = scrapertools.anti_cloudflare(item.url, headers)
 
     patron = '<ul class="listSubCat" id="Film">(.*?)</ul>'
+
     data = scrapertools.find_single_match(data, patron)
 
     patron = '<li><a href="(.*?)">(.*?)</a></li>'
+
     matches = re.compile(patron, re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
 
@@ -110,6 +113,9 @@ def genere(item):
                  folder=True))
 
     return itemlist
+
+
+
 
 def fichas(item):
     logger.info("[hdgratis.py] fichas")
@@ -136,7 +142,6 @@ def fichas(item):
         patron = '<div class="col-lg-3 col-md-3 col-xs-3">\s*<a href="([^"]+")>\s*<div class="wrapperImage">[^i]+i[^s]+src="([^"]+)"[^>]+> <div class="info">\s*<h5[^>]+>(.*?)<'
     else:
         patron = '<span class="hd">HD</span>\s*<a href="([^"]+)"><img[^s]+src="([^"]+)"[^>]+></a> <div class="info">\s*<[^>]+>[^>]+>(.*?)</a>'
-
 
     matches = re.compile(patron, re.DOTALL).findall(data)
 
@@ -178,6 +183,7 @@ def findvideos(item):
 
     # Descarga la página
     data = scrapertools.anti_cloudflare(item.url, headers).replace('\n', '')
+
     patron = r'<iframe width=".+?" height=".+?" src="([^"]+)"></iframe>'
     url = scrapertools.find_single_match(data, patron).replace("?alta", "")
     url = url.replace("&download=1", "")

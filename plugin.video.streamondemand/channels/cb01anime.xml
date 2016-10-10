@@ -12,7 +12,7 @@
 	<bannermenu>http://i.imgur.com/bHoUMo2.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>5</version>
+	<version>2</version>
 	<date>16/06/2016</date>
 	<changes>update</changes>
 
@@ -21,6 +21,11 @@
 	</categories>
 
 	<settings>
-		<include_in_global_search>true</include_in_global_search>
+		<id>include_in_global_search</id>
+		<type>bool</type>
+		<label>Includi ricerca globale</label>
+		<default>false</default>
+		<enabled>false</enabled>
+		<visible>false</visible>
 	</settings>
 </channel>

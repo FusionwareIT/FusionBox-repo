@@ -1,16 +1,15 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para Veoh
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import os
-import urlparse,urllib2,urllib,re
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 # Returns an array of possible video url's from the page_url
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
@@ -24,7 +23,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     else:
         url = 'http://www.flashvideodownloader.org/download.php?u=http://www.veoh.com/watch/'+page_url
     logger.info("[veoh.py] url="+url)
-    data = scrapertools.cache_page(url)
+    data = scrapertools.cachePage(url)
     
     # Extrae el vídeo
     patronvideos  = '<a href="(http://content.veoh.com.*?)"'

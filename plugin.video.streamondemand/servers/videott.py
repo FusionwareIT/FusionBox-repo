@@ -1,24 +1,23 @@
 # -*- coding: iso-8859-1 -*-
 #------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector para videott
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
 import random
+import re
 
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
     logger.info("[videott.py] url="+page_url)
 
     video_urls = []
 
-    # URL del vÃ­deo
+    # URL del vídeo
     videoid = scrapertools.find_single_match(page_url,"video.tt/e/([A-Za-z0-9]+)")
     timestamp=str(random.randint(1000000000,9999999999))
     hexastring = scrapertools.get_sha1(page_url) + scrapertools.get_sha1(page_url) + scrapertools.get_sha1(page_url) + scrapertools.get_sha1(page_url)
@@ -32,7 +31,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     return video_urls
 
-# Encuentra vÃ­deos de este servidor en el texto pasado
+# Encuentra vídeos de este servidor en el texto pasado
 def find_videos(text):
     encontrados = set()
     devuelve = []
@@ -53,9 +52,3 @@ def find_videos(text):
             logger.info("  url duplicada="+url)
             
     return devuelve
-
-def test():
-
-    video_urls = get_video_url("http://video.tt/e/vHDKmK32U")
-
-    return len(video_urls)>0

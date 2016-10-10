@@ -6,8 +6,6 @@
 # By costaplus
 # ------------------------------------------------------------
 import re
-import urllib
-import urlparse
 
 from core import config
 from core import logger

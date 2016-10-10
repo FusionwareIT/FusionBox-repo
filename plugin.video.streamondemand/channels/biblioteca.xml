@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <channel>
-	<id>biblioteca</id>
+	<id>libreria</id>
 	<name>Biblioteca</name>
 
 	<active>false</active>
@@ -13,14 +13,25 @@
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
 	<version>3</version>
-	<date>10/07/2016</date>
-	<changes>update</changes>
 
-	<categories>
-		<category></category>
-	</categories>
 
-	<settings>
-		<include_in_global_search>false</include_in_global_search>
-	</settings>
+	<changes>
+		<change>
+			<date>01/07/16</date>
+			<autor>SeiTaN</autor>
+			<description>Eliminado código innecesario.</description>
+		</change>
+		<change>
+			<date>10/05/16</date>
+			<autor>super_berny</autor>
+			<description></description>
+		</change>
+		<change>
+			<date>30/04/2016</date>
+			<autor>Seitan</autor>
+			<description>Version inicial</description>
+		</change>
+	</changes>
+
+	<include_in_global_search>disabled</include_in_global_search>
 </channel>

@@ -2,13 +2,13 @@
 # ------------------------------------------------------------
 # streamondemand - XBMC Plugin
 # Conector para flashx
-# http://blog.tvalacarta.info/plugin-xbmc/streamondemand/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 
 import re
 
-from core import logger
 from core import jsunpack
+from core import logger
 from core import scrapertools
 
 

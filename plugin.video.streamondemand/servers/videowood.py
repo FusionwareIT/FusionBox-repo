@@ -1,83 +1,18 @@
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 # ------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
+# streamondemand - XBMC Plugin
 # Conector for videowood.tv
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # by DrZ3r0
 # ------------------------------------------------------------
 
 import re
-
 from core import logger
 from core import scrapertools
 
 
-def decode(data):
-    parse = re.search('(....ωﾟ.*?);</script>', data)
-    if parse:
-        todecode = parse.group(1).split(';')
-        todecode = todecode[-1].replace(' ', '')
-
-        code = {
-            "(ﾟДﾟ)[ﾟoﾟ]": "o",
-            "(ﾟДﾟ) [return]": "\\",
-            "(ﾟДﾟ) [ ﾟΘﾟ]": "_",
-            "(ﾟДﾟ) [ ﾟΘﾟﾉ]": "b",
-            "(ﾟДﾟ) [ﾟｰﾟﾉ]": "d",
-            "(ﾟДﾟ)[ﾟεﾟ]": "/",
-            "(oﾟｰﾟo)": '(u)',
-            "3ﾟｰﾟ3": "u",
-            "(c^_^o)": "0",
-            "(o^_^o)": "3",
-            "ﾟεﾟ": "return",
-            "ﾟωﾟﾉ": "undefined",
-            "_": "3",
-            "(ﾟДﾟ)['0']": "c",
-            "c": "0",
-            "(ﾟΘﾟ)": "1",
-            "o": "3",
-            "(ﾟｰﾟ)": "4",
-        }
-        cryptnumbers = []
-        for searchword, isword in code.iteritems():
-            todecode = todecode.replace(searchword, isword)
-        for i in range(len(todecode)):
-            if todecode[i:i + 2] == '/+':
-                for j in range(i + 2, len(todecode)):
-                    if todecode[j:j + 2] == '+/':
-                        cryptnumbers.append(todecode[i + 1:j])
-                        break
-        finalstring = ''
-        for item in cryptnumbers:
-            chrnumber = '\\'
-            jcounter = 0
-            while jcounter < len(item):
-                clipcounter = 0
-                if item[jcounter] == '(':
-                    jcounter += 1
-                    clipcounter += 1
-                    for k in range(jcounter, len(item)):
-                        if item[k] == '(':
-                            clipcounter += 1
-                        elif item[k] == ')':
-                            clipcounter -= 1
-                        if clipcounter == 0:
-                            jcounter = 0
-                            chrnumber += str(eval(item[:k + 1]))
-                            item = item[k + 1:]
-                            break
-                else:
-                    jcounter += 1
-            finalstring += chrnumber.decode('unicode-escape')
-        stream_url = re.search('=\s*(\'|")(.*?)$', finalstring)
-        if stream_url:
-            return stream_url.group(2)
-    else:
-        return
-
-
 def test_video_exists(page_url):
-    logger.info("[videowood.py] test_video_exists(page_url='%s')" % page_url)
+    logger.info("streamondemand.servers.videowood test_video_exists(page_url='%s')" % page_url)
 
     data = scrapertools.cache_page(page_url)
 
@@ -88,26 +23,33 @@ def test_video_exists(page_url):
 
 
 def get_video_url(page_url, premium=False, user="", password="", video_password=""):
-    logger.info("[videowood.py] url=" + page_url)
+    logger.info("streamondemand.servers.videowood url=" + page_url)
     video_urls = []
 
     data = scrapertools.cache_page(page_url)
+    text_encode = scrapertools.find_single_match(data, "(eval\(function\(p,a,c,k,e,d.*?)</script>")
 
-    url = decode(data)
-    video_urls.append([".mp4" + " [Videowood]", url])
+    from aadecode import decode as aadecode
+    text_decode = aadecode(text_encode)
+
+    # URL del v�deo
+    patron = "'([^']+)'"
+    media_url = scrapertools.find_single_match(text_decode, patron)
+
+    video_urls.append([media_url[-4:] + " [Videowood]", media_url])
 
     return video_urls
 
 
-# Encuentra vídeos del servidor en el texto pasado
-def find_videos(text):
+# Encuentra v�deos del servidor en el texto pasado
+def find_videos(data):
     encontrados = set()
     devuelve = []
 
     patronvideos = r"https?://(?:www.)?videowood.tv/(?:embed/|video/)[0-9a-z]+"
-    logger.info("[videowood.py] find_videos #" + patronvideos + "#")
+    logger.info("streamondemand.servers.videowood find_videos #" + patronvideos + "#")
 
-    matches = re.compile(patronvideos, re.DOTALL).findall(text)
+    matches = re.compile(patronvideos, re.DOTALL).findall(data)
 
     for url in matches:
         titulo = "[Videowood]"
