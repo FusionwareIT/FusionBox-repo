@@ -57,7 +57,7 @@ def peliculas(item):
 
 
     # Extrae las entradas (carpetas)
-    patron = '<a class="vw-post-box-thumbnail" href="(.*?)".*?rel="bookmark">.*?<img.*?src="(.*?)"'
+    patron = '<a class="vw-post-box-thumbnail" href="(.*?)".*?rel="bookmark".*?itemprop="url" >.*?<img.*?src="(.*?)"'
     matches = re.compile(patron, re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
 
@@ -66,7 +66,7 @@ def peliculas(item):
         #scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
         scrapedplot = ""
         scrapedtitle=scrapedurl
-        scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("http://documentaristreaming.net/",""))
+        scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("https://www.documentaristreaming.net/",""))
         scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("-"," "))
         scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("/",""))
         if (DEBUG): logger.info(

@@ -26,6 +26,7 @@
 # ------------------------------------------------------------
 
 import os
+import urlparse
 
 import xbmc
 import xbmcaddon
@@ -195,9 +196,10 @@ def get_data_path():
     return dev
 
 
-def get_cookie_data():
-    import os
-    ficherocookies = os.path.join(get_data_path(), 'cookies.dat')
+def get_cookie_data(url):
+    # DrZ3r0
+    dominio = urlparse.urlparse(url)[1].replace("www.", "")
+    ficherocookies = os.path.join(get_data_path(), "cookies", dominio + ".dat")
 
     cookiedatafile = open(ficherocookies, 'r')
     cookiedata = cookiedatafile.read()

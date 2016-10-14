@@ -92,7 +92,7 @@ def connect(server_name,user,password):
     logger.info("[samba.py] Crea netbios...")
     netbios = nmb.NetBIOS()
     
-    logger.info("[samba.py] Averigua IP...")
+    logger.info("[samba.py] Trova IP...")
     nbhost = netbios.gethostbyname(server_name)
     server_ip = nbhost[0].get_ip()
     logger.info("[samba.py] server_ip="+server_ip)
@@ -104,7 +104,7 @@ def connect(server_name,user,password):
     if remote.is_login_required():
         logger.info("[samba.py] Login...")
         if user=="":
-            logger.info("[samba.py] User vacio, se asume 'guest'")
+            logger.info("[samba.py] User 'guest'")
             user="guest"    
         remote.login(user, password)
     else:
@@ -184,7 +184,7 @@ def get_file_handle_for_reading(filename,url):
     remote = connect(server_name,user,password)
 
     # Crea un fichero temporal con el bookmark
-    logger.info("[samba.py] Crea fichero temporal")
+    logger.info("[samba.py] Crea file temporaneo")
     try:
         import xbmc
         localfilename = xbmc.translatePath( "special://temp" )

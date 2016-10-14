@@ -6,6 +6,7 @@
 #  By Costaplus
 # ------------------------------------------------------------
 import re
+import urllib
 
 from core import config
 from core import logger
@@ -279,7 +280,9 @@ def dl_s(item):
 #-----------------------------------------------------------------
 def dettaglio(item):
     log("animetubeita","dettaglio")
-
+    head = {'Referer': item.url,
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0'}
     itemlist =[]
     episodio=1
     patron='<tr[^<]+?<[^<]+?<strong>(.*?)</strong></td>[^<]+?<[^<]+?<.*?href="http://.*?http://([^"]+?)"'
@@ -287,7 +290,7 @@ def dettaglio(item):
     for scrapedtitle,scrapedurl in scrapedAll(item.url, patron):
         title= "Episodio "+ str(episodio)
         episodio+=1
-        url = "http://"+scrapedurl
+        url = "http://"+scrapedurl + '|' + urllib.urlencode(head)
         log("url:[" + url + "  scrapedtitle:" + title +"]")
         itemlist.append(Item(channel=__channel__,
                              action="play",

@@ -1,3 +1,7 @@
+v5.3.8
+- library fix
+- cookies management fix
+
 v5.3.7
 - Megamerge pelisa
 - Major update

@@ -101,7 +101,7 @@ def peliculas(item):
 
     # ------------------------------------------------
     cookies = ""
-    matches = re.compile('(.playcinema.org.*?)\n', re.DOTALL).findall(config.get_cookie_data())
+    matches = config.get_cookie_data(item.url).splitlines()[4:]
     for cookie in matches:
         name = cookie.split('\t')[5]
         value = cookie.split('\t')[6]

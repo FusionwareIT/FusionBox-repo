@@ -143,7 +143,7 @@ def play(url, xlistitem, is_view=None, subtitle=""):
         dp = xbmcgui.DialogProgress()
         dp.create('streamondemand-MCT')
         while not h.has_metadata():
-            message, porcent, msg_file, s, download = getProgress(h, "Creando torrent desde magnet")
+            message, porcent, msg_file, s, download = getProgress(h, "Creating torrent from magnet")
             dp.update(porcent, message, msg_file)
             if s.state == 1: download = 1
             if dp.iscanceled():
@@ -377,7 +377,7 @@ def play(url, xlistitem, is_view=None, subtitle=""):
                         message, porcent, msg_file, s, download = getProgress(h, video_file, _pf=_pieces_info)
                         dp.update(porcent, message, msg_file)
                     else:
-                        dp.update(100, "Descarga completa: " + video_file)
+                        dp.update(100, "Download completo: " + video_file)
 
                     # -- Se canceló el progreso en el visionado -
                     # -- Continuar                              -
@@ -587,7 +587,7 @@ def get_video_files_sizes( info ):
 
     if len(opciones) > 1:
         d = xbmcgui.Dialog()
-        seleccion = d.select("streamondemand-MCT: Lista de vídeos", opciones)
+        seleccion = d.select("streamondemand-MCT: Lista dei vídeo", opciones)
     else: seleccion = 0
 
     if seleccion == -1:

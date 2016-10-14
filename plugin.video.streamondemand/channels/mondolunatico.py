@@ -14,7 +14,7 @@ from core import logger
 from core import scrapertools
 from core.item import Item
 from core.tmdb import infoSod
-from servers import servertools
+from core import servertools
 
 __channel__ = "mondolunatico"
 __category__ = "F"

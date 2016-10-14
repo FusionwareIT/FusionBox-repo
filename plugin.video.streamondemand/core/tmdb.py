@@ -112,7 +112,7 @@ def find_and_set_infoLabels_tmdb(item, ask_video=True):
         if not item.infoLabels.get("tmdb_id"):
             otmdb_global = Tmdb(texto_buscado=title, tipo=video_type, year=year)
         elif not otmdb_global or otmdb_global.result.get("id") != item.infoLabels['tmdb_id']:
-            otmdb_global = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=video_type, idioma_busqueda="es")
+            otmdb_global = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=video_type, idioma_busqueda="it")
 
         results = otmdb_global.get_list_resultados()
 
@@ -672,7 +672,7 @@ class Tmdb(object):
         self.busqueda = {'id': "",
                          'texto': "",
                          'tipo': kwargs.get('tipo', 'movie'),
-                         'idioma': kwargs.get('idioma_busqueda', 'es'),
+                         'idioma': kwargs.get('idioma_busqueda', 'it'),
                          'include_adult': str(kwargs.get('include_adult', 'false')),
                          'year': kwargs.get('year', ''),
                          'filtro': kwargs.get('filtro', {})

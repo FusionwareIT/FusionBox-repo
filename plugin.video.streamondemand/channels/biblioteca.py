@@ -108,7 +108,8 @@ def peliculas(item):
                 movie.path = i
                 movie.title = os.path.splitext(os.path.basename(i))[0].capitalize()
                 movie.channel = "biblioteca"
-                movie.action = "findvideos"
+                # DrZ3r0
+                movie.action = "play"
                 movie.text_color = "blue"
                 # fix para que no se ejecute el método de play para la biblioteca de Kodi
                 movie.strm = False

@@ -31,7 +31,9 @@ def update_servers():
         percentage = index * 100 / len(server_files)
         # ----------------------------
         server_name = os.path.basename(server)[:-4]
-        updater.updateserver(server_name)
+        t = Thread(target=updater.updateserver, args=[server_name])
+        t.setDaemon(True)
+        t.start()
         # ----------------------------
         progress.update(percentage, ' Update server: ' + server_name)
         # ----------------------------
