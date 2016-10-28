@@ -41,7 +41,7 @@
 	</extension>
 </addon>
 
-<addon id="plugin.video.dplay" name="Dplay" version="1.0.0" provider-name="NeverWise">
+<addon id="plugin.video.dplay" name="Dplay" version="1.0.1" provider-name="NeverWise">
   <requires>
     <import addon="xbmc.python" version="2.14.0"/>
     <import addon="script.module.neverwise" version="1.0.7"/>
