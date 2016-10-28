@@ -39,31 +39,31 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Film - Novita'[/COLOR]",
                      action="peliculas",
-                     extra="film",
+                     extra="movie",
                      url="%s/genere/film" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film - HD[/COLOR]",
                      action="peliculas",
-                     extra="film",
+                     extra="movie",
                      url="%s/?s=[HD]" % host,
                      thumbnail="http://jcrent.com/apple%20tv%20final/HD.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Categorie[/COLOR]",
                      action="categorias",
-                     extra="film",
+                     extra="movie",
                      url="%s/genere/film" % host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Sub - Ita[/COLOR]",
                      action="peliculas",
-                     extra="film",
+                     extra="movie",
                      url="%s/genere/sub-ita" % host,
                      thumbnail="http://i.imgur.com/qUENzxl.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
-                     extra="film",
+                     extra="movie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
@@ -88,7 +88,7 @@ def search(item, texto):
     try:
         if item.extra == "serie":
             return peliculas_tv(item)
-        else:
+        if item.extra == "movie":
             return peliculas(item)
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
     except:

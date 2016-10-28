@@ -35,7 +35,6 @@ header = [
 ]
 
 
-
 def isGeneric():
     return True
 
@@ -80,7 +79,7 @@ def mainlist(item):
 
     itemlist.append(Item(channel=__channel__,
                          action="info",
-                             title="[COLOR lime][I]Info canale[/I][/COLOR] [COLOR yellow]13/09/2016[/COLOR]",
+                             title="[COLOR lime][I]Info canale[/I][/COLOR] [COLOR yellow]14/10/2016[/COLOR]",
                          thumbnail="http://www.mimediacenter.info/wp-content/uploads/2016/01/newlogo-final.png"))
     return itemlist
 
@@ -104,7 +103,7 @@ def novita(item):
         logger.info("title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
-                 action="episodi",
+                 action="episodios",
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
                  thumbnail=scrapedthumbnail,
@@ -149,7 +148,7 @@ def lista_serie(item):
         logger.info(scrapedurl + " " + scrapedtitle + scrapedthumbnail)
         itemlist.append(infoSod(
             Item(channel=__channel__,
-                 action="episodi",
+                 action="episodios",
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
                  thumbnail=scrapedthumbnail,
@@ -225,7 +224,7 @@ def search(item, texto):
         logger.info(scrapedurl + " " + scrapedtitle + scrapedthumbnail)
         itemlist.append(infoSod(
             Item(channel=__channel__,
-                 action="episodi",
+                 action="episodios",
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
                  thumbnail=scrapedthumbnail,
@@ -251,7 +250,7 @@ def top50(item):
         logger.debug(scrapedurl + " " + scrapedtitle)
         itemlist.append(infoSod(
             Item(channel=__channel__,
-                 action="episodi",
+                 action="episodios",
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
                  thumbnail=scrapedthumbnail,
@@ -262,8 +261,8 @@ def top50(item):
 # =================================================================
 
 # -----------------------------------------------------------------
-def episodi(item):
-    logger.info("[leserietv.py] episodi")
+def episodios(item):
+    logger.info("[leserietv.py] episodios")
     itemlist = []
     elenco = []
     data = scrapertools.cache_page(item.url)
@@ -273,28 +272,28 @@ def episodi(item):
     scrapertools.printMatches(matches)
 
     for scrapedlongtitle,scrapedtitle, scrapedurl in matches:
-        scrapedtitle = scrapedtitle.replace('_', "x")
-        #xbmc.log(scrapedlongtitle + " " + scrapedtitle + " " + scrapedurl)
+        scrapedtitle = scrapedtitle.split('_')[0]+"x"+scrapedtitle.split('_')[1].zfill(2)
+
         elenco.append([scrapedtitle,scrapedlongtitle,scrapedurl])
 
         scrapedtitle = scrapedtitle + " [COLOR orange]" + scrapedlongtitle + "[/COLOR]"
         itemlist.append(Item(channel=__channel__,
-                             action="play",
+                             action="findvideos",
                              title=scrapedtitle,
+                             fulltitle=scrapedtitle,
                              url=scrapedurl,
                              thumbnail=item.thumbnail,
                              fanart=item.fanart if item.fanart != "" else item.scrapedthumbnail,
-                             fulltitle=item.fulltitle,
                              show=item.fulltitle))
-    itemlist.append(Item(channel=__channel__,
-                         action="test",
-                         title="Scarica tutta la serie [COLOR yellow]"+ item.fulltitle + "[/COLOR]",
-                         url=scrapedurl,
-                         extra=elenco,
-                         thumbnail=item.thumbnail,
-                         fanart=item.fanart if item.fanart != "" else item.scrapedthumbnail,
-                         fulltitle=item.fulltitle,
-                         show=item.fulltitle))
+
+    if config.get_library_support() and len(itemlist) != 0:
+        itemlist.append(
+            Item(channel=__channel__,
+                 title="Aggiungi alla liberia la serie",
+                 url=item.url,
+                 action="add_serie_to_library",
+                 extra="episodios" + "###" + item.extra,
+                 show=item.show))
 
     return itemlist
 # =================================================================
@@ -323,7 +322,7 @@ def info(item):
 
     dialog = xbmcgui.Dialog()
     linea1='[COLOR yellow]Servizi ripristinati:[/COLOR]'
-    linea2='Scarica tutti gli episodi. (beta test)'
+    linea2='Aggiungi a libreria. '
     linea3='\n[COLOR orange]www.mimediacenter.info[/COLOR] - [I]pelisalacarta (For Italian users)[/I]'
 
     result=dialog.ok('Le serie TV Info',linea1,linea2,linea3)
@@ -339,10 +338,10 @@ def HomePage(item):
 def test(item):
     itemlist=[]
 
-    episodi = item.extra
-    for episodio,titolo,url in episodi:
-        xbmc.log(titolo)
-        downloadtools.downloadtitle(link(url),item.fulltitle + " " + episodio + " " + titolo)
+
+    #for episodio,titolo,url in episodi:
+     #   xbmc.log(titolo)
+     #   downloadtools.downloadtitle(link(url),item.fulltitle + " " + episodio + " " + titolo)
 
     return itemlist
 
@@ -355,3 +354,15 @@ def link(url):
 
 FilmFanart="https://superrepo.org/static/images/fanart/original/script.artwork.downloader.jpg"
 ThumbnailHome="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Dynamic-blue-up.svg/580px-Dynamic-blue-up.svg.png"
+
+'''
+itemlist.append(Item(channel=__channel__,
+                     action="test",
+                     title="Scarica tutta la serie [COLOR yellow]" + item.fulltitle + "[/COLOR]",
+                     url=scrapedurl,
+                     extra=elenco,
+                     thumbnail=item.thumbnail,
+                     fanart=item.fanart if item.fanart != "" else item.scrapedthumbnail,
+                     fulltitle=item.fulltitle,
+                     show=item.fulltitle))
+'''

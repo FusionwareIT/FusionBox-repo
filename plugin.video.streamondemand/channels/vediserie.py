@@ -162,12 +162,12 @@ def episodios(item):
         title = season + "x" + episode
         itemlist.append(
             Item(channel=__channel__,
-                 action="findvid_serie",
+                 action="findvideos",
                  title=title,
                  url=item.url,
                  thumbnail=item.thumbnail,
                  extra=url,
-                 fulltitle=item.fulltitle,
+                 fulltitle=title + ' - ' + item.show,
                  show=item.show))
 
     if config.get_library_support() and len(itemlist) != 0:
@@ -189,7 +189,7 @@ def episodios(item):
     return itemlist
 
 
-def findvid_serie(item):
+def findvideos(item):
     logger.info("[vediserie.py] findvideos")
 
     # Descarga la página

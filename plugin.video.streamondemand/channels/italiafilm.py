@@ -39,16 +39,19 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Film - Novita'[/COLOR]",
                      action="peliculas",
+                     extra="movie",
                      url="%s/category/film-streaming-2016-1/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film HD[/COLOR]",
                      action="peliculas",
+                     extra="movie",
                      url="%s/category/film-hd/" % host,
                      thumbnail="http://i.imgur.com/3ED6lOP.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Anime e Cartoon[/COLOR]",
-                     action="peliculas",
+                     action="peliculas_tv",
+                     extra="serie",
                      url="%s/category/anime-e-cartoon/" % host,
                      thumbnail="http://orig09.deviantart.net/df5a/f/2014/169/2/a/fist_of_the_north_star_folder_icon_by_minacsky_saya-d7mq8c8.png"),
                 # Item(channel=__channel__,
@@ -67,18 +70,18 @@ def mainlist(item):
                      extra="serie",
                      url="%s/category/serie-tv/" % host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
-                 Item(channel=__channel__,
-                      title="[COLOR azure]Ultime serie TV[/COLOR]",
-                      action="pel_tv",
-                      extra="serie",
-                      url="%s/ultimi-telefilm-streaming/" % host,
-                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
-                      Item(channel=__channel__,
-                      title="[COLOR azure]Ultimi anime inseriti[/COLOR]",
-                      action="anime",
-                      extra="serie",
-                      url="%s/ultimi-telefilm-streaming/" % host,
-                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),   
+                Item(channel=__channel__,
+                     title="[COLOR azure]Ultime serie TV[/COLOR]",
+                     action="pel_tv",
+                     extra="serie",
+                     url="%s/ultimi-telefilm-streaming/" % host,
+                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
+                Item(channel=__channel__,
+                     title="[COLOR azure]Ultimi anime inseriti[/COLOR]",
+                     action="anime",
+                     extra="serie",
+                     url="%s/ultimi-telefilm-streaming/" % host,
+                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
                      action="search",
@@ -108,6 +111,7 @@ def categorias(item):
         itemlist.append(
             Item(channel=__channel__,
                  action='peliculas',
+                 extra=item.extra,
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
                  thumbnail=scrapedthumbnail,
@@ -154,6 +158,7 @@ def peliculas(item):
 
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action='episodios' if item.extra == 'serie' else 'findvideos',
                  fulltitle=title,
                  show=title,
@@ -198,6 +203,7 @@ def peliculas_tv(item):
         title = scrapertools.find_single_match(match, '<h3[^<]+<a href="[^"]+"[^<]+>([^<]+)</a>')
         title = title.replace("Streaming", "")
         title = scrapertools.decodeHtmlentities(title).strip()
+        show_title = re.sub('\(.*?\)', '', title.replace('Serie TV', ''))
         url = scrapertools.find_single_match(match, '<h3[^<]+<a href="([^"]+)"')
         plot = ""
         thumbnail = scrapertools.find_single_match(match, 'data-echo="([^"]+)"')
@@ -206,9 +212,10 @@ def peliculas_tv(item):
 
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action='episodios' if item.extra == 'serie' else 'findvideos',
                  fulltitle=title,
-                 show=title,
+                 show=show_title,
                  title="[COLOR azure]" + title + "[/COLOR]",
                  url=url,
                  thumbnail=thumbnail,
@@ -237,6 +244,7 @@ def peliculas_tv(item):
 
     return itemlist
 
+
 def pel_tv(item):
     logger.info("[italiafilm.py] pel_tv")
     itemlist = []
@@ -251,6 +259,7 @@ def pel_tv(item):
         t = scrapertools.decodeHtmlentities(t).strip()
         title = title.replace("Streaming", "")
         title = scrapertools.decodeHtmlentities(title).strip()
+        show_title = re.sub('\(.*?\)', '', title.replace('Serie TV', ''))
         title = title + " - " + t
         url = scrapertools.find_single_match(match, '<a href="([^"]+)"')
         plot = ""
@@ -260,9 +269,10 @@ def pel_tv(item):
 
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action='episodios' if item.extra == 'serie' else 'findvideos',
                  fulltitle=title,
-                 show=title,
+                 show=show_title,
                  title="[COLOR azure]" + title + "[/COLOR]",
                  url=url,
                  thumbnail=thumbnail,
@@ -291,6 +301,7 @@ def pel_tv(item):
 
     return itemlist
 
+
 def anime(item):
     logger.info("[italiafilm.py] anime")
     itemlist = []
@@ -314,6 +325,7 @@ def anime(item):
 
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action='episodios' if item.extra == 'serie' else 'findvideos',
                  fulltitle=title,
                  show=title,
@@ -345,6 +357,7 @@ def anime(item):
 
     return itemlist
 
+
 def HomePage(item):
     import xbmc
     xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
@@ -366,14 +379,16 @@ def episodios(item):
             if title == '':
                 title = scrapedtitle
             if title != '':
+                title = re.sub(r"(\d+)[^\d]+(\d+)", r"\1x\2", title)
+                title += " (" + lang_title + ")"
                 itemlist.append(
                     Item(channel=__channel__,
-                         action="findvid_serie",
-                         title=title + " (" + lang_title + ")",
-                         url=item.url,
+                         action="findvideos",
+                         title=title,
+                         url=data,
                          thumbnail=item.thumbnail,
-                         extra=data,
-                         fulltitle=item.fulltitle,
+                         extra=item.extra,
+                         fulltitle=title + ' - ' + item.show,
                          show=item.show))
 
     logger.info("[italiafilm.py] episodios")
@@ -418,17 +433,17 @@ def episodios(item):
     if config.get_library_support() and len(itemlist) != 0:
         itemlist.append(
             Item(channel=__channel__,
-                 title=item.title,
+                 title=item.show,
                  url=item.url,
                  action="add_serie_to_library",
-                 extra="episodios",
+                 extra="episodios###" + item.extra,
                  show=item.show))
         itemlist.append(
             Item(channel=item.channel,
                  title="Scarica tutti gli episodi della serie",
                  url=item.url,
                  action="download_all_episodes",
-                 extra="episodios",
+                 extra="episodios###" + item.extra,
                  show=item.show))
 
     return itemlist
@@ -437,47 +452,35 @@ def episodios(item):
 def findvideos(item):
     logger.info("[italiafilm.py] findvideos")
 
-    # Descarga la pagina
-    data = scrapertools.cache_page(item.url)
+    if item.extra == "serie":
+        # Descarga la pagina
+        data = item.url
 
-    itemlist = servertools.find_video_items(data=data)
+        html = [data]
 
-    patron = '<iframe style="border: 0;" src="([^"]+)" width="[^"]*" height="[^"]*" scrolling="[^"]*" allowfullscreen="[^"]*"></iframe>'
-    url = scrapertools.find_single_match(data, patron)
-    if url:
         headers.append(['Referer', item.url])
-        data = scrapertools.cache_page(url, headers=headers)
-        html = []
-        for num in scrapertools.find_multiple_matches(data, 'id="mlink_(\d+)"'):
-            html.append(scrapertools.cache_page(url + '?host=%s' % num, headers=headers))
+        for url in scrapertools.find_multiple_matches(data, r'href="(http://hdlink\.[^?]+?)\?'):
+            for num in scrapertools.find_multiple_matches(scrapertools.cache_page(url, headers=headers), 'id="mlink_(\d+)"'):
+                html.append(scrapertools.cache_page(url + '?host=%s' % num, headers=headers))
 
-        itemlist.extend(servertools.find_video_items(data=''.join(html)))
+        itemlist = servertools.find_video_items(data=''.join(html))
+    else:
+        # Descarga la pagina
+        data = scrapertools.cache_page(item.url)
 
-    for videoitem in itemlist:
-        videoitem.title = item.title + videoitem.title
-        videoitem.fulltitle = item.fulltitle
-        videoitem.thumbnail = item.thumbnail
-        videoitem.show = item.show
-        videoitem.plot = item.plot
-        videoitem.channel = __channel__
+        itemlist = servertools.find_video_items(data=data)
 
-    return itemlist
+        patron = '<iframe style="border: 0;" src="([^"]+)" width="[^"]*" height="[^"]*" scrolling="[^"]*" allowfullscreen="[^"]*"></iframe>'
+        url = scrapertools.find_single_match(data, patron)
+        if url:
+            headers.append(['Referer', item.url])
+            data = scrapertools.cache_page(url, headers=headers)
+            html = []
+            for num in scrapertools.find_multiple_matches(data, 'id="mlink_(\d+)"'):
+                html.append(scrapertools.cache_page(url + '?host=%s' % num, headers=headers))
 
+            itemlist.extend(servertools.find_video_items(data=''.join(html)))
 
-def findvid_serie(item):
-    logger.info("[italiafilm.py] findvideos")
-
-    # Descarga la pagina
-    data = item.extra
-
-    html = [data]
-
-    headers.append(['Referer', item.url])
-    for url in scrapertools.find_multiple_matches(data, r'href="(http://hdlink\.[^?]+?)\?'):
-        for num in scrapertools.find_multiple_matches(scrapertools.cache_page(url, headers=headers), 'id="mlink_(\d+)"'):
-            html.append(scrapertools.cache_page(url + '?host=%s' % num, headers=headers))
-
-    itemlist = servertools.find_video_items(data=''.join(html))
     for videoitem in itemlist:
         videoitem.title = item.title + videoitem.title
         videoitem.fulltitle = item.fulltitle

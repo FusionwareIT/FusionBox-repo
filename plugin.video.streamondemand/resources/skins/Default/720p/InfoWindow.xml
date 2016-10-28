@@ -268,7 +268,7 @@
             <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>
             <align>center</align>
             <aligny>center</aligny>
-            <label>Anterior</label>
+            <label>Indietro</label>
           </control>
           <control type="button" id="10026">
             <left>115</left>
@@ -278,7 +278,7 @@
             <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>
             <align>center</align>
             <aligny>center</aligny>
-            <label>Siguiente</label>
+            <label>Avanti</label>
           </control>
           <control type="button" id="10027">
             <left>253</left>
@@ -288,7 +288,7 @@
             <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>
             <align>center</align>
             <aligny>center</aligny>
-            <label>Cancelar</label>
+            <label>Annulla</label>
           </control>
           <control type="button" id="10028">
             <left>390</left>
@@ -298,7 +298,7 @@
             <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>
             <align>center</align>
             <aligny>center</aligny>
-            <label>Aceptar</label>
+            <label>Accetta</label>
           </control>
           <control type="label" id="100029">
             <right>0</right>

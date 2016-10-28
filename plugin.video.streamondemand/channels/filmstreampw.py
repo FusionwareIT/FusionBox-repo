@@ -40,16 +40,19 @@ def mainlist(item):
                      title="[COLOR azure]Ultimi Film Inseriti[/COLOR]",
                      action="peliculas",
                      url=host + "film/",
+                     extra="movie",
                      thumbnail="http://dc584.4shared.com/img/XImgcB94/s7/13feaf0b538/saquinho_de_pipoca_01"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Per Genere[/COLOR]",
                      action="categorias",
                      url=host,
+                     extra="movie",
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film e Serie per anno[/COLOR]",
                      action="byyear",
                      url=host,
+                     extra="movie",
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/Movie%20Year.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
@@ -93,6 +96,7 @@ def categorias(item):
         itemlist.append(
             Item(channel=__channel__,
                  action="peliculas",
+                 extra=item.extra,
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
                  thumbnail=scrapedthumbnail,
@@ -124,6 +128,7 @@ def byyear(item):
         itemlist.append(
             Item(channel=__channel__,
                  action="peliculas",
+                 extra=item.extra,
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
                  thumbnail=scrapedthumbnail,
@@ -173,6 +178,7 @@ def peliculasx(item):
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="episodios" if item.extra == "serie" else "findvideos",
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
@@ -203,6 +209,7 @@ def peliculasx_tv(item):
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="episodios" if item.extra == "serie" else "findvideos",
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
@@ -233,6 +240,7 @@ def peliculas(item):
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="episodios" if item.extra == "serie" else "findvideos",
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
@@ -255,6 +263,7 @@ def peliculas(item):
                  folder=True)),
         itemlist.append(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="peliculas",
                  title="[COLOR orange]Successivo >>[/COLOR]",
                  url=scrapedurl,
@@ -282,6 +291,7 @@ def peliculas_tv(item):
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="episodios" if item.extra == "serie" else "findvideos",
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
@@ -304,6 +314,7 @@ def peliculas_tv(item):
                  folder=True)),
         itemlist.append(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="peliculas_tv",
                  title="[COLOR orange]Successivo >>[/COLOR]",
                  url=scrapedurl,
@@ -334,15 +345,19 @@ def episodios(item):
     for season_id, season in re.compile('<option value="([^"]+)">([^<]+)</option>').findall(data[start:end]):
         post_data = 'news_id=%s&season=%s' % (serie_id, season_id)
         json = scrapertools.cache_page(post_url, post=post_data, headers=headers)
+        lang = scrapertools.find_single_match(season, '\[(.*?)\]')
+        season = scrapertools.find_single_match(season, '\d+')
         for episode_id, episode in re.compile(r'<option value=\\"(\d+)\\">([^<]+)<\\/option>').findall(json):
-            title = season + ' | ' + episode.replace('Serie', 'Episodio')
+            episode = scrapertools.find_single_match(episode, '\d+').zfill(2)
+            title = season + 'x' + episode + ' (' + lang + ')'
             url = '%s?news_id=%s&series=%s?%s' % (post_url, serie_id, episode_id, item.url)
             itemlist.append(
                 Item(channel=__channel__,
-                     action="findvid_serie",
+                     extra=item.extra,
+                     action="findvideos",
                      title=title.strip(),
                      url=url,
-                     fulltitle=item.fulltitle,
+                     fulltitle=title + ' - ' + item.show,
                      show=item.show,
                      thumbnail=item.thumbnail))
 
@@ -352,28 +367,29 @@ def episodios(item):
                  title=item.title,
                  url=item.url,
                  action="add_serie_to_library",
-                 extra="episodios",
+                 extra="episodios###" + item.extra,
                  show=item.show))
         itemlist.append(
             Item(channel=__channel__,
                  title="Scarica tutti gli episodi della serie",
                  url=item.url,
                  action="download_all_episodes",
-                 extra="episodios",
+                 extra="episodios###" + item.extra,
                  show=item.show))
 
-    return itemlist
 
-
-def findvid_serie(item):
+def findvideos(item):
     logger.info("streamondemand.filmstreampw findvideos")
 
-    post_url, post_data, referer = item.url.split('?')
+    if item.extra == "serie":
+        post_url, post_data, referer = item.url.split('?')
 
-    headers.append(['Referer', referer])
+        headers.append(['Referer', referer])
 
-    # Descarga la página
-    data = scrapertools.cache_page(post_url, post=post_data, headers=headers)
+        # Descarga la página
+        data = scrapertools.cache_page(post_url, post=post_data, headers=headers)
+    else:
+        data = scrapertools.cache_page(item.url, headers=headers)
 
     itemlist = servertools.find_video_items(data=data.replace(r'\/', '/'))
 

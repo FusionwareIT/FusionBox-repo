@@ -118,23 +118,22 @@ def find_and_set_infoLabels_tmdb(item, ask_video=True):
 
 
         if len(results) > 1 and ask_video:
-            tmdb_result = platformtools.show_video_info(results, caption="[{0}]: Selecciona la {1} correcta"
-                                                        .format(title, "serie" if video_type == "tv" else "pelicula"),
+            tmdb_result = platformtools.show_video_info(results, caption="[{0}]: Seleziona {1} corretta"
+                                                        .format(title, "la serie" if video_type == "tv" else "il film"),
                                                         callback='cb_select_from_tmdb', item=item)
         elif len(results) > 0:
             tmdb_result = results[0]
 
 
         if tmdb_result is None:
-            if platformtools.dialog_yesno("{0} no encontrada".
-                                          format("Serie" if video_type == "tv" else "Pelicula") ,
-                                          "No se ha encontrado la {0}:".
-                                          format("serie" if video_type == "tv" else "pelicula"),
+            if platformtools.dialog_yesno("Ricerca titolo" ,
+                                          "Titolo non travato {0}:".
+                                          format("della serie" if video_type == "tv" else "del film"),
                                           title,
-                                          '¿Desea introducir otro nombre?'):
+                                          'Vuoi cercare con titolo diverso ?'):
                 # Pregunta el titulo
-                it = platformtools.dialog_input(title, "Introduzca el nombre de la {0} a buscar".
-                                                format("serie" if video_type == "tv" else "pelicula"))
+                it = platformtools.dialog_input(title, "Inserire il nome {0} per la ricerca".
+                                                format("serie" if video_type == "tv" else "film"))
                 if it is not None:
                     title = it
                 else:

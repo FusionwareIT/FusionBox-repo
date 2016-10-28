@@ -197,6 +197,7 @@ def episodios(item):
             end = data.find('<a ')
             if end > 0:
                 scrapedtitle = scrapertools.find_single_match(data[:end], '\d+[^\d]+\d+')
+                scrapedtitle = scrapedtitle.replace('×', 'x')
                 itemlist.append(
                     Item(channel=__channel__,
                          action="findvideos",
@@ -204,7 +205,7 @@ def episodios(item):
                          url=data,
                          thumbnail=item.thumbnail,
                          extra=item.extra,
-                         fulltitle=item.show + ' | ' + scrapedtitle + " (" + lang_title + ")",
+                         fulltitle=scrapedtitle + " (" + lang_title + ")" + ' - ' + item.show,
                          show=item.show))
 
     logger.info("[eurostreaming.py] episodios")

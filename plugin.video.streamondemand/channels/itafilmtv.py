@@ -78,6 +78,7 @@ def mainlist(item):
 
     return itemlist
 
+#disabled from global search
 
 # Al llamarse "search" la función, el launcher pide un texto a buscar y lo añade como parámetro
 def search(item, texto):
@@ -151,8 +152,6 @@ def serietv(item):
     # Descarga la página
     data = scrapertools.cache_page(item.url, headers=headers)
 
-    action = "episodios"
-
     # Extrae las datos
     patron = '<div class="main-news">.*?'
     patron += '<div class="main-news-image"[^<]+'
@@ -163,11 +162,11 @@ def serietv(item):
     matches = re.compile(patron, re.DOTALL).findall(data)
 
     for scrapedurl, scrapedthumbnail, scrapedtitle in matches:
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
+        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle).replace('(Serie TV)', '')
 
         itemlist.append(infoSod(
             Item(channel=__channel__,
-                 action=action,
+                 action="episodios",
                  title=scrapedtitle,
                  url=scrapedurl,
                  thumbnail=urlparse.urljoin(host, scrapedthumbnail),
@@ -298,10 +297,11 @@ def episodios(item):
             itemlist.append(
                 Item(channel=__channel__,
                      action="findvideos",
-                     title=title, url=urls[:-1],
+                     title=title,
+                     url=urls[:-1],
                      thumbnail=item.thumbnail,
                      plot=plot,
-                     fulltitle=item.fulltitle,
+                     fulltitle=title + ' - ' + item.show,
                      show=item.show))
 
     if config.get_library_support() and len(itemlist) != 0:

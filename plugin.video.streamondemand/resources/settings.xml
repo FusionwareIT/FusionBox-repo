@@ -145,7 +145,7 @@
         <setting id="scrap_ask_name" type="bool" label="Confermare il nome del film / serie da aggiungere alla libreria"
                  default="true"/>
         <setting type="sep"/>
-        <setting label="Filtros" type="lsep"/>
+        <setting label="Filtri" type="lsep"/>
         <setting id="filter_servers" type="bool" label="30068" default="false"/>
         <!--<setting type="sep" />-->
         <setting label="30071" type="lsep"/>

@@ -164,7 +164,7 @@ class SettingsWindow(xbmcgui.WindowXMLDialog):
             cuando le das a aceptar, llama a la función 'callback' del canal desde donde se ha llamado, pasando como
             parámetros, el item y el dict_values
     """
-    def start(self, list_controls=None, dict_values=None, title="Opciones", callback=None, item=None,
+    def start(self, list_controls=None, dict_values=None, title="Opzioni", callback=None, item=None,
               custom_button=None):
         logger.info("[xbmc_config_menu] start")
 

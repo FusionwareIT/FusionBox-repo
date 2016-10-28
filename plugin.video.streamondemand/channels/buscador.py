@@ -60,14 +60,116 @@ def mainlist(item, preferred_thumbnail="squares"):
     return itemlist
 
 
+#=====================================================
+def opciones(item):
+    itemlist = []
+    itemlist.append(Item(channel=item.channel, action="settingCanal", title="Scegli i canali da includere nella ricerca"))
+    itemlist.append(Item(channel=item.channel, action="clear_saved_searches", title="Cancella ricerche salvate"))
+    itemlist.append(Item(channel=item.channel, action="settings", title="Altre opzioni"))
+    return itemlist
+
 def settings(item):
     return platformtools.show_channel_settings()
 
+#====================================================================================
+def settingCanal(item):
+    channels_path = os.path.join(config.get_runtime_path(), "channels", '*.xml')
+    channel_language = config.get_setting("channel_language")
+
+    if channel_language == "":
+        channel_language = "all"
+
+    list_controls = []
+    for infile in sorted(glob.glob(channels_path)):
+        channel_name = os.path.basename(infile)[:-4]
+        channel_parameters = channeltools.get_channel_parameters(channel_name)
+
+        # No incluir si es un canal inactivo
+        if channel_parameters["active"] != "true":
+            continue
+
+        # No incluir si es un canal para adultos, y el modo adulto está desactivado
+        if channel_parameters["adult"] == "true" and config.get_setting("adult_mode") == "false":
+            continue
+
+        # No incluir si el canal es en un idioma filtrado
+        if channel_language != "all" and channel_parameters["language"] != channel_language:
+            continue
+
+        # No incluir si en la configuracion del canal no existe "include_in_global_search"
+        include_in_global_search = config.get_setting("include_in_global_search", channel_name)
+        if include_in_global_search == "":
+            continue
+
+        control = {'id': channel_name,
+                   'type': "bool",
+                   'label': channel_parameters["title"],
+                   'default': include_in_global_search,
+                   'enabled': True,
+                   'visible': True}
+
+        list_controls.append(control)
+
+    return platformtools.show_channel_settings(list_controls=list_controls,
+                                               caption="Canali inclusi nella ricerca globale",
+                                               callback="save_settings", item=item)
+#========================================================
 
 def save_settings(item, dict_values):
     for v in dict_values:
         config.set_setting("include_in_global_search", dict_values[v], v)
 
+    def searchbycat(item):
+        # Only in xbmc/kodi
+        # Abre un cuadro de dialogo con las categorías en las que hacer la búsqueda
+        channels_path = os.path.join(config.get_runtime_path(), "channels", '*.xml')
+        channel_language = config.get_setting("channel_language")
+        if channel_language == "":
+            channel_language = "all"
+
+        categories = ["Películas", "Series", "Anime", "Documentales", "VOS", "Latino"]
+        categories_id = ["movie", "serie", "anime", "documentary", "vos", "latino"]
+        list_controls = []
+        for i, category in enumerate(categories):
+            control = {'id': categories_id[i],
+                       'type': "bool",
+                       'label': category,
+                       'default': False,
+                       'enabled': True,
+                       'visible': True}
+
+            list_controls.append(control)
+        control = {'id': "separador",
+                   'type': "label",
+                   'label': '',
+                   'default': "",
+                   'enabled': True,
+                   'visible': True}
+        list_controls.append(control)
+        control = {'id': "torrent",
+                   'type': "bool",
+                   'label': 'Includi nella ricerca i canali Torrent',
+                   'default': True,
+                   'enabled': True,
+                   'visible': True}
+        list_controls.append(control)
+
+        return platformtools.show_channel_settings(list_controls=list_controls, caption="Scegli categoria",
+                                                   callback="search_cb", item=item)
+
+    def search_cb(item, values=""):
+        cat = []
+        for c in values:
+            if values[c]:
+                cat.append(c)
+
+        if not len(cat):
+            return None
+        else:
+            logger.info(item.tostring())
+            logger.info(str(cat))
+            return do_search(item, cat)
+#=============================================================
 
 # Al llamar a esta función, el sistema pedirá primero el texto a buscar
 # y lo pasará en el parámetro "tecleado"
@@ -80,6 +182,25 @@ def search(item, tecleado):
         save_search(item.extra)
 
     return do_search(item)
+
+#============================================================
+def channel_result(item):
+    extra = item.extra.split("{}")[0]
+    channel = item.extra.split("{}")[1]
+    tecleado = item.extra.split("{}")[2]
+    exec "from channels import " + channel + " as module"
+    item.channel = channel
+    item.extra = extra
+    # print item.url
+    try:
+        itemlist = module.search(item, tecleado)
+    except:
+        import traceback
+        logger.error(traceback.format_exc())
+        itemlist = []
+
+    return itemlist
+#============================================================
 
 
 def channel_search(queue, channel_parameters, category, tecleado):

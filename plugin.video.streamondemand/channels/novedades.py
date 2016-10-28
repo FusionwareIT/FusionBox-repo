@@ -52,24 +52,24 @@ def mainlist(item,thumbnail_type="squares"):
 
     if list_canales['peliculas']:
         thumbnail = thumbnail_base + "/thumb_canales_peliculas.png"
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="peliculas", title="Películas", thumbnail=thumbnail))
+    itemlist.append(Item(channel=item.channel, action="novedades", extra="peliculas", title="Film", thumbnail=thumbnail))
 
     if list_canales['infantiles']:
         thumbnail = thumbnail_base + "/thumb_canales_infantiles.png"
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="infantiles", title="Para niños", thumbnail=thumbnail))
+    itemlist.append(Item(channel=item.channel, action="novedades", extra="infantiles", title="PCartoni Animati", thumbnail=thumbnail))
 
     if list_canales['series']:
         thumbnail = thumbnail_base + "/thumb_canales_series.png"
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="series", title="Episodios de series", thumbnail=thumbnail))
+    itemlist.append(Item(channel=item.channel, action="novedades", extra="series", title="Episodi Servie Tv", thumbnail=thumbnail))
 
     if list_canales['anime']:
         thumbnail = thumbnail_base + "/thumb_canales_anime.png"
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="anime", title="Episodios de anime", thumbnail=thumbnail))
+    itemlist.append(Item(channel=item.channel, action="novedades", extra="anime", title="Episodi Anime", thumbnail=thumbnail))
 
     if list_canales['documentales']:
         thumbnail = thumbnail_base + "/thumb_canales_documentales.png"
 
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="documentales", title="Documentales", thumbnail=thumbnail))
+    itemlist.append(Item(channel=item.channel, action="novedades", extra="documentales", title="Documentari", thumbnail=thumbnail))
 
     #itemlist.append(Item(channel=item.channel, action="menu_opciones", title="Opciones", viewmode="list",
     #                     thumbnail=thumbnail_base + "/thumb_configuracion.png"))
@@ -315,19 +315,19 @@ def menu_opciones(item):
     preferred_thumbnail = THUMBNAILS[thumbnail_type]
 
     itemlist = []
-    itemlist.append(Item(channel=item.channel, title="Canales incluidos en:",
+    itemlist.append(Item(channel=item.channel, title="Includi Canali di tipo:",
                          thumbnail="http://media.tvalacarta.info/streamondemand/" + preferred_thumbnail + "/thumb_configuracion.png", folder=False))
-    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="peliculas", title="    - Películas ",
+    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="peliculas", title="    - Film ",
                          thumbnail="http://media.tvalacarta.info/streamondemand/" + preferred_thumbnail + "/thumb_canales_peliculas.png", folder=False))
-    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="infantiles", title="    - Para niños",
+    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="infantiles", title="    - Cartoni Animati",
                          thumbnail="http://media.tvalacarta.info/streamondemand/" + preferred_thumbnail + "/thumb_canales_infantiles.png", folder=False))
-    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="series", title="    - Episodios de series",
+    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="series", title="    - Episodi Serie Tv",
                          thumbnail="http://media.tvalacarta.info/streamondemand/" + preferred_thumbnail + "/thumb_canales_series.png", folder=False))
-    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="anime", title="    - Episodios de anime",
+    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="anime", title="    - Episodi Anime",
                          thumbnail="http://media.tvalacarta.info/streamondemand/" + preferred_thumbnail + "/thumb_canales_anime.png", folder=False))
-    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="documentales", title="    - Documentales",
+    itemlist.append(Item(channel=item.channel, action="settingCanal", extra="documentales", title="    - Documentari",
                          thumbnail="http://media.tvalacarta.info/streamondemand/" + preferred_thumbnail + "/thumb_canales_documentales.png", folder=False))
-    itemlist.append(Item(channel=item.channel, action="settings", title="Otros ajustes",
+    itemlist.append(Item(channel=item.channel, action="settings", title="Altre opzioni",
                          thumbnail="http://media.tvalacarta.info/streamondemand/"+preferred_thumbnail+"/thumb_configuracion.png", folder=False))
     return itemlist
 
@@ -375,7 +375,7 @@ def settingCanal(item):
         list_controls.append(control)
 
     return platformtools.show_channel_settings(list_controls=list_controls, callback="save_settings", item=item,
-                                               caption= "Canales incluidos en Novedades " + item.title.strip())
+                                               caption= "Calani inclusi in novità " + item.title.strip())
 
 
 def save_settings(item,dict_values):

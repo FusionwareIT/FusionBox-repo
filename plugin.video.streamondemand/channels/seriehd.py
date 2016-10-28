@@ -179,7 +179,7 @@ def episodios(item):
                      action="findvideos",
                      title=title,
                      url=episode_url,
-                     fulltitle=item.fulltitle,
+                     fulltitle=title + ' - ' + item.show,
                      show=item.show,
                      thumbnail=item.thumbnail))
 

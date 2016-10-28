@@ -44,9 +44,9 @@ def create_tvshows_from_xml():
 
     fname = filetools.join(config.get_data_path(), library.TVSHOW_FILE_OLD)
     if filetools.exists(fname):
-        platformtools.dialog_ok("Biblioteca: Se va a actualizar al nuevo formato",
-                                "Seleccione el nombre correcto de cada serie, si no está seguro pulse 'Cancelar'.",
-                                "Hay nuevas opciones en 'Biblioteca' y en la 'configuración' del addon.")
+        platformtools.dialog_ok("Libreria: Si aggiornerà al nuovo formato",
+                                 "Selezionare il nome corretto di ogni serie, se non siete sicuri potete 'Annulla'.",
+                                 "Ci sono nuove opzioni per la 'Libreria' in 'configurazione'.")
 
         filetools.rename(library.TVSHOWS_PATH, "SERIES_OLD")
 
@@ -100,8 +100,8 @@ def create_tvshows_from_json(_actualizado):
 
     if filetools.exists(fname):
         if not _actualizado:
-            platformtools.dialog_ok("Biblioteca: Actualizando formato",
-                                    "Espere por favor mientras se completa el proceso")
+            platformtools.dialog_ok("Libreria: Aggiornamento formato",
+                                     "Si prega di attendere la fine del processo")
 
         try:
             data = jsontools.loads(filetools.read(fname))

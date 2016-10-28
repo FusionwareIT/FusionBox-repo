@@ -1,3 +1,9 @@
+v5.3.9
+- configuration fix
+- search options fix
+- captcha fix
+- updated some channels and servers
+
 v5.3.8
 - library fix
 - cookies management fix

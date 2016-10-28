@@ -318,7 +318,7 @@ def episodios(item):
             episode = str(int(scrapedepisode) + 1)
             if len(episode) == 1: episode = "0" + episode
 
-            title = season + "x" + episode + " - " + item.title
+            title = season + "x" + episode + " - " + item.show
 
             # Le pasamos a 'findvideos' la url con tres partes divididas por el caracter "?"
             # [host+path]?[argumentos]?[Referer]
@@ -329,8 +329,8 @@ def episodios(item):
                      action="findvideos",
                      title=title,
                      url=url,
-                     fulltitle=item.title,
-                     show=item.title,
+                     fulltitle=title,
+                     show=item.show,
                      thumbnail=item.thumbnail))
 
     if config.get_library_support():

@@ -13,9 +13,9 @@
 	<bannermenu>http://www.leserie.tv/templates/LeserieTv/images/logo.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>8</version>
-	<date>13/09/2016</date>
-	<changes>scarica episodi ripristinato</changes>
+	<version>9</version>
+	<date>14/10/2016</date>
+	<changes>Aggiungi a libreria</changes>
 
 	<categories>
 		<category>serie</category>

@@ -74,6 +74,7 @@ def mainlist(item):
 
     return itemlist
 
+#disabled on global search
 
 def categorias(item):
     itemlist = []

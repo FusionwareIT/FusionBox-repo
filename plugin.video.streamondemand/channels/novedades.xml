@@ -12,13 +12,13 @@
 	<thumbnail></thumbnail>
 	
 	<update_url></update_url>
-	<version>2</version>
+	<version>3</version>
 	
 	<changes>
 		<change>
-			<date>01/07/16</date>
-			<autor>SeiTaN</autor>
-			<description>Eliminado código innecesario.</description>
+			<date>11/10/2016</date>
+			<autor>Costaplus</autor>
+			<description>Fix ita</description>
 		</change>
 		<change> 
 			<date>29/04/16</date>
@@ -42,12 +42,12 @@
 	<settings>
 		<id>result_mode</id>
 		<type>list</type>
-		<label>Mostrar resultados:</label>
+		<label>Mostrar risultato:</label>
     	<default>2</default>
 		<enabled>true</enabled>
 		<visible>true</visible>
-		<lvalues>Agrupados por contenido</lvalues>
-		<lvalues>Agrupados por canales</lvalues>
-		<lvalues>Sin Agrupar</lvalues>
+		<lvalues>Raggruppa per contenuto</lvalues>
+		<lvalues>Raggruppa per canale</lvalues>
+		<lvalues>Non raggruppare</lvalues>
 	</settings>
 </channel>

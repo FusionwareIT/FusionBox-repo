@@ -18,7 +18,7 @@ def mainlist(item):
     logger.info("[tengourl.py] mainlist")
 
     itemlist = []
-    itemlist.append( Item(channel=item.channel, action="search", title="Entra aquí y teclea la URL"))
+    itemlist.append( Item(channel=item.channel, action="search", title="Inserisci qui l'URL al video..."))
 
     return itemlist
 
@@ -37,6 +37,6 @@ def search(item,texto):
         item.action="play"
 
     if len(itemlist)==0:
-        itemlist.append( Item(channel=item.channel, action="search", title="No hay ningún vídeo compatible en esa URL"))
+        itemlist.append( Item(channel=item.channel, action="search", title="Non c'è uno stream compatibile per questa URL"))
     
     return itemlist

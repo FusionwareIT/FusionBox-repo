@@ -222,6 +222,7 @@ def episodios(item):
             scrapedtitle = data.split('<a ')[0]
             scrapedtitle = re.sub(r'<[^>]*>', '', scrapedtitle).strip()
             if scrapedtitle != 'Categorie':
+                scrapedtitle = scrapedtitle.replace('×', 'x')
                 itemlist.append(
                     Item(channel=__channel__,
                          action="findvideos",
@@ -229,7 +230,7 @@ def episodios(item):
                          url=data,
                          thumbnail=item.thumbnail,
                          extra=item.extra,
-                         fulltitle=item.show + ' | ' + item.fulltitle,
+                         fulltitle=scrapedtitle + " (" + lang_title + ")" + ' - ' + item.show,
                          show=item.show))
 
     logger.info("[filmsenzalimiti.py] episodios")

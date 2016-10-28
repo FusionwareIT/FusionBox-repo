@@ -21,7 +21,7 @@
           <textcolor>0xFFFFA500</textcolor>
           <align>center</align>
           <aligny>center</aligny>
-          <label>Opciones</label>
+          <label>Opzioni</label>
         </control>
         <control type="button" id="10003">
           <right>15</right>
@@ -51,7 +51,7 @@
           <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>   
           <align>center</align>
           <aligny>center</aligny> 
-          <label>Cancelar</label>
+          <label>Annulla</label>
         </control>
         <control type="button" id="10006">
           <centerleft>570</centerleft>
@@ -62,7 +62,7 @@
           <texturenofocus>ChannelSettings/KeyboardKeyNF.png</texturenofocus>    
           <align>center</align>
           <aligny>center</aligny>
-          <label>Por defecto</label>
+          <label>Predefinita</label>
         </control>
           <control type="group" id="10007">
           <top>60</top>

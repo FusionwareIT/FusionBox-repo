@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
-# streamondemand - XBMC Plugin
+# pelisalacarta - XBMC Plugin
 # Conector para flashx
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 # ------------------------------------------------------------
+# fix by cmos
 
 import os
 import re
@@ -22,24 +23,25 @@ headers = [['User-Agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/2
 
 
 def test_video_exists(page_url):
-    logger.info("pelisalacarta.servers.flashx test_video_exists(page_url='%s')" % page_url)
+    logger.info("streamondemand.servers.flashx test_video_exists(page_url='%s')" % page_url)
 
     data = scrapertools.downloadpageWithoutCookies(page_url)
 
     if 'File Not Found' in data:
-        return False, "[FlashX] Il file non esiste o è stato eliminato"
+        return False, "[FlashX] File inesistente o eliminato"
 
     return True, ""
 
 
 def get_video_url(page_url, premium=False, user="", password="", video_password=""):
-    logger.info("pelisalacarta.servers.flashx url=" + page_url)
+    logger.info("streamondemand.servers.flashx url=" + page_url)
 
     # Lo pide una vez
     data = scrapertools.cache_page(page_url, headers=headers)
     # Si salta aviso, se carga la pagina de comprobacion y luego la inicial
     if "You try to access this video with Kodi" in data:
         url_reload = scrapertools.find_single_match(data, 'try to reload the page.*?href="([^"]+)"')
+        url_reload = "http://www.flashx.tv" + url_reload[1:]
         try:
             data = scrapertools.cache_page(url_reload, headers=headers)
             data = scrapertools.cache_page(page_url, headers=headers)
@@ -105,14 +107,14 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
                 filetools.write(subtitle, data)
             except:
                 import traceback
-                logger.info("pelisalacarta.servers.flashx Error al descargar el subtítulo: "+traceback.format_exc())
+                logger.info("streamondemand.servers.flashx Error al descargar el subtítulo: "+traceback.format_exc())
             
     for media_url, label in media_urls:
         if not media_url.endswith("png") and not media_url.endswith(".srt"):
             video_urls.append(["." + media_url.rsplit('.', 1)[1] + " [flashx]", media_url, 0, subtitle])
 
     for video_url in video_urls:
-        logger.info("pelisalacarta.servers.flashx %s - %s" % (video_url[0], video_url[1]))
+        logger.info("streamondemand.servers.flashx %s - %s" % (video_url[0], video_url[1]))
 
     return video_urls
 
@@ -126,7 +128,7 @@ def find_videos(data):
     # http://flashx.tv/z3nnqbspjyne
     # http://www.flashx.tv/embed-li5ydvxhg514.html
     patronvideos = 'flashx.(?:tv|pw)/(?:embed.php\?c=|embed-|playvid-|)([A-z0-9]+)'
-    logger.info("pelisalacarta.servers.flashx find_videos #" + patronvideos + "#")
+    logger.info("streamondemand.servers.flashx find_videos #" + patronvideos + "#")
     matches = re.compile(patronvideos, re.DOTALL).findall(data)
 
     for match in matches:

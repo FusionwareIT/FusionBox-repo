@@ -39,7 +39,7 @@ def mainlist(item):
     itemlist = []
     itemlist.append(Item(channel=CHANNELNAME, title="Preferenze", action="settings", folder=False))
     itemlist.append(Item(channel=CHANNELNAME, title="", action="", folder=False))
-    itemlist.append(Item(channel="novedades", title="Impostazioni 'Novedades'", action="menu_opciones", folder=True))
+    itemlist.append(Item(channel="novedades", title="Impostazioni 'Novità'", action="menu_opciones", folder=True))
     itemlist.append(Item(channel="buscador", title="Impostazioni della ricerca globale", action="opciones", folder=True))
     if config.is_xbmc():
         itemlist.append(Item(channel=item.channel, action="updatebiblio",

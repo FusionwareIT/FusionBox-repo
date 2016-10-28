@@ -280,7 +280,7 @@ class InfoWindow(xbmcgui.WindowXMLDialog):
                 self.from_tmdb = False
                 self.get_dict_info(data_in)
 
-    def Start(self, data, caption="Información del vídeo", callback=None, item=None):
+    def Start(self, data, caption="Informazioni su ", callback=None, item=None):
         # Capturamos los parametros
         self.caption = caption
         self.callback = callback
@@ -315,50 +315,51 @@ class InfoWindow(xbmcgui.WindowXMLDialog):
 
         # Cargamos los datos para el formato pelicula
         if self.result.get("type", "movie") == "movie":
-            self.getControl(10006).setLabel("Titulo:")
+            self.getControl(10006).setLabel("Titolo:")
             self.getControl(10007).setLabel(self.result.get("title", "N/A"))
-            self.getControl(10008).setLabel("Titulo Original:")
+            self.getControl(10008).setLabel("Titolo originale:")
             self.getControl(10009).setLabel(self.result.get("original_title", "N/A"))
-            self.getControl(100010).setLabel("Idioma original:")
+            self.getControl(100010).setLabel("Lingua Originale:")
             self.getControl(100011).setLabel(self.result.get("language", "N/A"))
-            self.getControl(100012).setLabel("Puntuacion:")
+            self.getControl(100012).setLabel("Punteggio:")
             self.getControl(100013).setLabel(self.result.get("rating", "N/A"))
-            self.getControl(100014).setLabel("Lanzamiento:")
+            self.getControl(100014).setLabel("Rilasciato:")
             self.getControl(100015).setLabel(self.result.get("date", "N/A"))
-            self.getControl(100016).setLabel("Generos:")
+            self.getControl(100016).setLabel("Genere:")
             self.getControl(100017).setLabel(self.result.get("genres", "N/A"))
 
         # Cargamos los datos para el formato serie
         else:
             self.getControl(10006).setLabel("Serie:")
             self.getControl(10007).setLabel(self.result.get("title", "N/A"))
-            self.getControl(10008).setLabel("Idioma original:")
+            self.getControl(10008).setLabel("Lingua Originale:")
             self.getControl(10009).setLabel(self.result.get("language", "N/A"))
-            self.getControl(100010).setLabel("Puntuacion:")
+            self.getControl(100010).setLabel("Punteggio:")
             self.getControl(100011).setLabel(self.result.get("rating", "N/A"))
-            self.getControl(100012).setLabel("Generos:")
+            self.getControl(100012).setLabel("Genere:")
             self.getControl(100013).setLabel(self.result.get("genres", "N/A"))
             if self.result.get("season") and self.result.get("episode"):
-                self.getControl(100014).setLabel("Titulo:")
+                self.getControl(100014).setLabel("Titolo:")
                 self.getControl(100015).setLabel(self.result.get("episode_title", "N/A"))
-                self.getControl(100016).setLabel("Temporada:")
+                self.getControl(100016).setLabel("Stagione:")
                 self.getControl(100017).setLabel(self.result.get("season", "N/A") + " de " +
                                                  self.result.get("seasons", "N/A"))
                 self.getControl(100018).setLabel("Episodio:")
                 self.getControl(100019).setLabel(self.result.get("episode", "N/A") + " de " +
                                                  self.result.get("episodes", "N/A"))
-                self.getControl(100020).setLabel("Emision:")
+                self.getControl(100020).setLabel("Uscito:")
                 self.getControl(100021).setLabel(self.result.get("date", "N/A"))
 
         # Sinopsis
         if "overview" in self.result and self.result['overview']:
-            self.getControl(100022).setLabel("Sinopsis:")
+            self.getControl(100022).setLabel("Sinossi")
             self.getControl(100023).setText(self.result.get("overview", "N/A"))
         else:
             self.getControl(100022).setLabel("")
             self.getControl(100023).setText("")
 
         # Cargamos los botones si es necesario
+
         self.getControl(10024).setVisible(self.indexList > -1)
         self.getControl(10025).setEnabled(self.indexList > 0)
         self.getControl(10026).setEnabled(self.indexList + 1 != len(self.listData))
