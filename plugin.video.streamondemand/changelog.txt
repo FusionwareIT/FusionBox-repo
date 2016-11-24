@@ -1,3 +1,13 @@
+v5.4.1
+- transictional release
+
+v5.4.0
+- global search fix
+- update options fix
+- new channels added
+- updated some channels and servers
+- removed channel
+
 v5.3.9
 - configuration fix
 - search options fix

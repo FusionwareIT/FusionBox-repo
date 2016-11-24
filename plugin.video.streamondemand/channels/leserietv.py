@@ -14,7 +14,6 @@ import xbmcgui
 from core import config
 from core import logger
 from core import scrapertools
-from core import downloadtools
 from core.item import Item
 from core.tmdb import infoSod
 
@@ -28,7 +27,7 @@ DEBUG = config.get_setting("debug")
 
 host = 'http://www.leserie.tv'
 
-header = [
+headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
     ['Accept-Encoding', 'gzip, deflate'],
     ['Referer', ('%s/streaming/' % host)]
@@ -41,46 +40,41 @@ def isGeneric():
 # -----------------------------------------------------------------
 def mainlist(item):
     logger.info("[leserietv.py] mainlist")
-    itemlist = []
-    itemlist.append(Item(channel=__channel__,
-                         action="novita",
-                         title="[COLOR yellow]Novità[/COLOR]",
-                         url=("%s/streaming/" % host),
-                         thumbnail="http://www.ilmioprofessionista.it/wp-content/uploads/2015/04/TVSeries3.png",
-                         fanart=FilmFanart))
+    itemlist = [Item(channel=__channel__,
+                     action="novita",
+                     title="[COLOR yellow]Novità[/COLOR]",
+                     url=("%s/streaming/" % host),
+                     thumbnail="http://www.ilmioprofessionista.it/wp-content/uploads/2015/04/TVSeries3.png",
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     action="lista_serie",
+                     title="[COLOR azure]Tutte le serie[/COLOR]",
+                     url=("%s/streaming/" % host),
+                     thumbnail="http://www.ilmioprofessionista.it/wp-content/uploads/2015/04/TVSeries3.png",
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     title="[COLOR azure]Categorie[/COLOR]",
+                     action="categorias",
+                     url=host,
+                     thumbnail="https://farm8.staticflickr.com/7562/15516589868_13689936d0_o.png",
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     action="top50",
+                     title="[COLOR azure]Top 50[/COLOR]",
+                     url=("%s/top50.html" % host),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png",
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     extra="serie",
+                     action="search",
+                     title="[COLOR orange]Cerca...[/COLOR][I](minimo 3 caratteri)[/I]",
+                     thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search",
+                     fanart=FilmFanart),
+                Item(channel=__channel__,
+                     action="info",
+                     title="[COLOR lime][I]Info canale[/I][/COLOR] [COLOR yellow]14/10/2016[/COLOR]",
+                     thumbnail="http://www.mimediacenter.info/wp-content/uploads/2016/01/newlogo-final.png")]
 
-    itemlist.append(Item(channel=__channel__,
-                         action="lista_serie",
-                         title="[COLOR azure]Tutte le serie[/COLOR]",
-                         url=("%s/streaming/" % host),
-                         thumbnail="http://www.ilmioprofessionista.it/wp-content/uploads/2015/04/TVSeries3.png",
-                         fanart=FilmFanart))
-
-    itemlist.append(Item(channel=__channel__,
-                         title="[COLOR azure]Categorie[/COLOR]",
-                         action="categorias",
-                         url=host,
-                         thumbnail="https://farm8.staticflickr.com/7562/15516589868_13689936d0_o.png",
-                         fanart=FilmFanart))
-
-
-    itemlist.append(Item(channel=__channel__,
-                         action="top50",
-                         title="[COLOR azure]Top 50[/COLOR]",
-                         url=("%s/top50.html" % host),
-                         thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png",
-                         fanart=FilmFanart))
-
-    itemlist.append(Item(channel=__channel__,
-                         action="search",
-                         title="[COLOR orange]Cerca...[/COLOR][I](minimo 3 caratteri)[/I]",
-                         thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search",
-                         fanart=FilmFanart))
-
-    itemlist.append(Item(channel=__channel__,
-                         action="info",
-                             title="[COLOR lime][I]Info canale[/I][/COLOR] [COLOR yellow]14/10/2016[/COLOR]",
-                         thumbnail="http://www.mimediacenter.info/wp-content/uploads/2016/01/newlogo-final.png"))
     return itemlist
 
 
@@ -92,7 +86,7 @@ def novita(item):
     logger.info("streamondemand.laserietv novità")
     itemlist = []
 
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     patron = '<div class="video-item-cover"[^<]+<a href="(.*?)">[^<]+<img src="(.*?)" alt="(.*?)">'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -137,7 +131,7 @@ def lista_serie(item):
 
     post = "dlenewssortby=title&dledirection=asc&set_new_sort=dle_sort_cat&set_direction_sort=dle_direction_cat"
 
-    data = scrapertools.cachePagePost(item.url, post=post)
+    data = scrapertools.cache_page(item.url, post=post, headers=headers)
 
     patron = '<div class="video-item-cover"[^<]+<a href="(.*?)">[^<]+<img src="(.*?)" alt="(.*?)">'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -180,7 +174,7 @@ def categorias(item):
     logger.info("streamondemand.laserietv categorias")
     itemlist = []
 
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     # Narrow search by selecting only the combo
     bloque = scrapertools.get_match(data, '<ul class="dropdown-menu cat-menu">(.*?)</ul>')
@@ -210,10 +204,10 @@ def categorias(item):
 def search(item, texto):
     logger.info("[laserietv.py] " + item.url + " search " + texto)
     itemlist = []
-    url = "%s/index.php?do=search" % host
-    post = "do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=" + texto
-    logger.debug(post)
-    data = scrapertools.cachePagePost(url, post=post)
+    url = "%s/" % host
+    post = "do=search&subaction=search&story=" + texto
+    # logger.debug(post)
+    data = scrapertools.cache_page(url, post=post, headers=headers)
 
     patron = '<div class="video-item-cover"[^<]+<a href="(.*?)">[^<]+<img src="(.*?)" alt="(.*?)">'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -239,7 +233,7 @@ def top50(item):
     logger.info("[laserietv.py] top50")
     itemlist = []
 
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     patron = 'class="top50item">\s*<[^>]+>\s*<.*?="([^"]+)">([^<]+)</a>'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -265,7 +259,7 @@ def episodios(item):
     logger.info("[leserietv.py] episodios")
     itemlist = []
     elenco = []
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
     #xbmc.log("qua"+data)
     patron = '<li id[^<]+<[^<]+<.*?class="serie-title">(.*?)</span>[^>]+>[^<]+<.*?megadrive-(.*?)".*?data-link="([^"]+)">Megadrive</a>'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -301,7 +295,7 @@ def episodios(item):
 #------------------------------------------------------------------
 def play(item):
     itemlist=[]
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     elemento = scrapertools.find_single_match(data, 'config:{file:\'(.*?)\'')
 

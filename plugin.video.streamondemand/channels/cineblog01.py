@@ -15,12 +15,12 @@ from core.item import Item
 from core.tmdb import infoSod
 
 __channel__ = "cineblog01"
-__category__ = "F,S,A"
+__category__ = "F,S"
 __type__ = "generic"
 __title__ = "CineBlog 01"
 __language__ = "IT"
 
-sito = "http://www.cb01.me"
+sito = "http://www.cb01.pw"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
@@ -265,10 +265,10 @@ def search(item, texto):
     try:
 
         if item.extra == "movie":
-            item.url = "http://www.cb01.me/?s=" + texto
+            item.url = "http://www.cb01.pw/?s=" + texto
             return peliculas(item)
         if item.extra == "serie":
-            item.url = "http://www.cb01.me/serietv/?s=" + texto
+            item.url = "http://www.cb01.pw/serietv/?s=" + texto
             return listserie(item)
 
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
@@ -431,7 +431,7 @@ def episodios_serie(item):
 
     lang_titles = []
     starts = []
-    patron = r"STAGION[I|E].*?ITA"
+    patron = '<div class="sp-head unfolded" title="Expand">\s*(.*?)\s*</div>'
     matches = re.compile(patron).finditer(data)
     for match in matches:
         season_title = match.group()

@@ -22,7 +22,7 @@ __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://eurostreaming.tv"
+host = "http://eurostreaming.co"
 
 
 def isGeneric():
@@ -275,3 +275,4 @@ def findvideos(item):
         videoitem.channel = __channel__
 
     return itemlist
+

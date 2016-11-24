@@ -123,19 +123,21 @@ def create_tvshows_from_json(_actualizado):
 
 def main():
     if scrapertools.wait_for_internet(retry=10):
-        # -- Update channels from repository streamondemand ------
-        try:
-            from core import update_channels
-        except:
-            logger.info("streamondemand.library_service Error in update_channels")
-        # ----------------------------------------------------------------------
 
-        # -- Update servertools and servers from repository streamondemand ------
-        try:
-            from core import update_servers
-        except:
-            logger.info("streamondemand.library_service Error in update_servers")
-        # ----------------------------------------------------------------------
+        if config.get_setting("updatechannels") == "true":
+            # -- Update channels from repository streamondemand ------
+            try:
+                from core import update_channels
+            except:
+                logger.info("streamondemand.library_service Error in update_channels")
+            # ----------------------------------------------------------------------
+
+            # -- Update servertools and servers from repository streamondemand ------
+            try:
+                from core import update_servers
+            except:
+                logger.info("streamondemand.library_service Error in update_servers")
+            # ----------------------------------------------------------------------
 
         logger.info("streamondemand.library_service Actualizando series...")
         p_dialog = None

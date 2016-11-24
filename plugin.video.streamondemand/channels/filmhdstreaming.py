@@ -29,7 +29,7 @@ def mainlist(item):
     itemlist.append(Item(channel=item.channel, action="elenco_top", title="[COLOR azure]Film Top[/COLOR]", url=host,thumbnail=NovitaThumbnail, fanart=fanart))
     itemlist.append(Item(channel=item.channel, action="elenco", title="[COLOR azure]Film HD[/COLOR]", url=host+"/page/1.html",thumbnail=NovitaThumbnail, fanart=fanart))
     itemlist.append(Item(channel=item.channel, action="elenco_genere", title="[COLOR azure]Film per Genere[/COLOR]", url=host,thumbnail=GenereThumbnail, fanart=fanart))
-    itemlist.append(Item(channel=item.channel, action="search", title="[COLOR orange]Cerca film...[/COLOR]", extra="film",thumbnail=thumbcerca, fanart=fanart))
+    itemlist.append(Item(channel=item.channel, action="search", title="[COLOR orange]Cerca film...[/COLOR]", extra="movie",thumbnail=thumbcerca, fanart=fanart))
 
     return itemlist
 # =================================================================

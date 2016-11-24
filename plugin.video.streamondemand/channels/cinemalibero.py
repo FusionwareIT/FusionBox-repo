@@ -9,6 +9,7 @@ import urlparse
 
 from core import config
 from core import logger
+from core import servertools
 from core import scrapertools
 from core.item import Item
 from core.tmdb import infoSod
@@ -24,12 +25,10 @@ DEBUG = config.get_setting("debug")
 host = "http://www.cinemalibero.com"
 
 headers = [
-    ['Host', 'www.cinemalibero.com'],
     ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
     ['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'],
     ['Accept-Encoding', 'gzip, deflate'],
-    ['Referer', 'http://www.cinemalibero.com'],
-    ['Connection', 'keep-alive'],
+    ['Referer', host],
     ['Cache-Control', 'max-age=0']
 ]
 
@@ -49,7 +48,7 @@ def mainlist(item):
                      title="[COLOR azure]Film Per Categoria[/COLOR]",
                      action="categorias",
                      url="http://www.cinemalibero.com/category/film/",
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Anime[/COLOR]",
                      action="peliculas",
@@ -65,7 +64,7 @@ def mainlist(item):
                      extra="serie",
                      action="peliculas_tv",
                      url="%s/category/serie-tv/" % host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
                      action="search",
@@ -187,7 +186,7 @@ def peliculas_tv(item):
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
-                 action="findvideos",
+                 action="episodios",
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
@@ -218,6 +217,93 @@ def peliculas_tv(item):
 
     return itemlist
 
+def episodios(item):
+    def load_episodios(html, item, itemlist, lang_title):
+        patron = '((?:.*?<a href="[^"]+"[^b]+blank[^>]+>[^<]+<\/a><(?:b|\/)[^>]+>)+)'
+        matches = re.compile(patron).findall(html)
+        for data in matches:
+            # Estrazione
+            scrapedtitle = data.split('<a ')[0]
+            scrapedtitle = re.sub(r'<[^>]*>', '', scrapedtitle).strip()
+            if scrapedtitle != 'Categorie':
+                scrapedtitle = scrapedtitle.replace('&#215;', 'x')
+                scrapedtitle = scrapedtitle.replace('×', 'x')
+                itemlist.append(
+                    Item(channel=__channel__,
+                         action="findvideos_tv",
+                         title="[COLOR azure]%s[/COLOR]" % (scrapedtitle + " (" + lang_title + ")"),
+                         url=data,
+                         thumbnail=item.thumbnail,
+                         extra=item.extra,
+                         fulltitle=scrapedtitle + " (" + lang_title + ")" + ' - ' + item.show,
+                         show=item.show))
+
+    logger.info("[cinemalibero.py] episodios")
+
+    itemlist = []
+
+    # Download pagina
+    data = scrapertools.cache_page(item.url)
+    data = scrapertools.decodeHtmlentities(data)
+    data = scrapertools.get_match(data, '<section id="content">(.*?)<div class="wprc-form">')
+
+    lang_titles = []
+    starts = []
+    patron = r"Stagione.*?ITA"
+    matches = re.compile(patron, re.IGNORECASE).finditer(data)
+    for match in matches:
+        season_title = match.group()
+        if season_title != '':
+            lang_titles.append('SUB ITA' if 'SUB' in season_title.upper() else 'ITA')
+            starts.append(match.end())
+
+    i = 1
+    len_lang_titles = len(lang_titles)
+
+    while i <= len_lang_titles:
+        inizio = starts[i - 1]
+        fine = starts[i] if i < len_lang_titles else -1
+
+        html = data[inizio:fine]
+        lang_title = lang_titles[i - 1]
+
+        load_episodios(html, item, itemlist, lang_title)
+
+        i += 1
+
+    if config.get_library_support() and len(itemlist) != 0:
+        itemlist.append(
+            Item(channel=__channel__,
+                 title="Aggiungi alla libreria " + item.title,
+                 url=item.url,
+                 action="add_serie_to_library",
+                 extra="episodios" + "###" + item.extra,
+                 show=item.show))
+        itemlist.append(
+            Item(channel=__channel__,
+                 title="Scarica tutti gli episodi della serie",
+                 url=item.url,
+                 action="download_all_episodes",
+                 extra="episodios" + "###" + item.extra,
+                 show=item.show))
+
+    return itemlist
+
+def findvideos_tv(item):
+    logger.info("streamondemand.cinemalibero findvideos_tv")
+
+    data = item.url
+
+    itemlist = servertools.find_video_items(data=data)
+    for videoitem in itemlist:
+        videoitem.title = item.title + videoitem.title
+        videoitem.fulltitle = item.fulltitle
+        videoitem.thumbnail = item.thumbnail
+        videoitem.show = item.show
+        videoitem.plot = item.plot
+        videoitem.channel = __channel__
+
+    return itemlist
 
 def HomePage(item):
     import xbmc

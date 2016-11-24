@@ -225,30 +225,58 @@ def categorias(item):
 
 
 def episodios(item):
-    logger.info("streamondemand.casacinema episodios")
+    def load_episodios(html, item, itemlist, lang_title):
+        patron = '.*?<a href="[^"]+"[^o]+ofollow[^>]+>[^<]+</a><(?:b|/)[^>]+>'
+        matches = re.compile(patron).findall(html)
+        for data in matches:
+            # Extrae las entradas
+            scrapedtitle = data.split('<a ')[0]
+            scrapedtitle = re.sub(r'<[^>]*>', '', scrapedtitle).strip()
+            if scrapedtitle != 'Categorie':
+                scrapedtitle = scrapedtitle.replace('&#215;', 'x')
+                scrapedtitle = scrapedtitle.replace('×', 'x')
+                itemlist.append(
+                    Item(channel=__channel__,
+                         action="findvideos",
+                         title="[COLOR azure]%s[/COLOR]" % (scrapedtitle + " (" + lang_title + ")"),
+                         url=data,
+                         thumbnail=item.thumbnail,
+                         extra=item.extra,
+                         fulltitle=scrapedtitle + " (" + lang_title + ")" + ' - ' + item.show,
+                         show=item.show))
+
+    logger.info("[casacinema.py] episodios")
 
     itemlist = []
 
-    # Downloads page
-    data = scrapertools.anti_cloudflare(item.url, headers)
-    # Extracts the entries
-    patron = '(.*?)<a href="(.*?)" target="_blank" rel="nofollow".*?>(.*?)</a>'
-    matches = re.compile(patron).findall(data)
+    # Descarga la página
+    data = scrapertools.cache_page(item.url)
+    data = scrapertools.decodeHtmlentities(data)
+    data = scrapertools.get_match(data, '<p><strong>(.*?)<div id="disqus_thread">')
 
-    for scrapedtitle, scrapedurl, scrapedserver in matches:
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
-        if scrapedtitle.startswith("<p>"):
-            scrapedtitle = scrapedtitle[3:]
+    lang_titles = []
+    starts = []
+    patron = r"Stagione.*?ITA"
+    matches = re.compile(patron, re.IGNORECASE).finditer(data)
+    for match in matches:
+        season_title = match.group()
+        if season_title != '':
+            lang_titles.append('SUB ITA' if 'SUB' in season_title.upper() else 'ITA')
+            starts.append(match.end())
 
-        itemlist.append(
-            Item(channel=__channel__,
-                 action="findvideos",
-                 title="[COLOR red]" + scrapedtitle + " [/COLOR]" + "[COLOR azure]" + item.fulltitle + " [/COLOR]" + "[COLOR orange] [" + scrapedserver + "][/COLOR]",
-                 url=scrapedurl,
-                 thumbnail=item.thumbnail,
-                 fulltitle=item.show + ' | ' + scrapedtitle,
-                 extra=item.extra,
-                 show=item.show))
+    i = 1
+    len_lang_titles = len(lang_titles)
+
+    while i <= len_lang_titles:
+        inizio = starts[i - 1]
+        fine = starts[i] if i < len_lang_titles else -1
+
+        html = data[inizio:fine]
+        lang_title = lang_titles[i - 1]
+
+        load_episodios(html, item, itemlist, lang_title)
+
+        i += 1
 
     if config.get_library_support() and len(itemlist) != 0:
         itemlist.append(
@@ -259,7 +287,7 @@ def episodios(item):
                  extra="episodios" + "###" + item.extra,
                  show=item.show))
         itemlist.append(
-            Item(channel=item.channel,
+            Item(channel=__channel__,
                  title="Scarica tutti gli episodi della serie",
                  url=item.url,
                  action="download_all_episodes",
@@ -267,7 +295,6 @@ def episodios(item):
                  show=item.show))
 
     return itemlist
-
 
 def findvideos(item):
     logger.info("streamondemand.casacinema findvideos")
