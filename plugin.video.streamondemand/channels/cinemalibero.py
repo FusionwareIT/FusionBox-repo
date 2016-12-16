@@ -9,20 +9,20 @@ import urlparse
 
 from core import config
 from core import logger
-from core import servertools
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
 
 __channel__ = "cinemalibero"
-__category__ = "F"
+__category__ = "F,S"
 __type__ = "generic"
 __title__ = "Cinemalibero (IT)"
 __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://www.cinemalibero.com"
+host = "http://www.cinemalibero.co"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
@@ -41,18 +41,21 @@ def mainlist(item):
     logger.info("streamondemand.cinemalibero mainlist")
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Ultimi Film Inseriti[/COLOR]",
+                     extra="movie",
                      action="peliculas",
-                     url="http://www.cinemalibero.com/category/film/",
+                     url="%s/category/film/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Per Categoria[/COLOR]",
+                     extra="movie",
                      action="categorias",
-                     url="http://www.cinemalibero.com/category/film/",
+                     url=host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Anime[/COLOR]",
+                     extra="movie",
                      action="peliculas",
-                     url="http://www.cinemalibero.com/category/anime/",
+                     url="%s/category/anime/" % host,
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/A-Z.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
@@ -73,13 +76,14 @@ def mainlist(item):
 
     return itemlist
 
-#disabled on global search
+
+# disabled on global search
 
 def categorias(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     # Extrae las entradas (carpetas)
     patron = '<li><small>[^>]+><a href="(.*?)">(.*?)</a></li>'
@@ -91,6 +95,7 @@ def categorias(item):
         if DEBUG: logger.info("title=[" + scrapedtitle + "], url=[" + scrapedurl + "]")
         itemlist.append(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="peliculas",
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
@@ -135,6 +140,7 @@ def peliculas(item):
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="findvideos",
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
@@ -158,6 +164,7 @@ def peliculas(item):
                  folder=True)),
         itemlist.append(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="peliculas",
                  title="[COLOR orange]Successivo >>[/COLOR]",
                  url=scrapedurl,
@@ -186,6 +193,7 @@ def peliculas_tv(item):
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="episodios",
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
@@ -209,6 +217,7 @@ def peliculas_tv(item):
                  folder=True)),
         itemlist.append(
             Item(channel=__channel__,
+                 extra=item.extra,
                  action="peliculas_tv",
                  title="[COLOR orange]Successivo >>[/COLOR]",
                  url=scrapedurl,
@@ -216,6 +225,7 @@ def peliculas_tv(item):
                  folder=True))
 
     return itemlist
+
 
 def episodios(item):
     def load_episodios(html, item, itemlist, lang_title):
@@ -230,7 +240,7 @@ def episodios(item):
                 scrapedtitle = scrapedtitle.replace('×', 'x')
                 itemlist.append(
                     Item(channel=__channel__,
-                         action="findvideos_tv",
+                         action="findvideos",
                          title="[COLOR azure]%s[/COLOR]" % (scrapedtitle + " (" + lang_title + ")"),
                          url=data,
                          thumbnail=item.thumbnail,
@@ -243,7 +253,7 @@ def episodios(item):
     itemlist = []
 
     # Download pagina
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
     data = scrapertools.decodeHtmlentities(data)
     data = scrapertools.get_match(data, '<section id="content">(.*?)<div class="wprc-form">')
 
@@ -289,10 +299,11 @@ def episodios(item):
 
     return itemlist
 
-def findvideos_tv(item):
-    logger.info("streamondemand.cinemalibero findvideos_tv")
 
-    data = item.url
+def findvideos(item):
+    logger.info("streamondemand.cinemalibero findvideos")
+
+    data = item.url if item.extra == "serie" else scrapertools.cache_page(item.url, headers=headers)
 
     itemlist = servertools.find_video_items(data=data)
     for videoitem in itemlist:
@@ -304,6 +315,7 @@ def findvideos_tv(item):
         videoitem.channel = __channel__
 
     return itemlist
+
 
 def HomePage(item):
     import xbmc

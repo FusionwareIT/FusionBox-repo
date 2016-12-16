@@ -83,8 +83,8 @@ def mainlist(item):
 
     logger.info("[descargas.py] downloadpath=" + downloadpath)
 
-    itemlist.append(Item(channel="descargas", action="pendientes", title="Descargas pendientes"))
-    itemlist.append(Item(channel="descargas", action="errores", title="Descargas con error"))
+    itemlist.append(Item(channel="descargas", action="pendientes", title="download in sospeso"))
+    itemlist.append(Item(channel="descargas", action="errores", title="download con errori"))
 
     # Añade al listado de XBMC
     try:
@@ -143,7 +143,7 @@ def pendientes(item):
             for line in sys.exc_info():
                 logger.error("%s" % line)
 
-    itemlist.append(Item(channel=CHANNELNAME, action="downloadall", title="(Empezar la descarga de la lista)",
+    itemlist.append(Item(channel=CHANNELNAME, action="downloadall", title="(Avviare il download dalla lista)",
                          thumbnail=os.path.join(IMAGES_PATH, "Crystal_Clear_action_db_update.png"), folder=False))
 
     return itemlist

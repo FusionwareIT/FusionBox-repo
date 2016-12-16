@@ -11,6 +11,7 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 
 __channel__ = "iluvanime"
@@ -87,7 +88,7 @@ def episodios(item):
         logger.info("scrapedurl: " + scrapedurl + " scrapedtitle:" + scrapedtitle)
         itemlist.append(
             Item(channel=__channel__,
-                 action="play",
+                 action="findvideos",
                  title=scrapedtitle,
                  url=scrapedurl,
                  thumbnail=item.thumbnail,
@@ -98,19 +99,32 @@ def episodios(item):
 # =================================================================
 
 # -----------------------------------------------------------------
-def play(item):
+def findvideos(item):
     logger.info("streamondemand.iluvanime play")
+
     itemlist = []
-    data = 'http://www' + item.url.split('www')[1]
-    head = [['Upgrade-Insecure-Requests', '1'], ['User-Agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0']]
-    url=scrapertools.cache_page(data, headers=head)
-    patron='<source.*?src="(.*?)".*?type=\'video/mp4\''
-    matches=re.compile(patron, re.DOTALL).findall(url)
+
+    url = 'http://www' + item.url.split('www')[1]
+    head = [['Upgrade-Insecure-Requests', '1'],
+            ['User-Agent', 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0']]
+    data = scrapertools.cache_page(url, headers=head)
+
+    patron = '<source.*?src="(.*?)".*?type=\'video/mp4\''
+    matches = re.compile(patron, re.DOTALL).findall(data)
     for video in matches:
-        itemlist.append(Item(channel=__channel__,action="play", title=item.title,url=video))
+        itemlist.append(Item(action="play", url=video))
+
+    itemlist.extend(servertools.find_video_items(data=data))
+    for videoitem in itemlist:
+        videoitem.title = item.title + videoitem.title
+        videoitem.fulltitle = item.fulltitle
+        videoitem.thumbnail = item.thumbnail
+        videoitem.show = item.show
+        videoitem.plot = item.plot
+        videoitem.channel = __channel__
 
     return itemlist
-#==================================================================
+# ==================================================================
 
 
 # =================================================================

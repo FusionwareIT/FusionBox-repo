@@ -25,7 +25,7 @@ headers = [
     ['Accept-Encoding', 'gzip, deflate']
 ]
 
-host = 'http://filmstream.re/'
+host = 'http://filmstreamita.com'
 
 DEBUG = config.get_setting("debug")
 
@@ -39,7 +39,7 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Ultimi Film Inseriti[/COLOR]",
                      action="peliculas",
-                     url=host + "film/",
+                     url=host + "/film/",
                      extra="movie",
                      thumbnail="http://dc584.4shared.com/img/XImgcB94/s7/13feaf0b538/saquinho_de_pipoca_01"),
                 Item(channel=__channel__,
@@ -63,7 +63,7 @@ def mainlist(item):
                      title="[COLOR azure]Serie TV[/COLOR]",
                      extra="serie",
                      action="peliculas_tv",
-                     url=host + "serie-tv/",
+                     url=host + "/serie-tv/",
                      thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
@@ -139,7 +139,7 @@ def byyear(item):
 
 def search(item, texto):
     logger.info("[filmstreampw.py] " + item.url + " search " + texto)
-    item.url = host + "index.php?do=search&subaction=search&story=" + texto
+    item.url = host + "/index.php?do=search&subaction=search&story=" + texto
 
     try:
         if item.extra == "movie":
@@ -336,7 +336,7 @@ def episodios(item):
 
     data = scrapertools.cache_page(item.url, headers=headers)
 
-    post_url = host + 'engine/ajax/a.sseries.php'
+    post_url = host + '/engine/ajax/a.sseries.php'
     serie_id = scrapertools.get_match(data, '\?id=(\d+)" rel="nofollow"')
 
     start = data.find('<select id="sseriesSeason">')

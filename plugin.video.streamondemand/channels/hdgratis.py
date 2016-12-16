@@ -181,6 +181,8 @@ def fichas(item):
 def findvideos(item):
     logger.info("[hdgratis.py] findvideos")
 
+    itemlist = []
+
     # Descarga la página
     data = scrapertools.anti_cloudflare(item.url, headers).replace('\n', '')
 
@@ -224,7 +226,7 @@ def findvideos(item):
             videoitem.plot = item.plot
             videoitem.channel = __channel__
 
-        return itemlist
+    return itemlist
 
 
 def url_decode(url_enc):

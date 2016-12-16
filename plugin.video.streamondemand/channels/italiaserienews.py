@@ -22,7 +22,7 @@ __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://www.italiaserie.news"
+host = "http://www.italiaserie.click"
 
 def isGeneric():
     return True

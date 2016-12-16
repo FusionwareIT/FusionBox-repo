@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <channel>
 	<id>altadefinizioneone</id>
-	<name>Altadefizioneone</name>
+	<name>AltadefinizioneOne</name>
 
 	<active>true</active>
 	<adult>false</adult>
 	<language>it</language>
 
 	<fanart></fanart>
-	<thumbnail>http://www.altadefinizione.one/templates/altadefinizione/images/logo.png</thumbnail>
-	<bannermenu>http://www.altadefinizione.one/templates/altadefinizione/images/logo.png</bannermenu>
+	<thumbnail>http://www.altadefinizione.plus/templates/altadefinizione/images/logo.png</thumbnail>
+	<bannermenu>http://www.altadefinizione.plus/templates/altadefinizione/images/logo.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>1</version>
+	<version>2</version>
 	<date>16/06/2016</date>
 	<changes>update</changes>
 

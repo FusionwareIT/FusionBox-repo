@@ -241,6 +241,12 @@ def run():
                 else:
                     xbmctools.renderItems([], item)
 
+            # DrZ3r0
+            # Special action for play_from_library, where the plugin looks for known urls
+            elif item.action == "play_from_library":
+                # Special action for playing a video from the library
+                play_from_library(item, channel, server_white_list, server_black_list)
+
             # Special action for adding a movie to the library
             elif item.action == "add_pelicula_to_library":
                 library.add_pelicula_to_library(item)
@@ -393,29 +399,31 @@ def play_from_library(item, channel, server_white_list, server_black_list):
     logger.info("streamondemand.platformcode.launcher play_from_library")
 
     logger.info("streamondemand.platformcode.launcher play_from_library item.server=#"+item.server+"#")
-    # Ejecuta find_videos, del canal o común
-    if hasattr(channel, 'findvideos'):
-        itemlist = getattr(channel, item.action)(item)
-    else:
-        from core import servertools
-        itemlist = servertools.find_video_items(item)
 
-        if config.get_setting('filter_servers') == 'true':
-            itemlist = filtered_servers(itemlist, server_white_list, server_black_list)
+    elegido = item
+    # DrZ3r0
+    if item.action == "findvideos":
+        # Ejecuta find_videos, del canal o común
+        if hasattr(channel, 'findvideos'):
+            itemlist = getattr(channel, item.action)(item)
+        else:
+            from core import servertools
+            itemlist = servertools.find_video_items(item)
 
-    if len(itemlist) > 0:
-        # El usuario elige el mirror
-        opciones = []
-        for item in itemlist:
-            opciones.append(item.title)
+            if config.get_setting('filter_servers') == 'true':
+                itemlist = filtered_servers(itemlist, server_white_list, server_black_list)
 
-        seleccion = platformtools.dialog_select(config.get_localized_string(30163), opciones)
-        elegido = itemlist[seleccion]
+        if len(itemlist) > 0:
+            # El usuario elige el mirror
+            opciones = []
+            for item in itemlist:
+                opciones.append(item.title)
 
-        if seleccion == -1:
-            return
-    else:
-        elegido = item
+            seleccion = platformtools.dialog_select(config.get_localized_string(30163), opciones)
+            elegido = itemlist[seleccion]
+
+            if seleccion == -1:
+                return
 
     # Ejecuta el método play del canal, si lo hay
     try:

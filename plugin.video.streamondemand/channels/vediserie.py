@@ -37,7 +37,7 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      action="fichas",
                      title="[COLOR azure]Serie TV[/COLOR]",
-                     url=host,
+                     url="%s/category/serie-complete/" % host,
                      thumbnail="http://i.imgur.com/rO0ggX2.png"),
                 Item(channel=__channel__,
                      action="list_a_z",
@@ -129,7 +129,7 @@ def fichas(item):
                  show=scrapedtitle,
                  thumbnail=scrapedthumbnail), tipo='tv'))
 
-    patron = '<a class="nextpostslink" rel="next" href="([^"]+)">»</a>'
+    patron = '<span class=\'current\'>[^<]+</span><a class="page larger" href="(.*?)">'
     next_page = scrapertools.find_single_match(data, patron)
     if next_page != "":
         itemlist.append(

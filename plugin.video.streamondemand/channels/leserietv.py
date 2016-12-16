@@ -18,21 +18,22 @@ from core.item import Item
 from core.tmdb import infoSod
 
 __channel__ = "leserietv"
-__category__ = "F"
+__category__ = "S"
 __type__ = "generic"
 __title__ = "leserie.tv"
 __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = 'http://www.leserie.tv'
+host = 'http://www.leserie.online'
 
 headers = [
-    ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
+    ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
+    ['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'],
     ['Accept-Encoding', 'gzip, deflate'],
-    ['Referer', ('%s/streaming/' % host)]
+    ['Referer', host],
+    ['Cache-Control', 'max-age=0']
 ]
-
 
 def isGeneric():
     return True
@@ -72,7 +73,7 @@ def mainlist(item):
                      fanart=FilmFanart),
                 Item(channel=__channel__,
                      action="info",
-                     title="[COLOR lime][I]Info canale[/I][/COLOR] [COLOR yellow]14/10/2016[/COLOR]",
+                     title="[COLOR lime][I]Info canale[/I][/COLOR] [COLOR yellow]27/11/2016[/COLOR]",
                      thumbnail="http://www.mimediacenter.info/wp-content/uploads/2016/01/newlogo-final.png")]
 
     return itemlist
@@ -86,7 +87,7 @@ def novita(item):
     logger.info("streamondemand.laserietv novità")
     itemlist = []
 
-    data = scrapertools.cache_page(item.url, headers=headers)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     patron = '<div class="video-item-cover"[^<]+<a href="(.*?)">[^<]+<img src="(.*?)" alt="(.*?)">'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -174,7 +175,7 @@ def categorias(item):
     logger.info("streamondemand.laserietv categorias")
     itemlist = []
 
-    data = scrapertools.cache_page(item.url, headers=headers)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Narrow search by selecting only the combo
     bloque = scrapertools.get_match(data, '<ul class="dropdown-menu cat-menu">(.*?)</ul>')
@@ -202,12 +203,12 @@ def categorias(item):
 
 # -----------------------------------------------------------------
 def search(item, texto):
-    logger.info("[laserietv.py] " + item.url + " search " + texto)
+    logger.info("[laserietv.py] " + host + " search " + texto)
+
     itemlist = []
-    url = "%s/" % host
+
     post = "do=search&subaction=search&story=" + texto
-    # logger.debug(post)
-    data = scrapertools.cache_page(url, post=post, headers=headers)
+    data = scrapertools.cache_page(host, post=post, headers=headers)
 
     patron = '<div class="video-item-cover"[^<]+<a href="(.*?)">[^<]+<img src="(.*?)" alt="(.*?)">'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -233,7 +234,7 @@ def top50(item):
     logger.info("[laserietv.py] top50")
     itemlist = []
 
-    data = scrapertools.cache_page(item.url, headers=headers)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     patron = 'class="top50item">\s*<[^>]+>\s*<.*?="([^"]+)">([^<]+)</a>'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -259,13 +260,14 @@ def episodios(item):
     logger.info("[leserietv.py] episodios")
     itemlist = []
     elenco = []
-    data = scrapertools.cache_page(item.url, headers=headers)
-    #xbmc.log("qua"+data)
+    data = scrapertools.anti_cloudflare(item.url, headers)
+
     patron = '<li id[^<]+<[^<]+<.*?class="serie-title">(.*?)</span>[^>]+>[^<]+<.*?megadrive-(.*?)".*?data-link="([^"]+)">Megadrive</a>'
     matches = re.compile(patron, re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
 
     for scrapedlongtitle,scrapedtitle, scrapedurl in matches:
+        xbmc.log("qua" + scrapedurl)
         scrapedtitle = scrapedtitle.split('_')[0]+"x"+scrapedtitle.split('_')[1].zfill(2)
 
         elenco.append([scrapedtitle,scrapedlongtitle,scrapedurl])
@@ -283,7 +285,7 @@ def episodios(item):
     if config.get_library_support() and len(itemlist) != 0:
         itemlist.append(
             Item(channel=__channel__,
-                 title="Aggiungi alla liberia la serie",
+                 title="("+item.title+") Aggiungi alla liberia",
                  url=item.url,
                  action="add_serie_to_library",
                  extra="episodios" + "###" + item.extra,
@@ -293,11 +295,11 @@ def episodios(item):
 # =================================================================
 
 #------------------------------------------------------------------
-def play(item):
+def findvideos(item):
     itemlist=[]
-    data = scrapertools.cache_page(item.url, headers=headers)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
-    elemento = scrapertools.find_single_match(data, 'config:{file:\'(.*?)\'')
+    elemento = scrapertools.find_single_match(data, 'file: "(.*?)",')
 
     itemlist.append(Item(channel=__channel__,
                          action="play",
@@ -328,35 +330,5 @@ def HomePage(item):
     xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
 # =================================================================
 
-
-def test(item):
-    itemlist=[]
-
-
-    #for episodio,titolo,url in episodi:
-     #   xbmc.log(titolo)
-     #   downloadtools.downloadtitle(link(url),item.fulltitle + " " + episodio + " " + titolo)
-
-    return itemlist
-
-
-def link(url):
-    data = scrapertools.cache_page(url)
-    url = scrapertools.find_single_match(data, 'config:{file:\'(.*?)\'')
-
-    return url
-
 FilmFanart="https://superrepo.org/static/images/fanart/original/script.artwork.downloader.jpg"
 ThumbnailHome="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Dynamic-blue-up.svg/580px-Dynamic-blue-up.svg.png"
-
-'''
-itemlist.append(Item(channel=__channel__,
-                     action="test",
-                     title="Scarica tutta la serie [COLOR yellow]" + item.fulltitle + "[/COLOR]",
-                     url=scrapedurl,
-                     extra=elenco,
-                     thumbnail=item.thumbnail,
-                     fanart=item.fanart if item.fanart != "" else item.scrapedthumbnail,
-                     fulltitle=item.fulltitle,
-                     show=item.fulltitle))
-'''

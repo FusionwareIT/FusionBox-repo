@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+	<id>documentaristreamingdb</id>
+	<name>DocumentariStreamingDB</name>
+
+	<active>true</active>
+	<adult>false</adult>
+	<language>it</language>
+
+	<fanart></fanart>
+	<thumbnail>http://www.documentari-streaming-db.com/cms/wp-content/uploads/2016/10/dsdb_logo-1.png</thumbnail>
+	<bannermenu>http://www.documentari-streaming-db.com/cms/wp-content/uploads/2016/10/dsdb_logo-1.png</bannermenu>
+
+	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
+	<version>3</version>
+	<date>16/06/2016</date>
+	<changes>update</changes>
+
+	<categories>
+		<category>documentary</category>
+	</categories>
+
+	<settings>
+		<id>include_in_global_search</id>
+		<type>bool</type>
+		<label>Includi ricerca globale</label>
+		<default>false</default>
+		<enabled>false</enabled>
+		<visible>false</visible>
+	</settings>
+</channel>

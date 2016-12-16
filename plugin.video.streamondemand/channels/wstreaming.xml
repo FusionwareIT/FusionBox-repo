@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+    <id>wstreaming</id>
+    <name>Wstreaming</name>
+
+    <active>true</active>
+    <adult>false</adult>
+    <language>it</language>
+
+    <fanart></fanart>
+    <thumbnail>https://wstreaming.co/img/logo.png</thumbnail>
+    <bannermenu>https://wstreaming.co/img/logo.png</bannermenu>
+
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
+    <version>6</version>
+    <date>22/10/2016</date>
+    <changes>update</changes>
+
+    <categories>
+        <category>movie</category>
+    </categories>
+
+    <settings>
+        <id>include_in_global_search</id>
+        <type>bool</type>
+        <label>Includi ricerca globale</label>
+        <default>true</default>
+        <enabled>true</enabled>
+        <visible>true</visible>
+    </settings>
+</channel>

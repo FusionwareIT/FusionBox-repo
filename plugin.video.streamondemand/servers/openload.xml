@@ -11,5 +11,5 @@
 	</premium>
 	<thumbnail>http://media.tvalacarta.info/servers/server_openload.png</thumbnail>
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/servers/</update_url>
-	<version>7</version>
+	<version>8</version>
 </server>

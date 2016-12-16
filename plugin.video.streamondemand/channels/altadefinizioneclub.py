@@ -20,7 +20,7 @@ __type__ = "generic"
 __title__ = "AltaDefinizioneclub"
 __language__ = "IT"
 
-host = "http://altadefinizione.club"
+host = "http://altadefinizione.film"
 
 
 DEBUG = config.get_setting("debug")
@@ -106,15 +106,8 @@ def HomePage(item):
 # Funzioni di servizio
 # -----------------------------------------------------------------
 def scrapedAll(url="", patron=""):
-    matches = []
-    headers = [
-        ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
-        ['Referer',url]
-    ]
     data = scrapertools.cache_page(url)
     data=data.replace('<span class="hdbox">HD</span>',"")
-    #logger.info("data->"+data)
-    xbmc.log("ok"+data)
     MyPatron = patron
     matches = re.compile(MyPatron, re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
@@ -123,11 +116,9 @@ def scrapedAll(url="", patron=""):
 
 # -----------------------------------------------------------------
 def scrapedSingle(url="", single="", patron=""):
-    matches = []
     data = scrapertools.cache_page(url)
     elemento = scrapertools.find_single_match(data, single)
     logger.info("elemento ->" + elemento)
-    xbmc.log("elemento ->" + elemento)
     matches = re.compile(patron, re.DOTALL).findall(elemento)
     scrapertools.printMatches(matches)
     return matches
