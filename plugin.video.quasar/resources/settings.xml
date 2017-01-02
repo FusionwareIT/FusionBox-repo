@@ -7,6 +7,7 @@
         <setting id="library_path" type="folder" label="30026" source="auto" option="writeable" />
         <setting id="background_handling" type="bool" label="30028" default="false" />
         <setting id="keep_files" type="bool" label="30002" default="false" />
+        <setting id="keep_files_ask" type="bool" label="30062" default="false" />
         <setting id="results_per_page" type="number" label="30021" default="20" />
         <setting id="enable_overlay_status" type="bool" label="30022" default="true" />
         <setting id="overlay_status_offset" type="number" label="30030" default="150" visible="eq(-1,true)" />
@@ -36,6 +37,7 @@
         <setting id="seed_time_ratio_limit" label="30052" type="number" default="" />
         <setting id="seed_time_limit" label="30053" type="number" default="" />
         <setting id="disable_dht" label="30050" type="bool" default="false" />
+        <setting id="disable_upnp" label="30063" type="bool" default="false" />
         <setting id="listen_port_min" label="30006" type="number" default="6889" />
         <setting id="listen_port_max" label="30007" type="number" default="7000" />
     </category>
@@ -64,20 +66,31 @@
         <setting id="socks_login" label="30013" type="text" default="" subsetting="true" visible="eq(-3,true)" />
         <setting id="socks_password" label="30014" type="text" default="" option="hidden" subsetting="true" visible="eq(-4,true)" />
     </category>
+    <category label="OpenSubtitles">
+        <setting label="OpenSubtitles" type="lsep" />
+        <setting id="osdb_user" label="30057" type="text" default="" />
+        <setting id="osdb_pass" label="30014" type="text" option="hidden" default="" />
+    </category>
     <category label="30015">
         <!-- Advanced -->
         <setting label="30019" type="lsep" />
         <setting type="action" label="30020" action="RunPlugin(plugin://plugin.video.quasar/cmd/clear_cache)" />
         <setting type="action" label="30054" action="RunPlugin(plugin://plugin.video.quasar/library/update)" />
         <setting id="library_update_delay" type="number" label="30059" default="300" />
+        <setting id="library_update_frequency" type="number" label="30060" default="8" />
+        <setting id="library_ignore_duplicates" type="bool" label="30266" default="true" />
+        <setting id="library_tv_scraper" label="30115" type="enum" lvalues="30114|30039|30056" />
         <setting label="30056" type="lsep" />
+        <setting type="action" label="30058" action="RunPlugin(plugin://plugin.video.quasar/trakt/authorize)" />
         <setting id="trakt_username" type="text" label="30057" default="" />
+        <setting id="trakt_scrobble" type="bool" label="Scrobble" default="false" />
+        <setting id="trakt_sync" type="number" label="30061" default="0" />
         <setting id="trakt_token" type="text" label="Trakt token" default="" visible="false" />
         <setting id="trakt_refresh_token" type="text" label="Trakt refresh token" default="" visible="false" />
-        <setting id="trakt_scrobble" type="bool" label="Scrobble" default="false" />
-        <setting type="action" label="30058" action="RunPlugin(plugin://plugin.video.quasar/trakt/authorize)" />
         <setting label="CloudHole" type="lsep" />
+        <setting id="use_cloudhole" type="bool" label="30240" default="false" />
         <setting id="cloudhole_key" type="text" label="30040" default="" />
+        <setting type="action" label="30264" action="RunPlugin(plugin://plugin.video.quasar/cmd/reset_clearances)" />
         <setting label="30039" type="lsep" />
         <setting id="tmdb_api_key" label="30040" type="text" default="" />
     </category>
