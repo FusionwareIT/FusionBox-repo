@@ -23,7 +23,7 @@ __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://www.filmbelli.net"
+host = "http://www.filmbelli.gratis"
 
 
 def isGeneric():

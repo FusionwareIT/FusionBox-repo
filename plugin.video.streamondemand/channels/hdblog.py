@@ -26,9 +26,51 @@ def isGeneric():
 
 def mainlist(item):
     logger.info("streamondemand.hdblog mainlist")
+    itemlist = [Item(channel=__channel__,
+                     title="[COLOR azure]Video recensioni tecnologiche[/COLOR]",
+                     action="peliculas",
+                     url="http://www.hdblog.it/video/",
+                     thumbnail="http://www.crat-arct.org/uploads/images/tic%201.jpg"),
+                Item(channel=__channel__,
+                     title="[COLOR azure]Categorie[/COLOR]",
+                     action="categorias",
+                     url="http://www.hdblog.it/video/",
+                     thumbnail="http://www.crat-arct.org/uploads/images/tic%201.jpg")]
+
+    return itemlist
+
+def categorias(item):
+    logger.info("streamondemand.hdblog categorias")
     itemlist = []
-    itemlist.append( Item(channel=__channel__, title="[COLOR azure]Video recensioni tecnologiche[/COLOR]", action="peliculas", url="http://hardware.hdblog.it/video/", thumbnail="http://www.crat-arct.org/uploads/images/tic%201.jpg"))
-    
+
+    data = scrapertools.cache_page(item.url)
+    logger.info(data)
+
+    # Narrow search by selecting only the combo
+    start = data.find('<section class="left_toolbar" style="float: left;width: 125px;margin-right: 18px;">')
+    end = data.find('</section>', start)
+    bloque = data[start:end]
+
+    # The categories are the options for the combo  
+    patron = '<a href="([^"]+)"[^>]+><span>(.*?)</span>'
+    matches = re.compile(patron, re.DOTALL).findall(bloque)
+    scrapertools.printMatches(matches)
+
+    for scrapedurl, scrapedtitle in matches:
+        #scrapedtitle = scrapertools.decodeHtmlentities(titulo)
+        #scrapedurl = urlparse.urljoin(item.url, url)
+        scrapedthumbnail = ""
+        scrapedplot = ""
+        if (DEBUG): logger.info(
+            "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="peliculas",
+                 title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
+                 url=scrapedurl + "video/",
+                 thumbnail=scrapedthumbnail,
+                 plot=scrapedplot))
+
     return itemlist
 
 def peliculas(item):

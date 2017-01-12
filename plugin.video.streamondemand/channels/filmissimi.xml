@@ -12,9 +12,9 @@
 	<bannermenu>http://www.filmissimi.net/wp-content/uploads/2015/10/Logo3.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>1</version>
-	<date>27/06/2016</date>
-	<changes>New Channel</changes>
+	<version>3</version>
+	<date>27/11/2016</date>
+	<changes>fix scraping</changes>
 
 	<categories>
 		<category>movie</category>

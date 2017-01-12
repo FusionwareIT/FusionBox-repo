@@ -13,21 +13,20 @@
 	<bannermenu>http://mondolunatico.altervista.org/blog/wp-content/uploads/2013/05/images-11.jpg</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>2</version>
+	<version>7</version>
 	<date>22/06/2016</date>
 	<changes>update</changes>
 
 	<categories>
 		<category>movie</category>
-		<category>top channels</category>
 	</categories>
 
 	<settings>
 		<id>include_in_global_search</id>
 		<type>bool</type>
 		<label>Includi ricerca globale</label>
-		<default>true</default>
-		<enabled>true</enabled>
-		<visible>true</visible>
+		<default>false</default>
+		<enabled>false</enabled>
+		<visible>false</visible>
 	</settings>
 </channel>

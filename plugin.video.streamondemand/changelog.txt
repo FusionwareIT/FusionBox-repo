@@ -1,3 +1,27 @@
+v5.4.4
+- fixed dowload options
+- fixed some servers
+- added new channels
+
+v5.4.3
+- various fix
+
+v5.4.2
+- fix update channels
+- added new channels
+- remove dead channels
+- fix host domains 
+
+v5.4.1
+- transictional release
+
+v5.4.0
+- global search fix
+- update options fix
+- new channels added
+- updated some channels and servers
+- removed channel
+
 v5.3.9
 - configuration fix
 - search options fix

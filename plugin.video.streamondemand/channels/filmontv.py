@@ -6,6 +6,7 @@
 # ------------------------------------------------------------
 
 import re
+import urllib
 
 from core import config
 from core import logger
@@ -90,7 +91,7 @@ def tvoggi(item):
         itemlist.append(infoSod(
             Item(channel=__channel__,
                  action="do_search",
-                 extra=scrapedtitle + '{}' + 'movie',
+                 extra=urllib.quote_plus(scrapedtitle) + '{}' + 'movie',
                  title=scrapedtitle + "[COLOR yellow]   " + scrapedtv + "[/COLOR]",
                  fulltitle=scrapedtitle,
                  url=scrapedurl,

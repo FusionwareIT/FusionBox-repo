@@ -472,7 +472,7 @@ def build_movie_list(item, movies):
             itemlist.append(Item(
                     channel=item.channel,
                     action='do_channels_search',
-                    extra=title_search + '{}' + item.type + '{}' + year,
+                    extra=url_quote_plus(title_search) + '{}' + item.type + '{}' + year,
                     title=title + jobrole,
                     thumbnail=poster,
                     category=genres,
@@ -579,6 +579,8 @@ def channel_search(queue, channel_parameters, category, title_year, tecleado):
     try:
         search_results = []
 
+        title_search = urllib.unquote_plus(tecleado)
+
         exec "from channels import " + channel_parameters["channel"] + " as module"
         mainlist = module.mainlist(Item(channel=channel_parameters["channel"]))
 
@@ -600,7 +602,7 @@ def channel_search(queue, channel_parameters, category, title_year, tecleado):
                 title = re.sub(r'\[.*\]', '', title)  # Anything within []
 
                 # Check if the found title fuzzy matches the searched one
-                if fuzz.token_sort_ratio(tecleado, title) > 85:
+                if fuzz.token_sort_ratio(title_search, title) > 85:
                     res_item.title = "[COLOR azure]" + res_item.title + "[/COLOR][COLOR orange] su [/COLOR][COLOR green]" + channel_parameters["title"] + "[/COLOR]"
                     search_results.append(res_item)
 

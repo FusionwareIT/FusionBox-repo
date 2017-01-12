@@ -50,20 +50,15 @@ if config.is_xbmc():
     # else:
     #     logger.info("channels.descargas Se esta usando una ruta convencional")
     if DOWNLOAD_LIST_PATH.startswith("special://"):
-        DOWNLOAD_LIST_PATH = xbmc.translatePath(config.get_setting("downloadlistpath"))
+        DOWNLOAD_LIST_PATH = xbmc.translatePath(DOWNLOAD_LIST_PATH)
         # logger.info("channels.descargas DOWNLOAD_LIST_PATH convertido= " +
         #             DOWNLOAD_LIST_PATH)
-    else:
-        DOWNLOAD_LIST_PATH = config.get_setting("downloadlistpath")
-        # logger.info("channels.descargas DOWNLOAD_LIST_PATH= " +
-        #             DOWNLOAD_LIST_PATH)
+
     # Lee la ruta de descargas
     if downloadpath.startswith("special://"):
-        downloadpath = xbmc.translatePath(config.get_setting("downloadpath"))
+        downloadpath = xbmc.translatePath(downloadpath)
         # logger.info("channels.descargas downloadpath convertido= " + downloadpath)
-    else:
-        downloadpath = config.get_setting("downloadpath")
-        # logger.info("channels.descargas downloadpath= " + downloadpath)
+
 else:
     # logger.info("channels.descargas DOWNLOAD_LIST_PATH (no Kodi)=" + DOWNLOAD_LIST_PATH)
     # logger.info("channels.descargas downloadpath (no Kodi)=" + downloadpath)
@@ -78,13 +73,10 @@ def mainlist(item):
     logger.info("[descargas.py] mainlist")
     itemlist = []
 
-    # Lee la ruta de descargas
-    downloadpath = config.get_setting("downloadpath")
-
     logger.info("[descargas.py] downloadpath=" + downloadpath)
 
-    itemlist.append(Item(channel="descargas", action="pendientes", title="Descargas pendientes"))
-    itemlist.append(Item(channel="descargas", action="errores", title="Descargas con error"))
+    itemlist.append(Item(channel="descargas", action="pendientes", title="download in sospeso"))
+    itemlist.append(Item(channel="descargas", action="errores", title="download con errori"))
 
     # Añade al listado de XBMC
     try:
@@ -93,7 +85,7 @@ def mainlist(item):
             logger.info("[descargas.py] fichero=" + fichero)
             if fichero != "lista" and fichero != "error" and fichero != ".DS_Store" and not fichero.endswith(".nfo") \
                     and not fichero.endswith(".tbn") \
-                    and os.path.join(downloadpath, fichero) != config.get_setting("downloadlistpath"):
+                    and os.path.join(downloadpath, fichero) != DOWNLOAD_LIST_PATH:
                 url = os.path.join(downloadpath, fichero)
                 if not os.path.isdir(url):
                     itemlist.append(Item(channel="descargas", action="play", title=fichero, fulltitle=fichero, url=url,
@@ -107,7 +99,7 @@ def mainlist(item):
 
 
 def pendientes(item):
-    logger.info("[descargas.py] pendientes")
+    logger.debug("[descargas.py] pendientes")
     itemlist = []
 
     # Crea un listado con las entradas de favoritos
@@ -122,28 +114,29 @@ def pendientes(item):
     # Crea un listado con las entradas de la lista de descargas
     for fichero in ficheros:
         logger.info("fichero="+fichero)
-        try:
-            # Lee el bookmark
-            canal, titulo, thumbnail, plot, server, url, fulltitle = favoritos.readbookmark(fichero, DOWNLOAD_LIST_PATH)
-            if canal == "":
-                canal = "descargas"
+        if fichero != "error" and fichero != ".DS_Store":
+            try:
+                # Lee el bookmark
+                canal, titulo, thumbnail, plot, server, url, fulltitle = favoritos.readbookmark(fichero, DOWNLOAD_LIST_PATH)
+                if canal == "":
+                    canal = "descargas"
+    
+                logger.info("canal="+canal+", titulo="+titulo+", thumbnail="+thumbnail+", server="+server+", url="+url +
+                            ", fulltitle="+fulltitle+", plot="+plot)
+    
+                # Crea la entrada
+                # En la categoría va el nombre del fichero para poder borrarlo
+                itemlist.append(Item(channel=canal, action="play", url=url, server=server, title=titulo,
+                                     fulltitle=fulltitle, thumbnail=thumbnail, plot=plot, fanart=thumbnail,
+                                     extra=os.path.join(DOWNLOAD_LIST_PATH, fichero), folder=False))
+    
+            except:
+                pass
+                logger.info("[descargas.py] error al leer bookmark")
+                for line in sys.exc_info():
+                    logger.error("%s" % line)
 
-            logger.info("canal="+canal+", titulo="+titulo+", thumbnail="+thumbnail+", server="+server+", url="+url +
-                        ", fulltitle="+fulltitle+", plot="+plot)
-
-            # Crea la entrada
-            # En la categoría va el nombre del fichero para poder borrarlo
-            itemlist.append(Item(channel=canal, action="play", url=url, server=server, title=titulo,
-                                 fulltitle=fulltitle, thumbnail=thumbnail, plot=plot, fanart=thumbnail,
-                                 extra=os.path.join(DOWNLOAD_LIST_PATH, fichero), folder=False))
-
-        except:
-            pass
-            logger.info("[descargas.py] error al leer bookmark")
-            for line in sys.exc_info():
-                logger.error("%s" % line)
-
-    itemlist.append(Item(channel=CHANNELNAME, action="downloadall", title="(Empezar la descarga de la lista)",
+    itemlist.append(Item(channel=CHANNELNAME, action="downloadall", title="[COLOR yellow]Avvia il download della lista[/COLOR]",
                          thumbnail=os.path.join(IMAGES_PATH, "Crystal_Clear_action_db_update.png"), folder=False))
 
     return itemlist
@@ -165,23 +158,25 @@ def errores(item):
     # Crea un listado con las entradas de la lista de descargas
     for fichero in ficheros:
         logger.info("[descargas.py] fichero="+fichero)
-        try:
-            # Lee el bookmark
-            canal, titulo, thumbnail, plot, server, url, fulltitle = favoritos.readbookmark(fichero, ERROR_PATH)
-            if canal == "":
-                canal = "descargas"
-
-            # Crea la entrada
-            # En la categoría va el nombre del fichero para poder borrarlo
-            itemlist.append(Item(channel=canal, action="play", url=url, server=server, title=titulo,
-                                 fulltitle=fulltitle, thumbnail=thumbnail, plot=plot, fanart=thumbnail,
-                                 category="errores", extra=os.path.join(ERROR_PATH, fichero), folder=False))
-
-        except:
-            pass
-            logger.info("[descargas.py] error al leer bookmark")
-            for line in sys.exc_info():
-                logger.error("%s" % line)
+        
+        if fichero != "error" and fichero != ".DS_Store":
+            try:
+                # Lee el bookmark
+                canal, titulo, thumbnail, plot, server, url, fulltitle = favoritos.readbookmark(fichero, ERROR_PATH)
+                if canal == "":
+                    canal = "descargas"
+    
+                # Crea la entrada
+                # En la categoría va el nombre del fichero para poder borrarlo
+                itemlist.append(Item(channel=canal, action="play", url=url, server=server, title=titulo,
+                                     fulltitle=fulltitle, thumbnail=thumbnail, plot=plot, fanart=thumbnail,
+                                     category="errores", extra=os.path.join(ERROR_PATH, fichero), folder=False))
+    
+            except:
+                pass
+                logger.info("[descargas.py] error al leer bookmark")
+                for line in sys.exc_info():
+                    logger.error("%s" % line)
 
     return itemlist
 

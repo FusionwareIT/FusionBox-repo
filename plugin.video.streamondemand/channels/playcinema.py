@@ -10,6 +10,7 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
 
@@ -21,13 +22,13 @@ __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://www.playcinema.org"
+host = "http://www.playcinema.pw"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0'],
-    ['Accept-Encoding', 'gzip, deflate']
+    ['Accept-Encoding', 'gzip, deflate'],
+    ['Referer', host]
 ]
-
 
 def isGeneric():
     return True
@@ -44,7 +45,7 @@ def mainlist(item):
                      title="[COLOR azure]Film Per Categoria[/COLOR]",
                      action="categorias",
                      url=host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
@@ -58,23 +59,24 @@ def categorias(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.anti_cloudflare(item.url, headers)
+    data = scrapertools.cache_page(item.url, headers)
 
-    patron = '<ul class="sub-menu">(.*?)</ul>'
+    patron = 'class="sub-menu"><li(.*?)</ul>'
     bloque = scrapertools.find_single_match(data, patron)
 
     # Extrae las entradas (carpetas)
-    patron = '<li[^>]+><a href="([^"]+)">(.*?)</a></li>'
+    patron = 'href="([^"]+)">(.*?)</a>'
     matches = re.compile(patron, re.DOTALL).findall(bloque)
 
     for scrapedurl, scrapedtitle in matches:
         if (DEBUG): logger.info("title=[" + scrapedtitle + "], url=[" + scrapedurl + "]")
+        scrapedtitle = scrapedtitle.title()
         itemlist.append(
             Item(channel=__channel__,
                  action="peliculas",
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
-                 thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png",
+                 thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png",
                  folder=True))
 
     return itemlist
@@ -92,45 +94,22 @@ def search(item, texto):
             logger.error("%s" % line)
         return []
 
-
 def peliculas(item):
     logger.info("streamondemand.playcinema peliculas")
     itemlist = []
 
-    data = scrapertools.anti_cloudflare(item.url, headers)
-
-    # ------------------------------------------------
-    cookies = ""
-    matches = config.get_cookie_data(item.url).splitlines()[4:]
-    for cookie in matches:
-        name = cookie.split('\t')[5]
-        value = cookie.split('\t')[6]
-        cookies += name + "=" + value + ";"
-    headers.append(['Cookie', cookies[:-1]])
-    import urllib
-    _headers = urllib.urlencode(dict(headers))
-    # ------------------------------------------------
+    # Descarga la pagina
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     # Extrae las entradas (carpetas)
-    patron = '<div class="moviefilm">\s*'
-    patron += '<a href="([^"]+)">\s*'
-    patron += '<img src="([^"]+)" alt="([^"]+)"[^>]+></a>'
+    patron = '<img\s*src="(.*?)"[^>]+><\/a><div\s*class[^<]+<a\s*href="(.*?)">(.*?)<'
     matches = re.compile(patron, re.DOTALL).findall(data)
 
-    for scrapedurl, scrapedthumbnail, scrapedtitle in matches:
-        # response = urllib2.urlopen(scrapedurl)
-        # html = response.read()
-        # start = html.find("<div class=\"filmicerik\">")
-        # start = html.find("<p><span style=\"font-family: Arial, Helvetica, sans-serif;\">")
-        # end = html.find("<span style=\"font-size: xx-small;\">+Info", start)
-        # end = html.find("</font></a><br />", start)
-        # scrapedplot = html[start:end]
-        # scrapedplot = re.sub(r'<[^>]*>', '', scrapedplot)
-        # scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
+    for scrapedthumbnail, scrapedurl, scrapedtitle in matches:
         scrapedplot = ""
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.replace("Streaming", ""))
-        scrapedthumbnail += '|' + _headers
-        if (DEBUG): logger.info(
+        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
+        scrapedtitle = scrapedtitle.replace(" streaming", "")
+        if DEBUG: logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
@@ -144,7 +123,7 @@ def peliculas(item):
                  folder=True), tipo='movie'))
 
     # Extrae el paginador
-    patronvideos = '<a class="nextpostslink" rel="next" href="([^"]+)">&raquo;</a>'
+    patronvideos = 'class="nextpostslink" rel="next" href="([^"]+)">'
     matches = re.compile(patronvideos, re.DOTALL).findall(data)
 
     if len(matches) > 0:
@@ -163,7 +142,6 @@ def peliculas(item):
                  folder=True))
 
     return itemlist
-
 
 def HomePage(item):
     import xbmc

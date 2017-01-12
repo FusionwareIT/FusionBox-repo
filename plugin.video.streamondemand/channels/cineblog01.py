@@ -15,12 +15,12 @@ from core.item import Item
 from core.tmdb import infoSod
 
 __channel__ = "cineblog01"
-__category__ = "F,S,A"
+__category__ = "F,S"
 __type__ = "generic"
 __title__ = "CineBlog 01"
 __language__ = "IT"
 
-sito = "http://www.cb01.me"
+sito = "http://www.cb01.pw"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
@@ -62,13 +62,13 @@ def mainlist(item):
                      title="[COLOR azure]Per Genere[/COLOR]",
                      url=sito,
                      extra="movie",
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      action="menuanyos",
                      title="[COLOR azure]Per Anno[/COLOR]",
                      url=sito,
                      extra="movie",
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/Movie%20Year.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      action="search",
                      title="[COLOR yellow]Cerca Film[/COLOR]",
@@ -79,7 +79,7 @@ def mainlist(item):
                      title="[COLOR azure]Serie Tv - Novita'[/COLOR]",
                      url="%s/serietv/" % sito,
                      extra="serie",
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      action="search",
                      title="[COLOR yellow]Cerca Serie Tv[/COLOR]",
@@ -265,10 +265,10 @@ def search(item, texto):
     try:
 
         if item.extra == "movie":
-            item.url = "http://www.cb01.me/?s=" + texto
+            item.url = "http://www.cb01.pw/?s=" + texto
             return peliculas(item)
         if item.extra == "serie":
-            item.url = "http://www.cb01.me/serietv/?s=" + texto
+            item.url = "http://www.cb01.pw/serietv/?s=" + texto
             return listserie(item)
 
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
@@ -330,41 +330,6 @@ def listserie(item):
     return itemlist
 
 
-def listaaz(item):
-    logger.info("[cineblog01.py] listaaz")
-    itemlist = []
-
-    data = scrapertools.anti_cloudflare(item.url, headers)
-
-    # Narrow search by selecting only the combo
-    patron = '<a href="#char_5a" title="Go to the letter Z">Z</a></span></div>(.*?)</ul></div><div style="clear:both;"></div></div>'
-    bloque = scrapertools.get_match(data, patron)
-
-    # The categories are the options for the combo
-    patron = '<li><a href="([^"]+)"><span class="head">([^<]+)</span></a></li>'
-    matches = re.compile(patron, re.DOTALL).findall(bloque)
-    scrapertools.printMatches(matches)
-
-    for url, titulo in matches:
-        scrapedtitle = titulo
-        scrapedurl = url
-        scrapedthumbnail = ""
-        scrapedplot = ""
-        if (DEBUG): logger.info("title=[" + scrapedtitle + "], url=[" + scrapedurl + "]")
-        itemlist.append(
-            Item(channel=__channel__,
-                 action="episodios",
-                 fulltitle=scrapedtitle,
-                 show=scrapedtitle,
-                 title=scrapedtitle,
-                 url=scrapedurl,
-                 thumbnail="http://www.justforpastime.net/uploads/3/8/1/5/38155083/273372_orig.jpg",
-                 extra=item.extra,
-                 plot=scrapedplot))
-
-    return itemlist
-
-
 def episodios(item):
     itemlist = []
 
@@ -392,29 +357,23 @@ def episodios(item):
 
 def episodios_serie(item):
     def load_episodios(html, item, itemlist, lang_title):
-        for data in scrapertools.decodeHtmlentities(html).splitlines():
-            ## Extrae las entradas
-            end = data.find('<a ')
-            if end > 0:
-                scrapedtitle = re.sub(r'<[^>]*>', '', data[:end]).strip()
-            else:
-                scrapedtitle = ''
-            if scrapedtitle == '':
-                patron = '<a\s*href="[^"]+"\s*target="_blank">([^<]+)</a>'
-                scrapedtitle = scrapertools.find_single_match(data, patron).strip()
-            title = scrapertools.find_single_match(scrapedtitle, '\d+[^\d]+?\d+')
-            if title == '':
-                title = scrapedtitle
-            if title != '':
-                title = title.replace('×', 'x')
+        # for data in scrapertools.decodeHtmlentities(html).splitlines():
+        patron = '((?:.*?<a rel="nofollow" href=".*?"[^>]+>.*?<\/a>)+)'
+        matches = re.compile(patron).findall(html)
+        for data in matches:
+            # Extrae las entradas
+            scrapedtitle = data.split('<a ')[0]
+            scrapedtitle = re.sub(r'<[^>]*>', '', scrapedtitle).strip()
+            if scrapedtitle != 'Categorie':
+                scrapedtitle = scrapedtitle.replace('&#215;', 'x')
                 itemlist.append(
                     Item(channel=__channel__,
                          action="findvideos",
-                         title=title + " (" + lang_title + ")",
+                         title="[COLOR azure]%s[/COLOR]" % (scrapedtitle + " (" + lang_title + ")"),
                          url=data,
                          thumbnail=item.thumbnail,
                          extra=item.extra,
-                         fulltitle=title + " (" + lang_title + ")" + ' - ' + item.show,
+                         fulltitle=scrapedtitle + " (" + lang_title + ")" + ' - ' + item.show,
                          show=item.show))
 
     logger.info("[cineblog01.py] episodios")
@@ -423,16 +382,13 @@ def episodios_serie(item):
 
     # Descarga la página
     data = scrapertools.anti_cloudflare(item.url, headers)
-
-    start = data.find('<td bgcolor="#ECEAE1">')
-    end = data.find('</td>', start)
-
-    data = data[start:end]
+    data = scrapertools.decodeHtmlentities(data)
+    data = scrapertools.get_match(data, '<td bgcolor="#ECEAE1">(.*?)</table>')
 
     lang_titles = []
     starts = []
-    patron = r"STAGION[I|E].*?ITA"
-    matches = re.compile(patron).finditer(data)
+    patron = r"Stagione.*?ITA"
+    matches = re.compile(patron, re.IGNORECASE).finditer(data)
     for match in matches:
         season_title = match.group()
         if season_title != '':
@@ -475,6 +431,7 @@ def findvideos(item):
         return findvid_film(item)
     if item.extra == 'serie':
         return findvid_serie(item)
+    return []
 
 
 def findvid_film(item):
@@ -484,7 +441,7 @@ def findvid_film(item):
 
     # Descarga la página
     data = scrapertools.anti_cloudflare(item.url, headers)
-    data = scrapertools.decodeHtmlentities(data).replace('http://cineblog01.pw', 'http://k4pp4.pw')
+    data = scrapertools.decodeHtmlentities(data)
 
     # Extract the quality format
     patronvideos = '>([^<]+)</strong></div>'
@@ -495,10 +452,10 @@ def findvid_film(item):
 
     # Extrae las entradas
     streaming = scrapertools.find_single_match(data, '<strong>Streaming:</strong>(.*?)<table height="30">')
-    patron = '<td><a href="([^"]+)" target="_blank">([^<]+)</a></td>'
+    patron = '<td><a\s*href="([^"]+)"\s*target="_blank">([^<]+)</a></td>'
     matches = re.compile(patron, re.DOTALL).findall(streaming)
     for scrapedurl, scrapedtitle in matches:
-        print "##### findvideos Streaming ## %s ## %s ##" % (scrapedurl, scrapedtitle)
+        logger.debug("##### findvideos Streaming ## %s ## %s ##" % (scrapedurl, scrapedtitle))
         title = "[COLOR orange]Streaming:[/COLOR] " + item.title + " [COLOR grey]" + QualityStr + "[/COLOR] [COLOR blue][" + scrapedtitle + "][/COLOR]"
         itemlist.append(
             Item(channel=__channel__,
@@ -511,10 +468,10 @@ def findvid_film(item):
                  folder=False))
 
     streaming_hd = scrapertools.find_single_match(data, '<strong>Streaming HD[^<]+</strong>(.*?)<table height="30">')
-    patron = '<td><a href="([^"]+)" target="_blank">([^<]+)</a></td>'
+    patron = '<td><a\s*href="([^"]+)"\s*target="_blank">([^<]+)</a></td>'
     matches = re.compile(patron, re.DOTALL).findall(streaming_hd)
     for scrapedurl, scrapedtitle in matches:
-        print "##### findvideos Streaming HD ## %s ## %s ##" % (scrapedurl, scrapedtitle)
+        logger.debug("##### findvideos Streaming HD ## %s ## %s ##" % (scrapedurl, scrapedtitle))
         title = "[COLOR yellow]Streaming HD:[/COLOR] " + item.title + " [COLOR grey]" + QualityStr + "[/COLOR] [COLOR blue][" + scrapedtitle + "][/COLOR]"
         itemlist.append(
             Item(channel=__channel__,
@@ -527,10 +484,10 @@ def findvid_film(item):
                  folder=False))
 
     streaming_3D = scrapertools.find_single_match(data, '<strong>Streaming 3D[^<]+</strong>(.*?)<table height="30">')
-    patron = '<td><a href="([^"]+)" target="_blank">([^<]+)</a></td>'
+    patron = '<td><a\s*href="([^"]+)"\s*target="_blank">([^<]+)</a></td>'
     matches = re.compile(patron, re.DOTALL).findall(streaming_3D)
     for scrapedurl, scrapedtitle in matches:
-        print "##### findvideos Streaming 3D ## %s ## %s ##" % (scrapedurl, scrapedtitle)
+        logger.debug("##### findvideos Streaming 3D ## %s ## %s ##" % (scrapedurl, scrapedtitle))
         title = "[COLOR pink]Streaming 3D:[/COLOR] " + item.title + " [COLOR grey]" + QualityStr + "[/COLOR] [COLOR blue][" + scrapedtitle + "][/COLOR]"
         itemlist.append(
             Item(channel=__channel__,
@@ -543,10 +500,10 @@ def findvid_film(item):
                  folder=False))
 
     download = scrapertools.find_single_match(data, '<strong>Download:</strong>(.*?)<table height="30">')
-    patron = '<td><a href="([^"]+)" target="_blank">([^<]+)</a></td>'
+    patron = '<td><a\s*href="([^"]+)"\s*target="_blank">([^<]+)</a></td>'
     matches = re.compile(patron, re.DOTALL).findall(download)
     for scrapedurl, scrapedtitle in matches:
-        print "##### findvideos Download ## %s ## %s ##" % (scrapedurl, scrapedtitle)
+        logger.debug("##### findvideos Download ## %s ## %s ##" % (scrapedurl, scrapedtitle))
         title = "[COLOR aqua]Download:[/COLOR] " + item.title + " [COLOR grey]" + QualityStr + "[/COLOR] [COLOR blue][" + scrapedtitle + "][/COLOR]"
         itemlist.append(
             Item(channel=__channel__,
@@ -558,12 +515,11 @@ def findvid_film(item):
                  show=item.show,
                  folder=False))
 
-    download_hd = scrapertools.find_single_match(data,
-                                                 '<strong>Download HD[^<]+</strong>(.*?)<table width="100%" height="20">')
-    patron = '<td><a href="([^"]+)" target="_blank">([^<]+)</a></td>'
+    download_hd = scrapertools.find_single_match(data, '<strong>Download HD[^<]+</strong>(.*?)<table width="100%" height="20">')
+    patron = '<td><a\s*href="([^"]+)"\s*target="_blank">([^<]+)</a></td>'
     matches = re.compile(patron, re.DOTALL).findall(download_hd)
     for scrapedurl, scrapedtitle in matches:
-        print "##### findvideos Download HD ## %s ## %s ##" % (scrapedurl, scrapedtitle)
+        logger.debug("##### findvideos Download HD ## %s ## %s ##" % (scrapedurl, scrapedtitle))
         title = "[COLOR azure]Download HD:[/COLOR] " + item.title + " [COLOR grey]" + QualityStr + "[/COLOR] [COLOR blue][" + scrapedtitle + "][/COLOR]"
         itemlist.append(
             Item(channel=__channel__,
@@ -588,9 +544,8 @@ def findvid_serie(item):
 
     # Descarga la página
     data = item.url
-    data = data.replace('http://cineblog01.pw', 'http://k4pp4.pw')
 
-    patron = '<a\s*href="([^"]+)"\s*target="_blank">([^<]+)</a>'
+    patron = '<a rel="nofollow" href="([^"]+)"[^>]+>(.*?)</a>'
     # Extrae las entradas
     matches = re.compile(patron, re.DOTALL).finditer(data)
     for match in matches:
@@ -612,38 +567,45 @@ def findvid_serie(item):
 def play(item):
     logger.info("[cineblog01.py] play")
 
-    print "##############################################################"
+    if '/goto/' in item.url:
+        item.url = scrapertools.get_header_from_response(item.url, header_to_get="Location")
+
+    item.url = item.url.replace('http://cineblog01.pw', 'http://k4pp4.pw')
+
+    logger.debug("##############################################################")
     if "go.php" in item.url:
         data = scrapertools.anti_cloudflare(item.url, headers)
         try:
             data = scrapertools.get_match(data, 'window.location.href = "([^"]+)";')
         except IndexError:
-            #            data = scrapertools.get_match(data, r'<a href="([^"]+)">clicca qui</a>')
-            #   In alternativa, dato che a volte compare "Clicca qui per proseguire":
-            data = scrapertools.get_match(data, r'<a href="([^"]+)".*?class="btn-wrapper">.*?licca.*?</a>')
+            try:
+                # data = scrapertools.get_match(data, r'<a href="([^"]+)">clicca qui</a>')
+                # In alternativa, dato che a volte compare "Clicca qui per proseguire":
+                data = scrapertools.get_match(data, r'<a href="([^"]+)".*?class="btn-wrapper">.*?licca.*?</a>')
+            except IndexError:
+                data = scrapertools.get_header_from_response(item.url, headers=headers, header_to_get="Location")
         if 'vcrypt' in data:
             data = scrapertools.get_header_from_response(data, headers=headers, header_to_get="Location")
-        print "##### play go.php data ##\n%s\n##" % data
+        logger.debug("##### play go.php data ##\n%s\n##" % data)
     elif "/link/" in item.url:
         data = scrapertools.anti_cloudflare(item.url, headers)
         from core import jsunpack
 
         try:
             data = scrapertools.get_match(data, "(eval\(function\(p,a,c,k,e,d.*?)</script>")
-            # data = scrapertools.get_match(data, "(eval.function.p,a,c,k,e,.*?)</script>")
             data = jsunpack.unpack(data)
-            print "##### play /link/ unpack ##\n%s\n##" % data
+            logger.debug("##### play /link/ unpack ##\n%s\n##" % data)
         except IndexError:
-            print "##### The content is yet unpacked"
+            logger.debug("##### The content is yet unpacked")
 
         data = scrapertools.get_match(data, 'var link(?:\s)?=(?:\s)?"([^"]+)";')
         if 'vcrypt' in data:
             data = scrapertools.get_header_from_response(data, headers=headers, header_to_get="Location")
-        print "##### play /link/ data ##\n%s\n##" % data
+        logger.debug("##### play /link/ data ##\n%s\n##" % data)
     else:
         data = item.url
-        print "##### play else data ##\n%s\n##" % data
-    print "##############################################################"
+        logger.debug("##### play else data ##\n%s\n##" % data)
+    logger.debug("##############################################################")
 
     itemlist = servertools.find_video_items(data=data)
 

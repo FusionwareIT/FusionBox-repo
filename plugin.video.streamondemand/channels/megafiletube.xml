@@ -13,7 +13,7 @@
 	<bannermenu>http://megafiletube.xyz/themes/default/images/logo.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>2</version>
+	<version>3</version>
 	<date>03/10/2016</date>
 	<changes>update</changes>
 

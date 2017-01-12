@@ -10,6 +10,7 @@ import urlparse
 from core import config
 from core import logger
 from core import scrapertools
+from core import servertools
 from core.item import Item
 from core.tmdb import infoSod
 
@@ -21,8 +22,9 @@ __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://www.strfilm.it/"
+host = "http://www.strfilm.com/"
 
+dec_fly = "http://www.i2w.biz/adf.ly/?url="
 
 def isGeneric():
     return True
@@ -38,8 +40,8 @@ def mainlist(item):
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Per Categoria[/COLOR]",
                      action="categorias",
-                     url=host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
+                     url="http://www.strfilm.com/lista-film/",
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
@@ -54,7 +56,7 @@ def categorias(item):
 
     # Descarga la pagina
     data = scrapertools.cache_page(item.url)
-    bloque = scrapertools.get_match(data, '</h3>		<ul>(.*?)</ul>')
+    bloque = scrapertools.get_match(data, '<div class="cats-widget">(.*?)</ul>')
 
     # Extrae las entradas (carpetas)
     patron = '<a href="([^"]+)" >(.*?)</a>(.*?)\s*</li>'
@@ -96,19 +98,21 @@ def peliculas(item):
     data = scrapertools.cache_page(item.url)
 
     # Extrae las entradas (carpetas)
-    patron = '<a class="thumb-link" href="([^"]+)" title="([^"]+)">'
-    matches = re.compile(patron, re.DOTALL).findall(data)
+    patron = '<div class="blog-item-wrap">\s*<a id="images" href="([^"]+)" title="(.*?)"[^>]+>\s*<img[^s]+src="([^"]+)"'
+    matches = re.compile(patron, re.DOTALL).finditer(data)
 
-    for scrapedurl, scrapedtitle in matches:
+    for match in matches:
         scrapedplot = ""
-        scrapedthumbnail = ""
+        #scrapedthumbnail = ""
         # html = scrapertools.cache_page(scrapedurl)
         # start = html.find("<div class=\"description\">")
         # end = html.find("</p>", start)
         # scrapedplot = html[start:end]
         # scrapedplot = re.sub(r'<[^>]*>', '', scrapedplot)
         # scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
+        scrapedthumbnail = urlparse.urljoin(item.url, match.group(3))
+        scrapedtitle = scrapertools.unescape(match.group(2))
+        scrapedurl = urlparse.urljoin(item.url, match.group(1))
         if DEBUG: logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
@@ -123,7 +127,7 @@ def peliculas(item):
                  folder=True), tipo='movie'))
 
     # Extrae el paginador
-    patronvideos = '</span><a class="page larger" href="(.*?)">'
+    patronvideos = '<a class="next page-numbers" href="(.*?)">Older'
     matches = re.compile(patronvideos, re.DOTALL).findall(data)
 
     if len(matches) > 0:
@@ -143,7 +147,32 @@ def peliculas(item):
 
     return itemlist
 
+def findvideos(item):
+    logger.info("[strfilm.py] findvideos")
+
+    data = scrapertools.cache_page(item.url)
+
+    patron = '<iframe id="ifrm" style="width:100%; height:400px;" src="([^"]+)"></iframe>'
+    matches = re.compile(patron, re.DOTALL).findall(data)
+    for url in matches:
+        if 'adf.ly' in url:
+            url = dec_fly + url
+        html = scrapertools.cache_page(url)
+        data += str(scrapertools.find_single_match(html, '<p>Your URL is <a href="(.*?)">'))
+
+    itemlist = servertools.find_video_items(data=data)
+
+    for videoitem in itemlist:
+        videoitem.title = item.title + videoitem.title
+        videoitem.fulltitle = item.fulltitle
+        videoitem.show = item.show
+        videoitem.thumbnail = item.thumbnail
+        videoitem.channel = __channel__
+
+    return itemlist
 
 def HomePage(item):
     import xbmc
     xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
+
+#channel disabled

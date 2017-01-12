@@ -22,7 +22,7 @@ __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-site = "http://scambiofile.info"
+site = "http://scambiofile.io"
 
 
 def isGeneric():
@@ -34,7 +34,7 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Novità-Film .torrent stream[/COLOR]",
                      action="peliculas",
-                     url="http://www.scambiofile.info/browse.php?cat=1",
+                     url="%s/browse.php?cat=1" % site,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
@@ -47,7 +47,7 @@ def mainlist(item):
 
 def search(item, texto):
     logger.info("[scambiofile.py] " + item.url + " search " + texto)
-    item.url = "http://www.scambiofile.info/browse.php?cat=1&search=" + texto
+    item.url = "http://www.scambiofile.io/browse.php?cat=1&search=" + texto
     try:
         return peliculas(item)
     # Se captura la excepción, para no interrumpir al buscador global si un canal falla
@@ -76,7 +76,7 @@ def peliculas(item):
         url = url.replace("%2F", "/")
         url = url.replace("%3F", "?")
         url = url.replace("%26n%3", "&n=")
-        url = url.replace("/details.php", "http://www.scambiofile.info/details.php")
+        url = url.replace("/details.php", "http://www.scambiofile.io/details.php")
         scrapedplot = ""
         scrapedthumbnail = ""
         if (DEBUG): logger.info("title=[" + scrapedtitle + "], url=[" + url + "], thumbnail=[" + scrapedthumbnail + "]")

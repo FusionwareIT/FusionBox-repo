@@ -22,7 +22,7 @@ __type__ = "generic"
 __title__ = "Itastreaming"
 __language__ = "IT"
 
-host = "http://itastreaming.click"
+host = "http://itastreaming.me"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
@@ -356,7 +356,7 @@ def findvideos(item):
             videoitem.plot = item.plot
             videoitem.channel = __channel__
 
-        return itemlist
+    return itemlist
 
 
 def url_decode(url_enc):

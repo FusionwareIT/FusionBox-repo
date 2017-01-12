@@ -23,6 +23,8 @@ def mainlist(item):
     if config.is_xbmc():
         itemlist.append(Item(channel=item.channel, action="force_creation_advancedsettings",
                              title="Crea advancedsettings.xml ottimizzato"))
+        itemlist.append(Item(channel=item.channel, action="force_creation_advancedsettings_17",
+                             title="Crea advancedsettings.xml ottimizzato per Kodi 17"))
         cuantos += cuantos
 
     if cuantos > 0:
@@ -103,6 +105,77 @@ def force_creation_advancedsettings(item):
                 </advancedsettings>'''
         logger.info(file)
         salva = open(advancedsettings, "w")
+        salva.write(file)
+        salva.close()
+    except:
+        pass
+
+    platformtools.dialog_ok("plugin", "E' stato creato un file advancedsettings.xml","con la configurazione ideale per lo streaming.", testo)
+
+    return mainlist(item)
+
+def force_creation_advancedsettings_17(item):
+    # Ruta del advancedsettings
+    advancedsettings = xbmc.translatePath("special://userdata/advancedsettings.xml")
+
+    # =======================================================
+    # Impostazioni
+    #--------------------------------------------------------
+    ram = ['512 Mega', '1 Gb', '2 Gb', 'più di 2 Gb']
+    opt = ['20971520', '52428800', '157286400', '209715200']
+    # =======================================================
+    try:
+        risp = platformtools.dialog_select('Scegli settaggio cache', [ram[0], ram[1], ram[2], ram[3]])
+        logger.info(str(risp))
+
+        if risp == 0:
+            valore = opt[0]
+            testo = "\n[COLOR orange]Cache Impostata per 512 Mega di RAM[/COLOR]"
+        if risp == 1:
+            valore = opt[1]
+            testo = "\n[COLOR orange]Cache Impostata per 1 Gb di RAM[/COLOR]"
+        if risp == 2:
+            valore = opt[2]
+            testo = "\n[COLOR orange]Cache Impostata per 2 Gb di RAM[/COLOR]"
+        if risp == 3:
+            valore = opt[3]
+            testo = "\n[COLOR orange]Cache Impostata a superiore di 2 Gb di RAM[/COLOR]"
+        if risp < 0:
+            valore = opt[0]
+            testo = "\n[COLOR orange]Cache Impostata per default a 512 Mega di RAM[/COLOR]"
+
+        file = '''<advancedsettings>
+                    <network>
+                        <autodetectpingtime>30</autodetectpingtime>
+                        <curlclienttimeout>60</curlclienttimeout>
+                        <curllowspeedtime>60</curllowspeedtime>
+                        <curlretries>2</curlretries>
+                        <disableipv6>true</disableipv6>
+                    </network>
+                    <cache>
+                        <buffermode>1</buffermode>
+                        <memorysize>''' + valore + '''</memorysize>
+                        <readfactor>10</readfactor>
+                    </cache>
+                    <gui>
+                        <algorithmdirtyregions>0</algorithmdirtyregions>
+                        <nofliptimeout>0</nofliptimeout>
+                    </gui>
+                        <playlistasfolders1>false</playlistasfolders1>
+                    <audio>
+                        <defaultplayer>dvdplayer</defaultplayer>
+                    </audio>
+                        <imageres>540</imageres>
+                        <fanartres>720</fanartres>
+                        <splash>false</splash>
+                        <handlemounting>0</handlemounting>
+                    <samba>
+                        <clienttimeout>30</clienttimeout>
+                    </samba>
+                </advancedsettings>'''
+        logger.info(file)
+        salva = open(advancedsettings, "w")
+
         salva.write(file)
         salva.close()
     except:

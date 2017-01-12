@@ -38,7 +38,7 @@ def mainlist(item):
     itemlist.append(Item(channel=__channel__,action="elenco_film",title="[COLOR orange]Novità torrent [/COLOR][COLOR azure] Film[/COLOR]" ,url=film,thumbnail=thumbnovita,fanart=fanart))
     itemlist.append(Item(channel=__channel__,action="elenco_film",title="[COLOR orange]Novità torrent [/COLOR][COLOR azure] Serie[/COLOR]",url=serie,thumbnail=thumbnovita,fanart=fanart))
     itemlist.append(Item(channel=__channel__,action="elenco_film",title="[COLOR orange]Novità torrent [/COLOR][COLOR azure] Cartoni[/COLOR]",url=cartoni,thumbnail=thumbnovita,fanart=fanart))
-    itemlist.append(Item(channel=__channel__,action="search",     title="[COLOR yellow]Cerca film...[/COLOR]",extra="film", thumbnail=thumbcerca, fanart=fanart))
+    itemlist.append(Item(channel=__channel__,action="search",     title="[COLOR yellow]Cerca film...[/COLOR]",extra="movie", thumbnail=thumbcerca, fanart=fanart))
 
     return itemlist
 #=================================================================

@@ -3,7 +3,7 @@
 	<id>italianstream</id>
 	<name>Italian-Stream</name>
 
-	<active>true</active>
+	<active>false</active>
 	<adult>false</adult>
 	<language>it</language>
 
@@ -12,7 +12,7 @@
 	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/italianstream.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>1</version>
+	<version>2</version>
 	<date>16/06/2016</date>
 	<changes>update</changes>
 
@@ -26,8 +26,8 @@
 		<id>include_in_global_search</id>
 		<type>bool</type>
 		<label>Includi ricerca globale</label>
-		<default>true</default>
-		<enabled>true</enabled>
-		<visible>true</visible>
+		<default>false</default>
+		<enabled>false</enabled>
+		<visible>false</visible>
 	</settings>
 </channel>

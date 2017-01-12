@@ -23,14 +23,20 @@ DEBUG = config.get_setting("debug")
 
 host = "http://www.filmissimi.net"
 
+headers = [
+    ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
+    ['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'],
+    ['Accept-Encoding', 'gzip, deflate'],
+    ['Referer', host],
+    ['Cache-Control', 'max-age=0']
+]
 
 def isGeneric():
     return True
 
-
 # -------------------------------------------------------------------------------------------------------------------------------------------
 def mainlist(item):
-    log("mainlist", "init")
+    logger.info("[filmissimi.py] mainlist")
     itemlist = [Item(channel=__channel__,
                      action="elenco",
                      title="[COLOR yellow]Novita'[/COLOR]",
@@ -75,19 +81,27 @@ def mainlist(item):
 
 # -------------------------------------------------------------------------------------------------------------------------------------------
 def genere(item):
-    log("genere", "init")
+    logger.info("[filmissimi.py] genere")
     itemlist = []
 
-    patron = '<a href="(.*?)">(.*?)</a>'
-    for scrapedurl, scrapedtitle in scrapedSingle(item.url, '<h3 class="title">Categorie</h3><ul>(.*?)</ul>', patron):
-        log("genere", "title=[" + scrapedtitle + "] url=[" + scrapedurl + "]")
+    data = scrapertools.cache_page(item.url, headers=headers)
+    bloque = scrapertools.get_match(data, '<ul id="menu-categorie-1" class="ge">(.*?)</div>')
+
+    patron = '<li id=[^>]+><a href="(.*?)">(.*?)</a></li>'
+    matches = re.compile(patron, re.DOTALL).findall(bloque)
+
+    for scrapedurl, scrapedtitle in matches:
+        scrapedplot = ""
+        scrapedthumbnail = ""
+ 
+        if DEBUG: logger.info("title=[" + scrapedtitle + "]")
         itemlist.append(
             Item(channel=__channel__,
                  action="elenco",
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
-                 thumbnail=NovitaThumbnail,
-                 fanart=FilmFanart))
+                 thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png",
+                 folder=True))
 
     return itemlist
 
@@ -96,14 +110,20 @@ def genere(item):
 
 # -------------------------------------------------------------------------------------------------------------------------------------------
 def elenco(item):
-    log("elenco", "init")
+    logger.info("[filmissimi.py] elenco")
     itemlist = []
 
-    patron = '<img src="(.*?)"[^=]+=.*?[^=]+="Thumbnail[^>]+>[^>]+><h2><a.*?href="(.*?)"[^>]+>(.*?)</a></h2>'
-    for scrapedthumbnail, scrapedurl, scrapedtitle in scrapedSingle(item.url, '<ul class="recent-posts">(.*?)</ul>',
-                                                                    patron):
+    data = scrapertools.cache_page(item.url, headers=headers)
+
+    elemento = scrapertools.find_single_match(data,'<div class="estre">(.*?)<div class="paginacion">')
+
+    patron='<div class="item">[^<]+<a href="(.*?)"[^<]+<[^<]+<img.*?icon[^<]+<img src="(.*?)" alt="(.*?)"[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+<[^<]+</div>'
+    matches = re.compile(patron, re.DOTALL).findall(elemento)
+
+    for scrapedurl, scrapedthumbnail,scrapedtitle  in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
-        log("elenco", "title=[" + scrapedtitle + "] url=[" + scrapedurl + "] thumbnail=[" + scrapedthumbnail + "]")
+        scrapedtitle = scrapedtitle.split("(")[0]
+        logger.info("title=[" + scrapedtitle + "] url=[" + scrapedurl + "] thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
                  action="findvideos",
@@ -114,28 +134,31 @@ def elenco(item):
 
     # Paginazione
     # ===========================================================================================================================
-    matches = scrapedSingle(item.url, '<div class="navigation">(.*?)</div>',
-                            "current'>.*?</span>.*?class='page-numbers'.*?href='(.*?)'>.*?</a>")
+    matches = scrapedSingle(item.url, '<div class="paginacion">(.*?)</div>',"current'>.*?<\/span><.*?href='(.*?)'>.*?</a>")
     if len(matches) > 0:
         paginaurl = matches[0]
-        itemlist.append(Item(channel=__channel__, action="elenco", title=AvantiTxt, url=paginaurl, thumbnail=AvantiImg))
+        itemlist.append(
+            Item(channel=__channel__, action="elenco", title=AvantiTxt, url=paginaurl, thumbnail=AvantiImg))
         itemlist.append(Item(channel=__channel__, action="HomePage", title=HomeTxt, folder=True))
     else:
         itemlist.append(Item(channel=__channel__, action="mainlist", title=ListTxt, folder=True))
     # ===========================================================================================================================
     return itemlist
-
-
 # ===========================================================================================================================================
+
 
 # -------------------------------------------------------------------------------------------------------------------------------------------
 def search(item, texto):
-    log("search", "init texto=[" + texto + "]")
+    logger.info("[filmissimi.py] init texto=[" + texto + "]")
     itemlist = []
     url = "http://www.filmissimi.net/?s=" + texto
 
-    patron = '<img src="(.*?)"[^=]+=.*?[^=]+="Thumbnail[^>]+>[^>]+><h2><a.*?href="(.*?)"[^>]+>(.*?)</a></h2>'
-    for scrapedthumbnail, scrapedurl, scrapedtitle in scrapedSingle(url, '<ul class="recent-posts">(.*?)</ul>', patron):
+    data = scrapertools.cache_page(url, headers=headers)
+
+    patron = 'class="s-img">[^<]+<.*?src="(.*?)"[^<]+<[^<]+<[^<]+</div>[^<]+<[^<]+<[^<]+<[^<]+</span>[^<]+</span>[^<]+<h3><a href="(.*?)">(.*?)</a></h3>'
+    matches = re.compile(patron, re.DOTALL).findall(data)
+
+    for scrapedthumbnail,scrapedurl, scrapedtitle in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
         log("elenco", "title=[" + scrapedtitle + "] url=[" + scrapedurl + "] thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
@@ -148,7 +171,7 @@ def search(item, texto):
 
     # Paginazione
     # ===========================================================================================================================
-    matches = scrapedSingle(url, '<div class="navigation">(.*?)</div>', "current'>.*?</span>.*?class='page-numbers'.*?href='(.*?)'>.*?</a>")
+    matches = scrapedSingle(url, '<div class="paginacion">(.*?)</div>',"current'>.*?<\/span><.*?href='(.*?)'>.*?</a>")
 
     if len(matches) > 0:
         paginaurl = matches[0]
@@ -158,8 +181,6 @@ def search(item, texto):
         itemlist.append(Item(channel=__channel__, action="mainlist", title=ListTxt, folder=True))
     # ===========================================================================================================================
     return itemlist
-
-
 # ===========================================================================================================================================
 
 # =================================================================
@@ -167,43 +188,29 @@ def search(item, texto):
 # -----------------------------------------------------------------
 def scrapedAll(url="", patron=""):
     matches = []
-    data = scrapertools.cache_page(url)
+    data = scrapertools.cache_page(url, headers=headers)
     log("data ->" + data)
     MyPatron = patron
     matches = re.compile(MyPatron, re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
 
     return matches
-
-
 # =================================================================
 
 # -----------------------------------------------------------------
 def scrapedSingle(url="", single="", patron=""):
     matches = []
-    data = scrapertools.cache_page(url)
+    data = scrapertools.cache_page(url, headers=headers)
     elemento = scrapertools.find_single_match(data, single)
-    log("elemento ->" + data)
     matches = re.compile(patron, re.DOTALL).findall(elemento)
     scrapertools.printMatches(matches)
 
     return matches
-
-
-# =================================================================
-
-# -----------------------------------------------------------------
-def log(funzione="", stringa="", canale=__channel__):
-    logger.info("[" + canale + "].[" + funzione + "] " + stringa)
-
-
 # =================================================================
 
 # -----------------------------------------------------------------
 def HomePage(item):
     xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
-
-
 # =================================================================
 
 # =================================================================

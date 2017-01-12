@@ -20,7 +20,7 @@ __type__ = "generic"
 __title__ = "ITA Film TV"
 __language__ = "IT"
 
-host = "http://www.itafilm.net"
+host = "http://www.itafilm.club"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:39.0) Gecko/20100101 Firefox/39.0'],

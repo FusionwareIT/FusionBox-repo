@@ -20,7 +20,7 @@ __type__ = "generic"
 __title__ = "FilmSubito.tv"
 __language__ = "IT"
 
-host = "http://www.cinemasubito.me/"
+host = "http://www.cinemasubito.net/"
 
 DEBUG = config.get_setting("debug")
 

@@ -22,7 +22,7 @@ __creationdate__ = "20120605"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://www.filmsenzalimiti.co"
+host = "http://www.filmsenzalimiti.click"
 
 
 def isGeneric():
@@ -43,7 +43,7 @@ def mainlist(item):
                      action="novedades",
                      extra="movie",
                      url="%s/genere/dvd-rip" % host,
-                     thumbnail="http://repository-butchabay.googlecode.com/svn/branches/eden/skin.cirrus.extended.v2/extras/moviegenres/Box%20Sets%20HD.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Sub Ita[/COLOR]",
                      action="novedades",
@@ -60,7 +60,7 @@ def mainlist(item):
                      extra="serie",
                      action="novedades_tv",
                      url="%s/genere/serie-tv" % host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
                      action="search",

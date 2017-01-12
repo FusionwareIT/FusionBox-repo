@@ -35,13 +35,13 @@ def mainlist(item):
                      action="episodios",
                      title="[COLOR azure]Novità[/COLOR]",
                      url=host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png",
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png",
                      folder=True),
                 Item(channel=__channel__,
                      action="series",
                      title="[COLOR azure]Indice A-Z[/COLOR]",
                      url=host,
-                     thumbnail="http://repository-butchabay.googlecode.com/svn/branches/eden/skin.cirrus.extended.v2/extras/moviegenres/A-Z.png",
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png",
                      folder=True),
                 Item(channel=__channel__,
                      action="search",
@@ -79,6 +79,8 @@ def episodios(item):
     for scrapedurl, scrapedtitle, scrapedthumbnail in matches:
         scrapedplot = ""
         scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
+        if scrapedtitle.startswith(("NUOVA PAGINA FACEBOOK")):
+            continue
         if scrapedtitle.startswith("Link to "):
             scrapedtitle = scrapedtitle[8:]
         if (DEBUG): logger.info(

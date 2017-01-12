@@ -28,7 +28,6 @@ headers = [
 
 host = "http://streamingpopcorn.com/portal/"
 
-
 def isGeneric():
     return True
 
@@ -97,7 +96,6 @@ def peliculas(item):
 
     return itemlist
 
-
 def play(item):
     logger.info("[streamingpopcorn.py] play")
 
@@ -117,3 +115,6 @@ def play(item):
         videoitem.channel = __channel__
 
     return itemlist
+
+# test old update
+

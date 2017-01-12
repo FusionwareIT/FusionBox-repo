@@ -66,6 +66,8 @@ def peliculas(item):
         scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("https://www.documentaristreaming.net/",""))
         scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("-"," "))
         scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("/",""))
+        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.lower())
+        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.title())
         scrapedplot = ""
         #html = scrapertools.cache_page(scrapedurl)
         #start = html.find("</strong></p>")

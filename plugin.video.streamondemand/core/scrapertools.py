@@ -55,7 +55,7 @@ COOKIES_PATH = os.path.join(config.get_data_path(), "cookies")
 if not os.path.exists(COOKIES_PATH):
   os.mkdir(COOKIES_PATH)
 
-DEFAULT_TIMEOUT = 20
+DEFAULT_TIMEOUT = 35
 
 DEBUG = False
 

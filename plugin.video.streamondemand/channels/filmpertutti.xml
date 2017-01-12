@@ -12,14 +12,13 @@
 	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/filmpertutti.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>1</version>
+	<version>6</version>
 	<date>16/06/2016</date>
 	<changes>update</changes>
 
 	<categories>
 		<category>movie</category>
 		<category>serie</category>
-		<category>anime</category>
 		<category>top channels</category>
 	</categories>
 

@@ -51,7 +51,9 @@ def find_video_items(item=None, data=None, channel=""):
 
     itemlist = []
     for video in listavideos:
-        scrapedtitle = " [ "+video[2]+" ] "
+        # scrapedtitle = " [ "+video[2]+" ] "
+        # DrZ3r0
+        scrapedtitle = item.title.strip() + " - " + video[0].strip()
         scrapedurl = video[1]
         server = video[2]
         # DrZ3r0
@@ -62,7 +64,7 @@ def find_video_items(item=None, data=None, channel=""):
             else:
                 thumbnail = "http://media.tvalacarta.info/servers/server_"+server+".png"
         
-        itemlist.append( Item(channel=item.channel, title=scrapedtitle , action="play" , server=server, url=scrapedurl, thumbnail=thumbnail, show=item.show , plot=item.plot , parentContent=item, folder=False) )
+        itemlist.append( Item(channel=item.channel, title=scrapedtitle, action="play", server=server, url=scrapedurl, thumbnail=thumbnail, fulltitle=item.fulltitle, show=item.show, plot=item.plot, parentContent=item, folder=False) )
 
     return itemlist
 
@@ -113,7 +115,7 @@ def findvideosbyserver(data, serverid):
 
     return devuelve
 
-def findvideos(data):
+def findvideos(data, skip=False):
     logger.info("streamondemand.core.servertools findvideos") # en #"+data+"#")
     encontrados = set()
     devuelve = []
@@ -127,7 +129,10 @@ def findvideos(data):
             #exec "devuelve.extend("+serverid+".find_videos(data))"
             servers_module = __import__("servers."+serverid)
             server_module = getattr(servers_module,serverid)
-            devuelve.extend( server_module.find_videos(data) )
+            #devuelve.extend( server_module.find_videos(data) )
+            result = server_module.find_videos(data)
+            if result and skip: return result
+            devuelve.extend(result)
         except ImportError:
             logger.info("No existe conector para #"+serverid+"#")
             #import traceback
@@ -154,7 +159,7 @@ def get_channel_module(channel_name):
     channel_module = getattr(channels_module,channel_name)
     return channel_module
 
-def get_server_from_url(url):
+def get_server_from_url(url, True):
     encontrado = findvideos(url)
     if len(encontrado)>0:
         devuelve = encontrado[0][2]

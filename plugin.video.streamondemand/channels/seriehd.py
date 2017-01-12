@@ -20,7 +20,7 @@ __type__ = "generic"
 __title__ = "Serie HD"
 __language__ = "IT"
 
-host = "http://www.seriehd.org"
+host = "http://www.seriehd.co"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
@@ -157,7 +157,7 @@ def episodios(item):
     data = scrapertools.cache_page(url).replace('\n', '').replace(' class="active"', '')
 
     section_stagione = scrapertools.find_single_match(data, '<h3>STAGIONE</h3><ul>(.*?)</ul>')
-    patron = '<li[^>]+><a href="([^"]+)">(\d)<'
+    patron = '<li[^>]+><a href="([^"]+)">(\d+)<'
     seasons = re.compile(patron, re.DOTALL).findall(section_stagione)
 
     for scrapedseason_url, scrapedseason in seasons:
