@@ -41,10 +41,10 @@
 	</extension>
 </addon>
 
-<addon id="plugin.video.dplay" name="Dplay" version="1.0.1" provider-name="NeverWise with FusionWare fixes">
+<addon id="plugin.video.dplay" name="Dplay" version="1.0.2" provider-name="NeverWise">
   <requires>
     <import addon="xbmc.python" version="2.14.0"/>
-    <import addon="script.module.neverwise" version="1.0.7"/>
+    <import addon="script.module.neverwise" version="1.0.8"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>
