@@ -1,41 +1,23 @@
-import requests
+from phate89lib import rutils
 import re
 import math
-from bs4 import BeautifulSoup
 
-class Mediaset:
+class Mediaset(rutils.RUtils):
 
-    def _getJson(self,url,params=None):
-        r = requests.get(url, params=params)
-        if r.status_code == requests.codes.ok:
-            try:
-                return r.json()
-            except:
-                return False
-        return False
-
-    def _getSoup(self,url,params=None):
-        r = requests.get(url, params=params)
-        if r.status_code == requests.codes.ok:
-            return BeautifulSoup(r.text, "html.parser")
-        return False
-
-    def _getText(self,url,params=None):
-        r = requests.get(url, params=params)
-        if r.status_code == requests.codes.ok:
-            return r.text
-        return False
-
+    USERAGENT="VideoMediaset Kodi Addon"
+    
     def get_prog_root(self):
+        self.log('Trying to get the program list', 4)
         url = "http://www.video.mediaset.it/programma/progr_archivio.json"
-        data = self._getJson(url)
+        data = self.getJson(url)
         return data["programmi"]["group"]
 
     def get_url_groupList(self,url):
+        self.log('Trying to get the groups from program url ' + url, 4)
         if not url.startswith("http"):
             url="http://www.video.mediaset.it"+url
         url=url.replace("archivio-news.shtml","archivio-video.shtml")
-        soup=self._getSoup(url)
+        soup=self.getSoup(url)
         container=soup.find("div", class_="main-container")
         subparts=container.find_all('section')
         elements = []
@@ -44,19 +26,20 @@ class Mediaset:
             if name and name.text.strip():
                 data=subpart.find('div')
                 if data:
-                    elements.append({'titolo': name.text.strip(), 
-                                    'url': "http://www.video.mediaset.it/%s/%s/%s.shtml" % (data['data-type'],data['data-area'],data['data-box'])})
+                    elements.append({'title': name.text.strip(), 
+                                     'url': "http://www.video.mediaset.it/{type}/{area}/{box}.shtml".format(type=data['data-type'],area=data['data-area'],box=data['data-box'])})
         return elements
 
     def get_prog_epList(self,url):
+        self.log('Trying to get the episodes from group url ' + url, 4)
         totres = 0
         count = 0
         page = 1
         arrdata=[]
         maxpage = 200
         while (page < maxpage):
-            nurl = "%s?page=%s" % (url,page)
-            soup = self._getSoup(nurl)
+            nurl = "{url}?page={page}".format(url=url,page=page)
+            soup = self.getSoup(nurl)
             videos = soup.find_all('div',class_='box')
             if videos:
                 for video in videos:
@@ -66,16 +49,17 @@ class Mediaset:
                         totpage = math.ceil(totres / 2)
                     img = video.find('img')
                     p = video.find('p')
-                    arrdata.append({'id': video['data-id'],'titolo':img['alt'].encode('utf-8'),'thumbs':img['data-src'].replace("176x99","640x360"),'desc':p.text.strip().encode('utf-8')});
+                    arrdata.append({'id': video['data-id'],'title':img['alt'].encode('utf-8'),'thumbs':img['data-src'].replace("176x99","640x360"),'plot':p.text.strip().encode('utf-8')});
             page = page + 1
 
         return arrdata
 
     def get_prog_seasonList(self,url):
+        self.log('Trying to get the seasons from program url ' + url, 4)
         if not url.startswith("http"):
             url="http://www.video.mediaset.it"+url
         url=url.replace("archivio-news.shtml","archivio-video.shtml")
-        soup = self._getSoup(url)
+        soup = self.getSoup(url)
         arrdata = []
         container=soup.find("li", class_="season clearfix")
         if container:
@@ -83,18 +67,19 @@ class Mediaset:
             if links:
                 for link in links:
                     if not link.has_attr("class"):
-                        arrdata.append({"titolo": link.text.strip().encode('utf-8'), "url": link['href']})
+                        arrdata.append({"title": link.text.strip().encode('utf-8'), "url": link['href']})
         return arrdata
 
     def get_global_epList(self,mode,range=0):
+        self.log('Trying to get episodes with mode ' + str(mode), 4)
         if mode == 0: 
             url = "http://www.video.mediaset.it/bacino/bacinostrip_1.shtml?page=all"
         elif mode == 1:
-            url = "http://www.video.mediaset.it/piu_visti/piuvisti-%s.shtml?page=all" % range
+            url = "http://www.video.mediaset.it/piu_visti/piuvisti-{range}.shtml?page=all".format(range=range)
         elif mode == 2:
             url = "http://www.video.mediaset.it/bacino/bacinostrip_5.shtml?page=all"
 
-        soup = self._getSoup(url)
+        soup = self.getSoup(url)
         arrdata=[]
         videos = soup.find_all('div',class_='box')
         if videos:
@@ -108,42 +93,42 @@ class Mediaset:
                 else:
                     idv = re.search("([0-9][0-9][0-9][0-9][0-9]+)",a['href']).group(1)
                 p = video.find('p', class_='descr')
-                arrdata.append({'id': idv,'url':a['href'],'titolo':img['alt'].encode("utf-8"),'tipo':video['class'],'thumbs':imgurl.replace("176x99","640x360"),'desc':p.text.strip().encode("utf-8")})
+                arrdata.append({'id': idv,'url':a['href'],'title':img['alt'].encode("utf-8"),'tipo':video['class'],'thumbs':imgurl.replace("176x99","640x360"),'plot':p.text.strip().encode("utf-8")})
         return arrdata
 
     def get_canali_live(self):
+        self.log('Getting the list of live channels', 4)
         
-        url = "http://live1.msf.ticdn.it/Content/HLS/Live/Channel(CH%sHA)/Stream(04)/index.m3u8"
-        tmb = "https://raw.githubusercontent.com/aracnoz/videomediaset_logo/master/%s.png"
+        url = "http://live1.msf.ticdn.it/Content/HLS/Live/Channel(CH{ch}HA)/Stream(04)/index.m3u8"
 
         arrdata = []
 
-        arrdata.append({'titolo':"Canale 5", 'url':url % ('01'),'desc':"",'thumbs':tmb % ("Canale_5")})
-        arrdata.append({'titolo':"Italia 1", 'url':url % ('02'),'desc':"",'thumbs':tmb % ("Italia_1")})
-        arrdata.append({'titolo':"Rete 4", 'url':url % ('03'),'desc':"",'thumbs':tmb % ("Rete_4")})
-        arrdata.append({'titolo':"La 5", 'url':url % ('04'),'desc':"",'thumbs':tmb % ("La_5")})
-        arrdata.append({'titolo':"Italia 2", 'url':url % ('05'),'desc':"",'thumbs':tmb % ("Italia_2")})
-        arrdata.append({'titolo':"Iris", 'url':url % ('06'),'desc':"",'thumbs':tmb % ("Iris")})
-        arrdata.append({'titolo':"Top Crime", 'url':url % ('07'),'desc':"",'thumbs':tmb % ("Top_Crime")})
-        arrdata.append({'titolo':"Premium Extra", 'url':url % ('08'),'desc':"",'thumbs':tmb % ("Premium_Extra")})
-        arrdata.append({'titolo':"Mediaset Extra", 'url':url % ('09'),'desc':"",'thumbs':tmb % ("Mediaset_Extra")})
-        arrdata.append({'titolo':"TGCOM24", 'url':url % ('10'),'desc':"",'thumbs':tmb % ("TGCOM24")})
-
+        arrdata.append({'title':"Canale 5", 'url':url.format(ch='01'),'thumbs': "Canale_5.png"})
+        arrdata.append({'title':"Italia 1", 'url':url.format(ch='02'),'thumbs': "Italia_1.png"})
+        arrdata.append({'title':"Rete 4", 'url':url.format(ch='03'),'thumbs': "Rete_4.png"})
+        arrdata.append({'title':"La 5", 'url':url.format(ch='04'),'thumbs': "La_5.png"})
+        arrdata.append({'title':"Italia 2", 'url':url.format(ch='05'),'thumbs': "Italia_2.png"})
+        arrdata.append({'title':"Iris", 'url':url.format(ch='06'),'thumbs': "Iris.png"})
+        arrdata.append({'title':"Top Crime", 'url':url.format(ch='07'),'thumbs': "Top_Crime.png"})
+        arrdata.append({'title':"Mediaset Extra", 'url':url.format(ch='09'),'thumbs': "Mediaset_Extra.png"})
+        arrdata.append({'title':"TGCOM24", 'url':url.format(ch='10'),'thumbs': "TGCOM24.png"})
         return arrdata
 
     def get_stream(self, id):
+        self.log('Trying to get the stream with id ' + str(id), 4)
 
-        url = "http://cdnselector.xuniplay.fdnames.com/GetCDN.aspx?streamid=%s&format=json" % (id)
+        url = "http://cdnselector.xuniplay.fdnames.com/GetCDN.aspx?streamid={id}&format=json".format(id=id)
 
-        jsn = self._getJson(url)
+        jsn = self.getJson(url)
 
         if jsn and jsn["state"]=="OK":
 
-            stream = {"wmv":"","mp4":""}
+            stream = {}
             for vlist in jsn["videoList"]:
-                print "videomediaset: streams %s" % vlist
+                self.log( "videomediaset: streams {url}".format(url=vlist))
                 if ( vlist.find("/wmv2/") > 0): stream["wmv"] = vlist
                 if ( vlist.find("/mp4/") > 0): stream["mp4"] = vlist
-
+                if ( vlist.find("/mp4/") > 0): stream["f4v"] = vlist
+                if ( vlist.find("/mp4/") > 0): stream["smoothstream"] = vlist
             return stream
         return False
