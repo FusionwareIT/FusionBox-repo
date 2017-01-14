@@ -217,8 +217,8 @@ def verify_directories_created():
     download_path = get_setting("downloadpath")
     if download_path == "":
         if is_xbmc():
-            download_path_special = "special://profile/addon_data/plugin.video." + PLUGIN_NAME + "/downloads"
-            set_setting("downloadpath", download_path_special)
+            download_path = "special://profile/addon_data/plugin.video." + PLUGIN_NAME + "/downloads"
+            set_setting("downloadpath", download_path)
         else:
             download_path = os.path.join(get_data_path(), "downloads")
             set_setting("downloadpath", download_path)
@@ -227,8 +227,8 @@ def verify_directories_created():
     download_list_path = get_setting("downloadlistpath")
     if download_list_path == "":
         if is_xbmc():
-            download_list_path_special = "special://profile/addon_data/plugin.video." + PLUGIN_NAME + "/downloads/list"
-            set_setting("downloadlistpath", download_list_path_special)
+            download_list_path = "special://profile/addon_data/plugin.video." + PLUGIN_NAME + "/downloads/list"
+            set_setting("downloadlistpath", download_list_path)
         else:
             download_list_path = os.path.join(get_data_path(), "downloads", "list")
             set_setting("downloadlistpath", download_list_path)
@@ -237,8 +237,8 @@ def verify_directories_created():
     bookmark_path = get_setting("bookmarkpath")
     if bookmark_path == "":
         if is_xbmc():
-            bookmark_path_special = "special://profile/addon_data/plugin.video." + PLUGIN_NAME + "/downloads/list"
-            set_setting("bookmarkpath", bookmark_path_special)
+            bookmark_path = "special://profile/addon_data/plugin.video." + PLUGIN_NAME + "/bookmarks"
+            set_setting("bookmarkpath", bookmark_path)
         else:
             bookmark_path = os.path.join(get_data_path(), "bookmarks")
             set_setting("bookmarkpath", bookmark_path)
@@ -276,6 +276,9 @@ def verify_directories_created():
                 logger.debug("Creating download_list_path (from special): " + download_list_path)
                 try:
                     os.mkdir(download_list_path)
+
+                    list_error_path = os.path.join(download_list_path, 'error')
+                    os.mkdir(list_error_path)
                 except:
                     pass
         else:
@@ -317,6 +320,9 @@ def verify_directories_created():
             logger.debug("Creating download_list_path " + download_list_path)
             try:
                 os.mkdir(download_list_path)
+
+                list_error_path = os.path.join(download_list_path, 'error')
+                os.mkdir(list_error_path)
             except:
                 pass
 

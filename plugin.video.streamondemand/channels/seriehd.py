@@ -157,7 +157,7 @@ def episodios(item):
     data = scrapertools.cache_page(url).replace('\n', '').replace(' class="active"', '')
 
     section_stagione = scrapertools.find_single_match(data, '<h3>STAGIONE</h3><ul>(.*?)</ul>')
-    patron = '<li[^>]+><a href="([^"]+)">(\d)<'
+    patron = '<li[^>]+><a href="([^"]+)">(\d+)<'
     seasons = re.compile(patron, re.DOTALL).findall(section_stagione)
 
     for scrapedseason_url, scrapedseason in seasons:

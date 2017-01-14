@@ -19,7 +19,7 @@ __type__ = "generic"
 __title__ = "Toonitalia"
 __language__ = "IT"
 
-host = "http://toonitalia.altervista.org"
+host = "http://toonitalia.altervista.org	"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
@@ -91,7 +91,7 @@ def anime(item):
     data = scrapertools.cache_page(item.url)
 
     ## Extrae las entradas (carpetas)
-    patron = '<figure class="post-image left">\s*<a href="([^"]+)"><img src="[^"]*"[^l]+lt="([^"]+)" /></a>\s*</figure>'
+    patron = '<figure class="post-image ">\s*<a href="([^"]+)"><img src="[^"]*"[^l]+lt="([^"]+)" /></a>\s*</figure>'
     matches = re.compile(patron, re.DOTALL).findall(data)
 
     for scrapedurl, scrapedtitle in matches:
@@ -131,7 +131,7 @@ def animazione(item):
     data = scrapertools.cache_page(item.url)
 
     ## Extrae las entradas (carpetas)
-    patron = '<figure class="post-image left">\s*<a href="([^"]+)"><img src="[^"]*"[^l]+lt="([^"]+)" /></a>\s*</figure>'
+    patron = '<figure class="post-image ">\s*<a href="([^"]+)"><img src="[^"]*"[^l]+lt="([^"]+)" /></a>\s*</figure>'
     matches = re.compile(patron, re.DOTALL).findall(data)
 
     for scrapedurl, scrapedtitle in matches:

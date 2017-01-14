@@ -19,15 +19,14 @@
 
 	<categories>
 		<category>movie</category>
-		<category>top channels</category>
 	</categories>
 
 	<settings>
 		<id>include_in_global_search</id>
 		<type>bool</type>
 		<label>Includi ricerca globale</label>
-		<default>true</default>
-		<enabled>true</enabled>
-		<visible>true</visible>
+		<default>false</default>
+		<enabled>false</enabled>
+		<visible>false</visible>
 	</settings>
 </channel>

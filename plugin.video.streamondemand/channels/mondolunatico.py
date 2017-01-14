@@ -382,7 +382,6 @@ def episodios(item):
 
     return itemlist
 
-
 def findvideos(item):
     logger.info("streamondemand.mondolunatico findvideos")
 
@@ -436,7 +435,6 @@ def findvideos(item):
         itemlist.append(videoitem)
 
     return itemlist
-
 
 def play(item):
     logger.info("streamondemand.mondolunatico play")

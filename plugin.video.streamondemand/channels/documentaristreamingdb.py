@@ -58,10 +58,10 @@ def categorias(item):
 
     # Descarga la pagina
     data = scrapertools.cache_page(item.url, headers=headers)
-    bloque = scrapertools.get_match(data, '<ul role="menu" class="sub-menu">(.*?)</ul>')
+    bloque = scrapertools.get_match(data, '<ul role="menu" class="collapse collapse-1156 ">(.*?)</ul>')
 
     # Extrae las entradas (carpetas)
-    patron = '<li[^>]+><a href="([^"]+)">(.*?)</a>'
+    patron = '<li[^>]+><a[^h]+href="([^"]+)">(.*?)<\/a>'
     matches = re.compile(patron, re.DOTALL).findall(bloque)
 
     for scrapedurl, scrapedtitle in matches:

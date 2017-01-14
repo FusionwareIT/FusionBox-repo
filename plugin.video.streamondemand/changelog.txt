@@ -1,3 +1,8 @@
+v5.4.4
+- fixed dowload options
+- fixed some servers
+- added new channels
+
 v5.4.3
 - various fix
 

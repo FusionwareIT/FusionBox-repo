@@ -22,7 +22,7 @@ __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://www.playcinema.org"
+host = "http://www.playcinema.pw"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0'],
@@ -59,7 +59,7 @@ def categorias(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.anti_cloudflare(item.url, headers)
+    data = scrapertools.cache_page(item.url, headers)
 
     patron = 'class="sub-menu"><li(.*?)</ul>'
     bloque = scrapertools.find_single_match(data, patron)
@@ -94,34 +94,22 @@ def search(item, texto):
             logger.error("%s" % line)
         return []
 
-
 def peliculas(item):
     logger.info("streamondemand.playcinema peliculas")
     itemlist = []
 
-    data = scrapertools.anti_cloudflare(item.url, headers)
-
-    # ------------------------------------------------
-    cookies = ""
-    matches = config.get_cookie_data(item.url).splitlines()[4:]
-    for cookie in matches:
-        name = cookie.split('\t')[5]
-        value = cookie.split('\t')[6]
-        cookies += name + "=" + value + ";"
-    headers.append(['Cookie', cookies[:-1]])
-    import urllib
-    _headers = urllib.urlencode(dict(headers))
-    # ------------------------------------------------
+    # Descarga la pagina
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     # Extrae las entradas (carpetas)
     patron = '<img\s*src="(.*?)"[^>]+><\/a><div\s*class[^<]+<a\s*href="(.*?)">(.*?)<'
     matches = re.compile(patron, re.DOTALL).findall(data)
 
-    for scrapedurl, scrapedthumbnail, scrapedtitle in matches:
+    for scrapedthumbnail, scrapedurl, scrapedtitle in matches:
         scrapedplot = ""
-        scrapedtitle = scrapedtitle.replace("streaming", "")
-        scrapedthumbnail += '|' + _headers
-        if (DEBUG): logger.info(
+        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
+        scrapedtitle = scrapedtitle.replace(" streaming", "")
+        if DEBUG: logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
@@ -152,23 +140,6 @@ def peliculas(item):
                  url=scrapedurl,
                  thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png",
                  folder=True))
-
-    return itemlist
-
-def findvideos(item):
-    logger.info("[playcinema.py] findvideos")
-
-    # Descarga la página
-    data = scrapertools.anti_cloudflare(item.url, headers)
-
-    itemlist = servertools.find_video_items(data=data)
-
-    for videoitem in itemlist:
-        videoitem.title = "".join([item.title, '[COLOR green][B]' + videoitem.title + '[/B][/COLOR]'])
-        videoitem.fulltitle = item.fulltitle
-        videoitem.show = item.show
-        videoitem.thumbnail = item.thumbnail
-        videoitem.channel = __channel__
 
     return itemlist
 

@@ -56,7 +56,6 @@ def mainlist(item):
 
     return itemlist
 
-
 def categorias(item):
     itemlist = []
 

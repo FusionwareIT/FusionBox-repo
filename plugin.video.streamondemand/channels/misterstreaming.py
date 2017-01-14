@@ -26,8 +26,11 @@ DEBUG = config.get_setting("debug")
 host = "https://misterstreaming.online"
 
 headers = [
-    ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0'],
-    ['Accept-Encoding', 'gzip, deflate']
+    ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
+    ['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'],
+    ['Accept-Encoding', 'gzip, deflate'],
+    ['Referer', host],
+    ['Cache-Control', 'max-age=0']
 ]
 
 def isGeneric():
@@ -70,7 +73,7 @@ def categorias(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.cache_page(item.url, headers=headers)
+    data = scrapertools.anti_cloudflare(item.url, headers)
     bloque = scrapertools.get_match(data, '<div id="categories-2" class="widget widget_categories">(.*?)</ul>')
 
     # Extrae las entradas (carpetas)
@@ -111,7 +114,7 @@ def peliculas(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.cache_page(item.url, headers=headers)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
     patron = '<figure class="post-image ">\s*<a href="(.*?)"><img src="(.*?)" class=[^=]+=[^=]+="(.*?)" /></a>'
@@ -123,7 +126,7 @@ def peliculas(item):
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(infoSod(
             Item(channel=__channel__,
-                 action="findvideos",
+                 action="findvideos_movie",
                  fulltitle=scrapedtitle,
                  show=scrapedtitle,
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
@@ -158,7 +161,7 @@ def peliculas_tv(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.cache_page(item.url, headers=headers)
+    data = scrapertools.anti_cloudflare(item.url, headers)
     bloque = scrapertools.get_match(data, '<div id="text-2" class="widget widget_text">(.*?)</div></div><div class="widgetwrap">')
 
     # Extrae las entradas (carpetas)
@@ -209,7 +212,7 @@ def episodios(item):
     itemlist = []
 
     # Descarga la página
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.anti_cloudflare(item.url)
     data = scrapertools.decodeHtmlentities(data)
     data = scrapertools.get_match(data, '<div class="entry-content">(.*?)<p class="post-meta entry-meta">')
 
@@ -259,6 +262,22 @@ def findvideos_tv(item):
     logger.info("streamondemand.misterstreaming findvideos_tv")
 
     data = item.url
+
+    itemlist = servertools.find_video_items(data=data)
+    for videoitem in itemlist:
+        videoitem.title = item.title + videoitem.title
+        videoitem.fulltitle = item.fulltitle
+        videoitem.thumbnail = item.thumbnail
+        videoitem.show = item.show
+        videoitem.plot = item.plot
+        videoitem.channel = __channel__
+
+    return itemlist
+
+def findvideos_movie(item):
+    logger.info("streamondemand.misterstreaming findvideos_movie")
+
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     itemlist = servertools.find_video_items(data=data)
     for videoitem in itemlist:

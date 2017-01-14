@@ -20,7 +20,7 @@ __type__ = "generic"
 __title__ = "guardarefilm (IT)"
 __language__ = "IT"
 
-host = "http://www.guardarefilm.co"
+host = "http://www.guardarefilm.me"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
@@ -41,6 +41,11 @@ def mainlist(item):
                      title="[COLOR azure]Novita' Al Cinema[/COLOR]",
                      action="peliculas",
                      url="%s/streaming-al-cinema/" % host,
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
+                Item(channel=__channel__,
+                     title="[COLOR azure]HD[/COLOR]",
+                     action="peliculas",
+                     url="%s/film-streaming-hd/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Popolari[/COLOR]",
@@ -67,7 +72,7 @@ def mainlist(item):
                      action="peliculas_tv",
                      extra="serie",
                      url="%s/serie-tv-streaming/" % host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
                      action="search",
@@ -325,3 +330,4 @@ def findvid_serie(item):
         videoitem.channel = __channel__
 
     return itemlist
+
