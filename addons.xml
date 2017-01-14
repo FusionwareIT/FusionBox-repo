@@ -58,6 +58,28 @@
   </extension>
 </addon>
 
+<addon id="skin.estuary.fusionbox" version="0.8.5.070" name="Estuary FusionBox" provider-name="fusionware - phil65, Piers, YLLOW_DRAGON">
+	<requires>
+		<import addon="xbmc.gui" version="5.10.0"/>
+		<import addon="script.pvr.favourites" version="1.0.7"/>
+        <import addon="script.skinshortcuts" version="1.0.10"/>
+        <import addon="script.skin.helper.service" version="1.0.10"/>
+	</requires>
+	<extension point="xbmc.gui.skin" debugging="false">
+		<res width="1920" height="1080" aspect="16:9" default="false" folder="1080i" />
+		<res width="2560" height="1080" aspect="21:9" default="false" folder="1080i" />
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="it_IT">Skin Estuary da Kodi 17 Krypton, prendi familiarità con la prossima versione FusionBox! Grazie a phil65, Piers, YLLOW_DRAGON.</summary>
+		<disclaimer lang="it_IT">Questa operazone rimuoverà la skin</disclaimer>
+		<platform>all</platform>
+		<license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
+		<forum>http://forum.kodi.tv/</forum>
+		<email>info@fusionware.it</email>
+		<source>https://github.com/nkvoronov/skin.estuary-extended.git</source>
+	</extension>
+</addon>
+
 <addon id="plugin.video.quasar" name="Quasar" version="0.9.36" provider-name="scakemyer">
     <requires>
         <import addon="xbmc.python" version="2.1.0"/>
@@ -78,6 +100,26 @@
         <license><![CDATA[Non commercial. See https://github.com/scakemyer/plugin.video.quasar/blob/master/LICENSE]]></license>
         <summary><![CDATA[Quasar: Torrent streaming]]></summary>
         <description><![CDATA[Stream torrent files]]></description>
+    </extension>
+</addon>
+
+<addon
+    id="script.pvr.favourites"
+    name="PVR favourites"
+    version="1.0.7"
+    provider-name="YLLOW_DRAGON">
+    <requires>
+        <import addon="xbmc.python" version="2.1.0"/>
+    </requires>
+    <extension point="xbmc.python.library" library="default.py"/>
+    <extension point="xbmc.addon.metadata">
+        <description lang="en">Retrieves information from the database and displays the channel PVR additional buttons and widgets on the main menu and submenus.</description>
+        <disclaimer lang="en">Skins support needed for correct display.</disclaimer>
+        <description lang="ru">Извлекает информацию из БД PVR каналов и отображает дополнительные кнопки и виджеты в главном меню и подменю.</description>
+        <disclaimer lang="ru">Необходима поддержка скинов для корректного отображения.</disclaimer>
+        <platform>all</platform>
+        <email>nkvoronov@gmail.com</email>
+        <source>https://github.com/nkvoronov/script.pvr.favourites.git</source>
     </extension>
 </addon>
 
