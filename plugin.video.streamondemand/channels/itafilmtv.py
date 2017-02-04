@@ -20,7 +20,7 @@ __type__ = "generic"
 __title__ = "ITA Film TV"
 __language__ = "IT"
 
-host = "http://www.itafilm.club"
+host = "http://www.itafilm.video"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:39.0) Gecko/20100101 Firefox/39.0'],
@@ -44,7 +44,7 @@ def mainlist(item):
                      action="genere",
                      title="[COLOR azure]Film Per Genere[/COLOR]",
                      url=host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      action="nazione",
                      title="[COLOR azure]Film Per Nazione[/COLOR]",
@@ -54,12 +54,7 @@ def mainlist(item):
                      action="anno",
                      title="[COLOR azure]Film Per Anno[/COLOR]",
                      url=host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/Movie%20Year.png"),
-                Item(channel=__channel__,
-                     action="fichas",
-                     title="[COLOR azure]Contenuti Erotici[/COLOR]",
-                     url="%s/film-erotici-streaming/" % host,
-                     thumbnail="http://orig08.deviantart.net/8008/f/2013/080/9/4/movies_by_musicopath-d5ysmxe.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      action="search",
                      extra="movie",
@@ -69,7 +64,7 @@ def mainlist(item):
                      action="serietv",
                      title="[COLOR azure]Serie TV[/COLOR]",
                      url="%s/telefilm-serie-tv-streaming/" % host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      action="search",
                      title="[COLOR orange]Cerca Serie...[/COLOR]",

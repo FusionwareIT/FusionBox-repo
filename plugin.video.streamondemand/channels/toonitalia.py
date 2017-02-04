@@ -19,7 +19,7 @@ __type__ = "generic"
 __title__ = "Toonitalia"
 __language__ = "IT"
 
-host = "http://toonitalia.altervista.org	"
+host = "http://toonitalia.altervista.org"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
@@ -36,11 +36,6 @@ def isGeneric():
 def mainlist(item):
     logger.info("streamondemand.toointalia mainlist")
     itemlist = [Item(channel=__channel__,
-                     title="[COLOR azure]Home[/COLOR]",
-                     action="anime",
-                     url=host,
-                     thumbnail="http://i.imgur.com/a8Vwz1V.png"),
-                Item(channel=__channel__,
                      title="[COLOR azure]Anime[/COLOR]",
                      action="anime",
                      url=host + "/category/anime/",

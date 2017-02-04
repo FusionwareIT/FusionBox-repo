@@ -25,11 +25,9 @@ DEBUG = config.get_setting("debug")
 host = "http://www.cinemasubito.net"
 
 headers = [
-    ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
-    ['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'],
+    ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
     ['Accept-Encoding', 'gzip, deflate'],
-    ['Referer', host],
-    ['Cache-Control', 'max-age=0']
+    ['Referer', host]
 ]
 
 def isGeneric():
@@ -79,7 +77,7 @@ def categorias(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.anti_cloudflare(item.url, headers)
     bloque = scrapertools.get_match(data, '<ul id=\'ul_categories\'>(.*?)</ul>')
 
     # Extrae las entradas (carpetas)
@@ -169,7 +167,7 @@ def peliculas(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
     patron = '<h3 dir="ltr"><a href="([^"]+)" class=[^=]+="([^"]+)">'
@@ -269,7 +267,7 @@ def peliculas_tv(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
     patron = '<h3 dir="ltr"><a href="([^"]+)" class=[^=]+="([^"]+)">'
@@ -319,7 +317,7 @@ def seasons(item):
 
     itemlist = []
 
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     patron = '<h3 dir="ltr"><a style=[^h]+href="([^"]+)" class=[^=]+="([^"]+)">(.*?)</a></h3>'
     matches = re.compile(patron, re.DOTALL).findall(data)
@@ -347,7 +345,7 @@ def episodios(item):
 
     itemlist = []
 
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
     bloque = scrapertools.get_match(data, 'Lista Episodi(.*?)</ul>')
 
     patron = '<li>\s*<a href="(.*?)">\s*(.*?)\s*<\/a>\s*<\/li>'
@@ -370,6 +368,21 @@ def episodios(item):
 
     return itemlist
 
+def findvideos(item):
+    logger.info("streamondemand.cinemasubito findvideos_tv")
+
+    data = scrapertools.anti_cloudflare(item.url, headers)
+
+    itemlist = servertools.find_video_items(data=data)
+    for videoitem in itemlist:
+        videoitem.title = item.title + videoitem.title
+        videoitem.fulltitle = item.fulltitle
+        videoitem.thumbnail = item.thumbnail
+        videoitem.show = item.show
+        videoitem.plot = item.plot
+        videoitem.channel = __channel__
+
+    return itemlist
 
 def HomePage(item):
     import xbmc

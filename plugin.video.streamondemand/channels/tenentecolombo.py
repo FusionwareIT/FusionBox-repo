@@ -22,7 +22,6 @@ host = "http://mondolunatico.altervista.org/blog/il-tenente-colombo-serie-tv/"
 
 DEBUG = config.get_setting("debug")
 
-
 def isGeneric():
     return True
 

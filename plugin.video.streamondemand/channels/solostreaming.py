@@ -26,10 +26,8 @@ DEBUG = config.get_setting("debug")
 host = "http://solo-streaming.com"
 result_per_page = 25
 
-
 def isGeneric():
     return True
-
 
 def mainlist(item):
     logger.info("streamondemand.solostreaming mainlist")

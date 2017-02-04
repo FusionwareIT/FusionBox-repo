@@ -12,7 +12,7 @@
 	<bannermenu>http://www.documentari-streaming-db.com/cms/wp-content/uploads/2016/10/dsdb_logo-1.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>4</version>
+	<version>5</version>
 	<date>16/06/2016</date>
 	<changes>update</changes>
 

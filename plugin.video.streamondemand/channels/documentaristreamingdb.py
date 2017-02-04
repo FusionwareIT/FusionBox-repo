@@ -102,10 +102,10 @@ def peliculas(item):
     data = scrapertools.cache_page(item.url, headers=headers)
 
     # Extrae las entradas (carpetas)
-    patron = '<div class="movie-poster">\s*<img[^s]+src="(.*?)"[^=]+=[^=]+="(.*?)"[^>]+>\s*<a[^h]+href="(.*?)">'
+    patron = '<div class="movie-poster">\s*<img[^=]+=[^=]+=[^=]+="([^"]+)"[^>]+>\s*<a[^=]+=[^=]+="([^"]+)">'
     matches = re.compile(patron, re.DOTALL).findall(data)
 
-    for scrapedthumbnail, scrapedtitle, scrapedurl in matches:
+    for scrapedthumbnail, scrapedurl in matches:
         #html = scrapertools.cache_page(scrapedurl)
         #start = html.find("</div><h2>")
         #end = html.find("<p><strong>", start)
@@ -113,13 +113,14 @@ def peliculas(item):
         #scrapedplot = re.sub(r'<[^>]*>', '', scrapedplot)
         #scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
         scrapedplot = ""
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.replace("Serie Documentari ", ""))
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.replace("Documentario ", ""))
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.replace("Documentari ", ""))
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.replace("streaming", " "))
-        scrapedtitle = scrapedtitle.split('"')[0]
+        scrapedtitle = scrapedurl
+        scrapedtitle = scrapedtitle.replace(host, "")
+        scrapedtitle = scrapedtitle.replace("/", "")
+        scrapedtitle = scrapedtitle.replace("-streaming", "")
+        scrapedtitle = scrapedtitle.replace("-", " ")
+        scrapedtitle = scrapedtitle.title()
         if DEBUG: logger.info(
-            "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
+            "url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(
             Item(channel=__channel__,
                  action="findvideos",

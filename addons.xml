@@ -1,119 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon id="repository.xbmcadult" name="XBMC-Adult Addons" version="1.0.6" provider-name="xbmc-adult">
-	<extension point="xbmc.addon.repository" name="XBMC Adult Addons">
-		<info compressed="false">http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster/addons.xml</info>
-		<checksum>http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster/addons.xml.md5</checksum>
-		<datadir zip="true">http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster</datadir>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<summary>XBMC Addons for Adults Only</summary>
-		<description>This repository contains addons that are for adults only. You may only view the contents of this repository if you are at least 18 years of age, or at least the age of majority in the jurisdiction where you reside or from which you access this content.</description>
-		<disclaimer>The owners and submitters to this repository do not host or distribute any of the content displayed by these addons nor do they have any affiliation with the content providers.</disclaimer>
-		<platform>all</platform>
-	</extension>
-</addon>
-
-<addon id="plugin.video.videomediaset" name="Video Mediaset" provider-name="phate89, aracnoz" version="1.2.0">
-    <requires>
-        <import addon="xbmc.python" version="2.24.0" />
-        <import addon="script.module.phate89" version="1.0.0"/>
-    </requires>
-    <extension library="default.py" point="xbmc.python.pluginsource">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <language>it</language>
-        <platform>all</platform>
-        <summary lang="it">I programmi delle reti Mediaset</summary>
-        <description lang="it">Tutti i tuoi programmi preferiti sono disponibili per te il giorno dopo la messa in onda Tv. Ieri sera ti sei perso la tua fiction preferita? Nessun problema finalmente puoi rivederla comodamente su KODI ogni volta che vuoi.</description>
-        <summary lang="en">The broadcasts of Mediaset channels</summary>
-        <description lang="en">All your favorite shows are available to you the day after the airing Tv. Last night you missed your favorite TV drama? No problem, you can finally see her comfortably on KODI whenever you want.</description>
-		<license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
-		<forum>http://forum.kodi.tv/showthread.php?tid=292876</forum>
-		<source>https://github.com/phate89/plugin.video.videomediaset</source>
-        <news>v1.2.0
-- fixed the addon after website changes
-- added images to program lists
-- refactored the code</news>
-    </extension>
-</addon>
-
-<addon id="plugin.video.dplay" name="Dplay" version="1.0.2" provider-name="NeverWise">
-  <requires>
-    <import addon="xbmc.python" version="2.14.0"/>
-    <import addon="script.module.neverwise" version="1.0.8"/>
-  </requires>
-  <extension point="xbmc.python.pluginsource" library="default.py">
-    <provides>video</provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <platform>all</platform>
-    <summary lang="it">Dplay</summary>
-    <summary lang="en">Dplay</summary>
-    <description lang="it">Dplay è un servizio di streaming video che ti consente di guardare gratis e on demand i tuoi programmi preferiti di Real Time, Dmax, DeejayTV, Focus, Giallo, Frisbee e K2 dove vuoi e quando vuoi.[CR][CR]Con il meglio della programmazione dei canali free di Discovery Italia, Dplay porta la TV oltre i soliti schermi.</description>
-    <description lang="en">Dplay is a video streaming service that lets you watch, for free and on demand, your favorite Real Time, Dmax, DeejayTv, Focus, Yellow, Frisbee and K2 programs where you want and when you want.[CR][CR]Featuring the best programming free channels of Discovery Italy, Dplay brings the TV beyond the usual TV screens.</description>
-    <disclaimer lang="it">Alcune parti di questo addon potrebbero non essere legali nel tuo paese di residenza. Si prega di verificare la legislazione in vigore prima di installare.</disclaimer>
-    <disclaimer lang="en">Some parts of this addon may not be legal in your country of residence. Please check with your local laws before installing.</disclaimer>
-    <language>it</language>
-    <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
-    <forum></forum>
-    <website></website>
-    <email></email>
-    <source>https://github.com/NeverWise/plugin.video.dplay</source>
-  </extension>
-</addon>
-
-<addon
-    id="script.pvr.favourites"
-    name="PVR favourites"
-    version="1.0.7"
-    provider-name="YLLOW_DRAGON">
+<addon id="plugin.video.streamondemand"
+       name="Stream On Demand"
+       version="5.4.5"
+       provider-name="iSOD Crew">
     <requires>
         <import addon="xbmc.python" version="2.1.0"/>
     </requires>
-    <extension point="xbmc.python.library" library="default.py"/>
-    <extension point="xbmc.addon.metadata">
-        <description lang="en">Retrieves information from the database and displays the channel PVR additional buttons and widgets on the main menu and submenus.</description>
-        <disclaimer lang="en">Skins support needed for correct display.</disclaimer>
-        <description lang="ru">Извлекает информацию из БД PVR каналов и отображает дополнительные кнопки и виджеты в главном меню и подменю.</description>
-        <disclaimer lang="ru">Необходима поддержка скинов для корректного отображения.</disclaimer>
-        <platform>all</platform>
-        <email>nkvoronov@gmail.com</email>
-        <source>https://github.com/nkvoronov/script.pvr.favourites.git</source>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
     </extension>
-</addon>
-
-<addon id="repository.unofficialquasar" name="[COLOR red]Unofficial[/COLOR] [COLOR FF005de5]Quasar[/COLOR] Repo" version="1.0.4" provider-name="iCanuck">
-	<extension point="xbmc.addon.repository" name="Unofficial Quasar Repository">
-		<info>https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/addons.xml</info>
-		<checksum>https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/addons.xml.md5</checksum>
-		<datadir zip="true">https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/</datadir>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<summary>A Collection of Quasar Providers and Related Addons</summary>
-		<description>Download and install Quasar and Providers</description>
-		<disclaimer>The owners and submitters to this repository do not host or distribute any of the content displayed by these addons nor do they have any affiliation with the content providers.</disclaimer>
-		<website>http://tvaddons.ag/</website>
-		<forum>https://forums.tvaddons.ag/addon-releases/31572-pulsar-providers-unofficial-pulsar-repo.html</forum>
-		<platform>all</platform>
-		<license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
-	</extension>
-</addon>
-
-<addon id="repository.fusionbox" name="Repository FusionBox" version="1.0.1" provider-name="Fusionware">
-	<extension point="xbmc.addon.repository" name="Repository fusionbox">
-		<info>https://github.com/FusionwareIT/Repository-FusionBox/raw/master/addons.xml</info>
-		<checksum>https://github.com/FusionwareIT/Repository-FusionBox/raw/master/addons.xml.md5</checksum>
-		<datadir zip="true">https://github.com/FusionwareIT/Repository-FusionBox/raw/master/</datadir>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<summary>Repository Fusionbox</summary>
-   		<description lang="en">Install FusionBox Repository!</description>
-    		<description lang="it">Installa il Repository FusionBox!</description>
-		<disclaimer></disclaimer>
-		<platform>all</platform>
-	</extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="it">Film e serie tv on demand</summary>
+        <description lang="it">Cinema, serie tv, documentari, anime... tutto ciò che puoi trovare su Internet in streaming ora è sul tuo media center.  </description>
+        <summary lang="en">Movies and TV Shows on demand</summary>
+        <description lang="en">Movies, Series, Documentaries, Anime... any streaming website you can find on Internet now on is ported to your media center. </description>
+        <platform>all</platform>
+        <license>GNU GPL v3</license>
+        <forum>http://www.mimediacenter.info/foro/viewforum.php?f=36</forum>
+        <source>https://github.com/streamondemand/plugin.video.streamondemand</source>
+    </extension>
+    <extension point="xbmc.service" library="library_service.py" start="login|startup">
+    </extension>
 </addon>
 
 <addon id="superrepo.kodi.jarvis.all" name="SuperRepo All [Jarvis][v7]" version="0.7.04" provider-name="Bart Otten">
@@ -185,25 +93,23 @@
                 </addon>
 
 <addon
-  id="skin.fusion.confluence"
-  version="3.0.0"
-  name="Fusion Confluence"
-  provider-name="FusionWare, Jezz_X, Team Kodi">
-  <requires>
-    <import addon="xbmc.gui" version="5.10.0"/>
-  </requires>
-  <extension
-    point="xbmc.gui.skin"
-    debugging="false"
-    effectslowdown="1.0">
-    <res width="1280" height="720" aspect="16:9" default="true" folder="720p" />
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary lang="it_IT">Skin Fusion Confluence da FusionWare. (Skin predefinita di FusionBox)</summary>
-    <description lang="it_IT">Fusion Confluence è la skin predefinita di FusionBox. È una combinazione di elementi provenienti da altre skin popolari e cerca di integrare e coinvolgere tutte le loro grandi idee in una skin facile da usare e comprendere per l'utente inesperto di Kodi.</description>
-    <disclaimer lang="it_IT">Fusion Confluence è la skin predefinita di FusionBox, rimuoverla potrebbe comportare dei problemi</disclaimer>
-    <platform>all</platform>
-  </extension>
+    id="script.pvr.favourites"
+    name="PVR favourites"
+    version="1.0.7"
+    provider-name="YLLOW_DRAGON">
+    <requires>
+        <import addon="xbmc.python" version="2.1.0"/>
+    </requires>
+    <extension point="xbmc.python.library" library="default.py"/>
+    <extension point="xbmc.addon.metadata">
+        <description lang="en">Retrieves information from the database and displays the channel PVR additional buttons and widgets on the main menu and submenus.</description>
+        <disclaimer lang="en">Skins support needed for correct display.</disclaimer>
+        <description lang="ru">Извлекает информацию из БД PVR каналов и отображает дополнительные кнопки и виджеты в главном меню и подменю.</description>
+        <disclaimer lang="ru">Необходима поддержка скинов для корректного отображения.</disclaimer>
+        <platform>all</platform>
+        <email>nkvoronov@gmail.com</email>
+        <source>https://github.com/nkvoronov/script.pvr.favourites.git</source>
+    </extension>
 </addon>
 
 <addon id="script.module.neverwise" name="NeverWise Kodi toolkit" version="1.0.8" provider-name="NeverWise">
@@ -225,6 +131,119 @@
     <email></email>
     <source>https://github.com/NeverWise/script.module.neverwise</source>
    </extension>
+</addon>
+
+<addon id="plugin.video.dplay" name="Dplay" version="1.0.2" provider-name="NeverWise">
+  <requires>
+    <import addon="xbmc.python" version="2.14.0"/>
+    <import addon="script.module.neverwise" version="1.0.8"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="it">Dplay</summary>
+    <summary lang="en">Dplay</summary>
+    <description lang="it">Dplay è un servizio di streaming video che ti consente di guardare gratis e on demand i tuoi programmi preferiti di Real Time, Dmax, DeejayTV, Focus, Giallo, Frisbee e K2 dove vuoi e quando vuoi.[CR][CR]Con il meglio della programmazione dei canali free di Discovery Italia, Dplay porta la TV oltre i soliti schermi.</description>
+    <description lang="en">Dplay is a video streaming service that lets you watch, for free and on demand, your favorite Real Time, Dmax, DeejayTv, Focus, Yellow, Frisbee and K2 programs where you want and when you want.[CR][CR]Featuring the best programming free channels of Discovery Italy, Dplay brings the TV beyond the usual TV screens.</description>
+    <disclaimer lang="it">Alcune parti di questo addon potrebbero non essere legali nel tuo paese di residenza. Si prega di verificare la legislazione in vigore prima di installare.</disclaimer>
+    <disclaimer lang="en">Some parts of this addon may not be legal in your country of residence. Please check with your local laws before installing.</disclaimer>
+    <language>it</language>
+    <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+    <forum></forum>
+    <website></website>
+    <email></email>
+    <source>https://github.com/NeverWise/plugin.video.dplay</source>
+  </extension>
+</addon>
+
+<addon id="repository.xbmcadult" name="XBMC-Adult Addons" version="1.0.6" provider-name="xbmc-adult">
+	<extension point="xbmc.addon.repository" name="XBMC Adult Addons">
+		<info compressed="false">http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster/addons.xml</info>
+		<checksum>http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster/addons.xml.md5</checksum>
+		<datadir zip="true">http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>XBMC Addons for Adults Only</summary>
+		<description>This repository contains addons that are for adults only. You may only view the contents of this repository if you are at least 18 years of age, or at least the age of majority in the jurisdiction where you reside or from which you access this content.</description>
+		<disclaimer>The owners and submitters to this repository do not host or distribute any of the content displayed by these addons nor do they have any affiliation with the content providers.</disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
+
+<addon id="repository.xbmchub" name="TVADDONS.ag Addon Repository" version="1.0.6" provider-name="tvaddons.ag">
+	<extension point="xbmc.addon.repository" name="TVADDONS.ag Addon Repository">
+	<dir>
+		<info compressed="false">https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/addons.xml</info>
+		<checksum>https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/zips/</datadir>
+	</dir>
+		<info compressed="false">https://offshoregit.com/xbmchub/xbmc-hub-repo/raw/master/addons.xml</info>
+		<checksum>https://offshoregit.com/xbmchub/xbmc-hub-repo/raw/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://offshoregit.com/xbmchub/xbmc-hub-repo/raw/master/</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>The Best Third Party Addons for Kodi, Brought to you by TVADDONS.ag</summary>
+		<description>The Best Third Party Addons for Kodi, Brought to you by TVADDONS.ag</description>
+		<platform>all</platform>
+                <forum>http://forums.tvaddons.ag/forums/113-TVADDONS-AG-ADDON-REPOSITORY</forum>
+                <website>http://www.tvaddons.ag/</website>
+	</extension>
+</addon>
+
+<addon
+  id="skin.fusion.confluence"
+  version="3.0.0"
+  name="Fusion Confluence"
+  provider-name="FusionWare, Jezz_X, Team Kodi">
+  <requires>
+    <import addon="xbmc.gui" version="5.10.0"/>
+  </requires>
+  <extension
+    point="xbmc.gui.skin"
+    debugging="false"
+    effectslowdown="1.0">
+    <res width="1280" height="720" aspect="16:9" default="true" folder="720p" />
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="it_IT">Skin Fusion Confluence da FusionWare. (Skin predefinita di FusionBox)</summary>
+    <description lang="it_IT">Fusion Confluence è la skin predefinita di FusionBox. È una combinazione di elementi provenienti da altre skin popolari e cerca di integrare e coinvolgere tutte le loro grandi idee in una skin facile da usare e comprendere per l'utente inesperto di Kodi.</description>
+    <disclaimer lang="it_IT">Fusion Confluence è la skin predefinita di FusionBox, rimuoverla potrebbe comportare dei problemi</disclaimer>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="repository.fusionbox" name="Repository FusionBox" version="1.0.1" provider-name="Fusionware">
+	<extension point="xbmc.addon.repository" name="Repository fusionbox">
+		<info>https://github.com/FusionwareIT/Repository-FusionBox/raw/master/addons.xml</info>
+		<checksum>https://github.com/FusionwareIT/Repository-FusionBox/raw/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://github.com/FusionwareIT/Repository-FusionBox/raw/master/</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Repository Fusionbox</summary>
+   		<description lang="en">Install FusionBox Repository!</description>
+    		<description lang="it">Installa il Repository FusionBox!</description>
+		<disclaimer></disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
+
+<addon id="repository.unofficialquasar" name="[COLOR red]Unofficial[/COLOR] [COLOR FF005de5]Quasar[/COLOR] Repo" version="1.0.4" provider-name="iCanuck">
+	<extension point="xbmc.addon.repository" name="Unofficial Quasar Repository">
+		<info>https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/addons.xml</info>
+		<checksum>https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/addons.xml.md5</checksum>
+		<datadir zip="true">https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>A Collection of Quasar Providers and Related Addons</summary>
+		<description>Download and install Quasar and Providers</description>
+		<disclaimer>The owners and submitters to this repository do not host or distribute any of the content displayed by these addons nor do they have any affiliation with the content providers.</disclaimer>
+		<website>http://tvaddons.ag/</website>
+		<forum>https://forums.tvaddons.ag/addon-releases/31572-pulsar-providers-unofficial-pulsar-repo.html</forum>
+		<platform>all</platform>
+		<license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
+	</extension>
 </addon>
 
 <addon id="service.system.aml-vnc"
@@ -251,47 +270,28 @@ this is an unofficial addon. please don't ask for support in libreelec forum / i
   </extension>
 </addon>
 
-<addon id="repository.xbmchub" name="TVADDONS.ag Addon Repository" version="1.0.6" provider-name="tvaddons.ag">
-	<extension point="xbmc.addon.repository" name="TVADDONS.ag Addon Repository">
-	<dir>
-		<info compressed="false">https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/addons.xml</info>
-		<checksum>https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/addons.xml.md5</checksum>
-		<datadir zip="true">https://offshoregit.com/tvaresolvers/tva-common-repository/raw/master/zips/</datadir>
-	</dir>
-		<info compressed="false">https://offshoregit.com/xbmchub/xbmc-hub-repo/raw/master/addons.xml</info>
-		<checksum>https://offshoregit.com/xbmchub/xbmc-hub-repo/raw/master/addons.xml.md5</checksum>
-		<datadir zip="true">https://offshoregit.com/xbmchub/xbmc-hub-repo/raw/master/</datadir>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<summary>The Best Third Party Addons for Kodi, Brought to you by TVADDONS.ag</summary>
-		<description>The Best Third Party Addons for Kodi, Brought to you by TVADDONS.ag</description>
-		<platform>all</platform>
-                <forum>http://forums.tvaddons.ag/forums/113-TVADDONS-AG-ADDON-REPOSITORY</forum>
-                <website>http://www.tvaddons.ag/</website>
-	</extension>
-</addon>
-
-<addon id="plugin.video.streamondemand"
-       name="Stream On Demand"
-       version="5.4.4"
-       provider-name="iSOD Crew">
+<addon id="plugin.video.videomediaset" name="Video Mediaset" provider-name="phate89, aracnoz" version="1.2.0">
     <requires>
-        <import addon="xbmc.python" version="2.1.0"/>
+        <import addon="xbmc.python" version="2.24.0" />
+        <import addon="script.module.phate89" version="1.0.0"/>
     </requires>
-    <extension point="xbmc.python.pluginsource" library="default.py">
+    <extension library="default.py" point="xbmc.python.pluginsource">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary lang="it">Film e serie tv on demand</summary>
-        <description lang="it">Cinema, serie tv, documentari, anime... tutto ciò che puoi trovare su Internet in streaming ora è sul tuo media center.  </description>
-        <summary lang="en">Movies and TV Shows on demand</summary>
-        <description lang="en">Movies, Series, Documentaries, Anime... any streaming website you can find on Internet now on is ported to your media center. </description>
+        <language>it</language>
         <platform>all</platform>
-        <license>GNU GPL v3</license>
-        <forum>http://www.mimediacenter.info/foro/viewforum.php?f=36</forum>
-        <source>https://github.com/streamondemand/plugin.video.streamondemand</source>
-    </extension>
-    <extension point="xbmc.service" library="library_service.py" start="login|startup">
+        <summary lang="it">I programmi delle reti Mediaset</summary>
+        <description lang="it">Tutti i tuoi programmi preferiti sono disponibili per te il giorno dopo la messa in onda Tv. Ieri sera ti sei perso la tua fiction preferita? Nessun problema finalmente puoi rivederla comodamente su KODI ogni volta che vuoi.</description>
+        <summary lang="en">The broadcasts of Mediaset channels</summary>
+        <description lang="en">All your favorite shows are available to you the day after the airing Tv. Last night you missed your favorite TV drama? No problem, you can finally see her comfortably on KODI whenever you want.</description>
+		<license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+		<forum>http://forum.kodi.tv/showthread.php?tid=292876</forum>
+		<source>https://github.com/phate89/plugin.video.videomediaset</source>
+        <news>v1.2.0
+- fixed the addon after website changes
+- added images to program lists
+- refactored the code</news>
     </extension>
 </addon>
 </addons>

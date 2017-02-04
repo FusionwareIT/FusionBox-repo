@@ -111,26 +111,6 @@ def search(item, texto):
         return []
 
 def episodios(item):
-    def load_episodios(html, item, itemlist, lang_title):
-        patron = '((?:.*?<a[^h]+href="[^"]+"[^>]+>[^<][^<]+<(?:b|\/)[^>]+>)+)'
-        matches = re.compile(patron).findall(html)
-        for data in matches:
-            # Estrazione
-            scrapedtitle = data.split('<a ')[0]
-            scrapedtitle = re.sub(r'<[^>]*>', '', scrapedtitle).strip()
-            if scrapedtitle != 'Categorie':
-                scrapedtitle = scrapedtitle.replace('&#215;', 'x')
-                scrapedtitle = scrapedtitle.replace('×', 'x')
-                itemlist.append(
-                    Item(channel=__channel__,
-                         action="findvideos",
-                         title="[COLOR azure]%s[/COLOR]" % (scrapedtitle + " (" + lang_title + ")"),
-                         url=data,
-                         thumbnail=item.thumbnail,
-                         extra=item.extra,
-                         fulltitle=scrapedtitle + " (" + lang_title + ")" + ' - ' + item.show,
-                         show=item.show))
-
     logger.info("[italiaserienews.py] episodios")
 
     itemlist = []
@@ -138,7 +118,7 @@ def episodios(item):
     # Download pagina
     data = scrapertools.cache_page(item.url)
     data = scrapertools.decodeHtmlentities(data)
-    data = scrapertools.get_match(data, '<span class="rating">(.*?)<div class="clear">')
+    data = scrapertools.get_match(data, '<div class="entry-content">(.*?)<div class="clear">')
 
     lang_titles = []
     starts = []
@@ -181,6 +161,26 @@ def episodios(item):
                  show=item.show))
 
     return itemlist
+
+def load_episodios(html, item, itemlist, lang_title):
+    patron = '((?:.*?<a[^h]+href="[^"]+"[^>]+>[^<][^<]+<(?:b|\/)[^>]+>)+)'
+    matches = re.compile(patron).findall(html)
+    for data in matches:
+        # Estrazione
+        scrapedtitle = data.split('<a ')[0]
+        scrapedtitle = re.sub(r'<[^>]*>', '', scrapedtitle).strip()
+        if scrapedtitle != 'Categorie':
+            scrapedtitle = scrapedtitle.replace('&#215;', 'x')
+            scrapedtitle = scrapedtitle.replace('×', 'x')
+            itemlist.append(
+                Item(channel=__channel__,
+                     action="findvideos",
+                     title="[COLOR azure]%s[/COLOR]" % (scrapedtitle + " (" + lang_title + ")"),
+                     url=data,
+                     thumbnail=item.thumbnail,
+                     extra=item.extra,
+                     fulltitle=scrapedtitle + " (" + lang_title + ")" + ' - ' + item.show,
+                     show=item.show))
 
 def findvideos(item):
     logger.info("streamondemand.italiaserienews findvideos")

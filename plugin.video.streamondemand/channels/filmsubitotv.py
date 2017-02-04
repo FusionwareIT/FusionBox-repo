@@ -24,7 +24,6 @@ host = "http://www.cinemasubito.net/"
 
 DEBUG = config.get_setting("debug")
 
-
 def isGeneric():
     return True
 

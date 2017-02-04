@@ -42,7 +42,7 @@ def mainlist(item):
                      title="[COLOR azure]Ultimi Film Inseriti[/COLOR]",
                      action="peliculas",
                      extra="movie",
-                     url=host,
+                     url="%s/category/film/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Film Per Categoria[/COLOR]",
@@ -58,7 +58,7 @@ def mainlist(item):
                      title="[COLOR azure]Aggiornamenti Serie TV[/COLOR]",
                      extra="serie",
                      action="peliculas_tv",
-                     url=host,
+                     url="%s/category/serie-tv/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
@@ -73,7 +73,7 @@ def categorias(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.anti_cloudflare(item.url, headers)
+    data = scrapertools.cache_page(item.url, headers=headers)
     bloque = scrapertools.get_match(data, '<div id="categories-2" class="widget widget_categories">(.*?)</ul>')
 
     # Extrae las entradas (carpetas)
@@ -114,7 +114,7 @@ def peliculas(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.anti_cloudflare(item.url, headers)
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     # Extrae las entradas (carpetas)
     patron = '<figure class="post-image ">\s*<a href="(.*?)"><img src="(.*?)" class=[^=]+=[^=]+="(.*?)" /></a>'
@@ -161,8 +161,8 @@ def peliculas_tv(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.anti_cloudflare(item.url, headers)
-    bloque = scrapertools.get_match(data, '<div id="text-2" class="widget widget_text">(.*?)</div></div><div class="widgetwrap">')
+    data = scrapertools.cache_page(item.url, headers=headers)
+    bloque = scrapertools.get_match(data, '<div id="text-2" class="widget widget_text">(.*?)<div id="footerwrap">')
 
     # Extrae las entradas (carpetas)
     patron = '<a href="(.*?)">(.*?)</a>'
@@ -184,6 +184,25 @@ def peliculas_tv(item):
                  plot=scrapedplot,
                  folder=True), tipo='tv'))
 
+
+    # Extrae el paginador
+    patronvideos = '<span class="number current">[^<]+</span>[^<]+<a href="(.*?)" class="number">'
+    matches = re.compile(patronvideos, re.DOTALL).findall(data)
+
+    if len(matches) > 0:
+        scrapedurl = urlparse.urljoin(item.url, matches[0])
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="HomePage",
+                 title="[COLOR yellow]Torna Home[/COLOR]",
+                 folder=True)),
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="peliculas_tv",
+                 title="[COLOR orange]Successivo >>[/COLOR]",
+                 url=scrapedurl,
+                 thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png",
+                 folder=True))
 
     return itemlist
 
@@ -277,7 +296,7 @@ def findvideos_tv(item):
 def findvideos_movie(item):
     logger.info("streamondemand.misterstreaming findvideos_movie")
 
-    data = scrapertools.anti_cloudflare(item.url, headers)
+    data = scrapertools.cache_page(item.url, headers=headers)
 
     itemlist = servertools.find_video_items(data=data)
     for videoitem in itemlist:

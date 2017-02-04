@@ -22,7 +22,7 @@ __language__ = "IT"
 
 DEBUG = config.get_setting("debug")
 
-host = "http://www.piratestreaming.click"
+host = "http://www.piratestreaming.black"
 
 
 def isGeneric():
@@ -40,7 +40,7 @@ def mainlist(item):
                      title="[COLOR azure]Contenuti per Genere[/COLOR]",
                      action="categorias",
                      url=host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
@@ -50,13 +50,13 @@ def mainlist(item):
                      title="[COLOR azure]Archivio Serie TV[/COLOR]",
                      action="categoryarchive",
                      url="%s/archivio-serietv.php" % host,
-                     thumbnail="http://repository-butchabay.googlecode.com/svn/branches/eden/skin.cirrus.extended.v2/extras/moviegenres/TV%20Series.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Serie TV[/COLOR]",
                      extra="serie",
                      action="peliculas_tv",
-                     url="%s/serietv-aggiornamenti.php" % host,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/New%20TV%20Shows.png"),
+                     url="%s/serietv-aggiornamentii.php" % host,
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
                      action="search",

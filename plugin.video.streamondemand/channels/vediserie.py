@@ -19,13 +19,13 @@ __type__ = "generic"
 __title__ = "Vedi Serie"
 __language__ = "IT"
 
-headers = [
-    ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0'],
-    ['Accept-Encoding', 'gzip, deflate']
-]
-
 host = "http://www.vediserie.com"
 
+headers = [['Upgrade-Insecure-Requests', '1'],
+           ['User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/53.0.2785.143 Chrome/53.0.2785.143 Safari/537.36'],
+           ['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'],
+           ['Accept-Encoding', 'gzip, deflate'],
+           ['Accept-Language', 'en-US,en;q=0.8']]
 
 def isGeneric():
     return True
@@ -37,7 +37,7 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      action="fichas",
                      title="[COLOR azure]Serie TV[/COLOR]",
-                     url="%s/category/serie-complete/" % host,
+                     url=host,
                      thumbnail="http://i.imgur.com/rO0ggX2.png"),
                 Item(channel=__channel__,
                      action="list_a_z",
@@ -205,3 +205,4 @@ def findvideos(item):
         videoitem.channel = __channel__
 
     return itemlist
+

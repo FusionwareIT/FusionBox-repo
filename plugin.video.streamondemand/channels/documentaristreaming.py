@@ -21,6 +21,17 @@ __language__ = "IT"
 
 sito = "https://www.documentaristreaming.net/"
 
+headers = [
+    ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],
+    ['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'],
+    ['Accept-Encoding', 'gzip, deflate, br'],
+    ['Accept-Language', 'en-US,en;q=0.5'],
+    ['Connection', 'keep-alive'],
+    ['DNT', '1'],
+    ['Upgrade-Insecure-Requests', '1'],
+    ['Cache-Control', 'max-age=0']
+]
+
 DEBUG = config.get_setting("debug")
 
 
@@ -33,13 +44,13 @@ def mainlist(item):
     itemlist = [Item(channel=__channel__,
                      title="[COLOR azure]Aggiornamenti[/COLOR]",
                      action="peliculas",
-                     url=sito,
+                     url="https://www.documentaristreaming.net/page/1/",
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR azure]Categorie[/COLOR]",
                      action="categorias",
                      url=sito,
-                     thumbnail="http://xbmc-repo-ackbarr.googlecode.com/svn/trunk/dev/skin.cirrus%20extended%20v2/extras/moviegenres/All%20Movies%20by%20Genre.png"),
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
@@ -53,28 +64,22 @@ def peliculas(item):
     itemlist = []
 
     # Descarga la pagina
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
+    bloque = scrapertools.get_match(data, '<h2 class="vwspc-section-title">(.*?)<nav class="vw-page-navigation clearfix">')
 
 
     # Extrae las entradas (carpetas)
-    patron = '<a class="vw-post-box-thumbnail" href="(.*?)"[^>]+>\s*<img[^s]+src="(.*?)"[^>]+>'
-    matches = re.compile(patron, re.DOTALL).findall(data)
-    scrapertools.printMatches(matches)
+    patron = '<a class="vw-post-box-thumbnail" href="([^"]+)"[^>]+>\s*<img[^s]+src="([^"]+)"'
+    matches = re.compile(patron, re.DOTALL).findall(bloque)
 
     for scrapedurl, scrapedthumbnail in matches:
-        scrapedtitle=scrapedurl
-        scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("https://www.documentaristreaming.net/",""))
-        scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("-"," "))
-        scrapedtitle=scrapertools.decodeHtmlentities(scrapedtitle.replace("/",""))
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.lower())
-        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle.title())
+        scrapedtitle = scrapedurl
+        scrapedtitle = scrapedtitle.replace("https://www.documentaristreaming.net/","")
+        scrapedtitle = scrapedtitle.replace("-"," ")
+        scrapedtitle = scrapedtitle.replace("/","")
+        scrapedtitle = scrapedtitle.lower()
+        scrapedtitle = scrapedtitle.title()
         scrapedplot = ""
-        #html = scrapertools.cache_page(scrapedurl)
-        #start = html.find("</strong></p>")
-        #end = html.find("<p>&nbsp;</p>", start)
-        #scrapedplot = html[start:end]
-        #scrapedplot = re.sub(r'<[^>]*>', '', scrapedplot)
-        #scrapedplot = scrapertools.decodeHtmlentities(scrapedplot)
         if (DEBUG): logger.info(
             "title=[" + scrapedtitle + "], url=[" + scrapedurl + "], thumbnail=[" + scrapedthumbnail + "]")
         itemlist.append(
@@ -84,7 +89,6 @@ def peliculas(item):
                  show=scrapedtitle,
                  title="[COLOR azure]" + scrapedtitle + "[/COLOR]",
                  url=scrapedurl,
-                 viewmode="movie_with_plot",
                  thumbnail=scrapedthumbnail,
                  plot=scrapedplot,
                  folder=True))
@@ -119,7 +123,7 @@ def categorias(item):
     logger.info("streamondemand.documentaristreaming categorias")
     itemlist = []
 
-    data = scrapertools.cache_page(item.url)
+    data = scrapertools.cache_page(item.url, headers=headers)
     logger.info(data)
 
     # Narrow search by selecting only the combo
@@ -130,7 +134,6 @@ def categorias(item):
     # The categories are the options for the combo  
     patron = '<li[^>]+><a[^h]+href="(.*?)"[^>]+><span>(.*?)<[^>]+><[^>]+><[^>]+>'
     matches = re.compile(patron, re.DOTALL).findall(bloque)
-    scrapertools.printMatches(matches)
 
     for url, titulo in matches:
         scrapedtitle = scrapertools.decodeHtmlentities(titulo)

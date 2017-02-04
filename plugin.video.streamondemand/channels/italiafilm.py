@@ -279,6 +279,56 @@ def peliculas_tv(item):
 
     return itemlist
 
+def pel_tv(item):
+    logger.info("[italiafilm.py] peliculas")
+    itemlist = []
+
+    data = scrapertools.anti_cloudflare(item.url, headers)
+    patron = '<span class="tvseries_name">(.*?)</span>\s*<a href="([^"]+)"[^>]+><i class="icon-link"></i>(.*?)</a>'
+    matches = re.compile(patron, re.DOTALL).findall(data)
+
+    for scraptitle1, scrapedurl, scraptitle2 in matches:
+        title = scraptitle1 + scraptitle2
+        plot = ""
+        thumbnail = ""
+        url = scrapedurl
+
+        if (DEBUG): logger.info("title=[" + title + "], url=[" + url + "], thumbnail=[" + thumbnail + "]")
+
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 extra=item.extra,
+                 action='episodios' if item.extra == 'serie' else 'findvideos',
+                 fulltitle=title,
+                 show=title,
+                 title="[COLOR azure]" + title + "[/COLOR]",
+                 url=url,
+                 thumbnail=thumbnail,
+                 plot=plot,
+                 viewmode="movie_with_plot",
+                 folder=True), tipo='tv'))
+
+    # Siguiente
+    try:
+        pagina_siguiente = scrapertools.get_match(data, '<a class="next page-numbers" href="([^"]+)"')
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="HomePage",
+                 title="[COLOR yellow]Torna Home[/COLOR]",
+                 folder=True)),
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="pel_tv",
+                 extra=item.extra,
+                 title="[COLOR orange]Successivo >> [/COLOR]",
+                 url=pagina_siguiente,
+                 thumbnail="http://2.bp.blogspot.com/-fE9tzwmjaeQ/UcM2apxDtjI/AAAAAAAAeeg/WKSGM2TADLM/s1600/pager+old.png",
+                 folder=True))
+    except:
+        pass
+
+    return itemlist
+
 def episodios(item):
     def load_episodios(html, item, itemlist, lang_title):
         for data in scrapertools.decodeHtmlentities(html).splitlines():

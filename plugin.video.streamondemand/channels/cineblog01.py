@@ -568,7 +568,7 @@ def play(item):
     logger.info("[cineblog01.py] play")
 
     if '/goto/' in item.url:
-        item.url = scrapertools.get_header_from_response(item.url, header_to_get="Location")
+        item.url = scrapertools.get_header_from_response(item.url, headers=headers, header_to_get="Location")
 
     item.url = item.url.replace('http://cineblog01.pw', 'http://k4pp4.pw')
 

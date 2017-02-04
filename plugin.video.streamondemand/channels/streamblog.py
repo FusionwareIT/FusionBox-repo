@@ -52,18 +52,18 @@ def mainlist(item):
                      title="[COLOR yellow]Cerca...[/COLOR]",
                      action="search",
                      extra="movie",
+                     thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search"),
+                Item(channel=__channel__,
+                     title="[COLOR azure]Aggiornamenti Serie TV[/COLOR]",
+                     extra="serie",
+                     action="peliculas_tv",
+                     url="http://www.streamblog.co/serie-tv/",
+                     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
+                Item(channel=__channel__,
+                     title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
+                     action="search",
+                     extra="serie",
                      thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
-                #Item(channel=__channel__,
-                #     title="[COLOR azure]Aggiornamenti Serie TV[/COLOR]",
-                #     extra="serie",
-                #     action="peliculas_tv",
-                #     url="http://www.streamblog.co/serie-tv/",
-                #     thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
-                #Item(channel=__channel__,
-                #     title="[COLOR yellow]Cerca Serie TV...[/COLOR]",
-                #     action="search",
-                #     extra="serie",
-                #     thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
 
     return itemlist
 
@@ -280,7 +280,7 @@ def peliculas_tv(item):
 
 def episodios(item):
     def load_episodios(html, item, itemlist, lang_title):
-        patron = '.*? - | <a href="[^"]+"[^t]+target[^>]+>[^<]+<\/a>[^|]+|<(?:b)[^>]+>'
+        patron = '(?:.*?<a href="[^"]+"[^_]+_blank[^>]+>[^>]+>.*?<br \/>)'
         matches = re.compile(patron).findall(html)
         for data in matches:
             # Extrae las entradas

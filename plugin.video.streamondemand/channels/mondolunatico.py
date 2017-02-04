@@ -23,6 +23,8 @@ __type__ = "generic"
 __title__ = "Mondo Lunatico"
 __language__ = "IT"
 
+DEBUG = config.get_setting("debug")
+
 host = "http://mondolunatico.org"
 
 captcha_url = '%s/pass/CaptchaSecurityImages.php?width=100&height=40&characters=5' % host
@@ -34,14 +36,11 @@ headers = [
     ['Accept-Encoding', 'gzip, deflate']
 ]
 
-DEBUG = config.get_setting("debug")
-
 PERPAGE = 25
 
 
 def isGeneric():
     return True
-
 
 def mainlist(item):
     logger.info("streamondemand.mondolunatico mainlist")

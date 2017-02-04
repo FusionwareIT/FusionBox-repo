@@ -21,7 +21,6 @@ host = "http://southparkita.altervista.org/south-park-ita-streaming/"
 
 DEBUG = config.get_setting("debug")
 
-
 def isGeneric():
     return True
 

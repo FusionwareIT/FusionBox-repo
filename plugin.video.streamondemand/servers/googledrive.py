@@ -42,22 +42,17 @@ fmt_value = {
 
 # Returns an array of possible video url's from the page_url
 def get_video_url(page_url, premium=False, user="", password="", video_password=""):
-    logger.info("[googledrive.py] get_video_url(page_url='%s')" % page_url)
+    logger.info("[googledrive.py] url=" + page_url)
     video_urls = []
 
     data = scrapertools.cache_page(page_url)
 
-    fmt_stream_map = scrapertools.find_single_match(data, r'\["fmt_stream_map","([^"]+)"\]')
-    if fmt_stream_map != '':
-        fmt_stream_map = fmt_stream_map.replace(r'\u0026', '&').replace(r'\u003d', '=')
-        for vdata in fmt_stream_map.split(','):
-            vdata_split = vdata.split('|')
-            video_urls.append(["[%s googledrive]" % fmt_value[int(vdata_split[0])], vdata_split[1]])
-
-        for video_url in video_urls:
-            logger.info("[googledrive.py] %s - %s" % (video_url[0], video_url[1]))
+    # URL del vídeo
+    for url in re.findall(r'"src":"([^"]+)",', data, re.DOTALL):
+        video_urls.append([scrapertools.get_filename_from_url(url)[-4:] + " [googledrive]", url])
 
     return video_urls
+
 
 
 # Encuentra v�deos del servidor en el texto pasado
@@ -72,7 +67,8 @@ def find_videos(data):
 
     for media_id in matches:
         titulo = "[googledrive]"
-        url = 'https://drive.google.com/file/d/%s/preview' % media_id
+        redir = "http://api.getlinkdrive.com/getlink?url="
+        url = redir + 'https://drive.google.com/file/d/%s/preview' % media_id
         if url not in encontrados:
             logger.info("  url=" + url)
             devuelve.append([titulo, url, 'googledrive'])
@@ -87,7 +83,8 @@ def find_videos(data):
 
     for media_id in matches:
         titulo = "[googledrive]"
-        url = 'https://drive.google.com/file/d/%s/preview' % media_id
+        redir = "http://api.getlinkdrive.com/getlink?url="
+        url = redir + 'https://drive.google.com/file/d/%s/preview' % media_id
         if url not in encontrados:
             logger.info("  url=" + url)
             devuelve.append([titulo, url, 'googledrive'])
@@ -96,3 +93,4 @@ def find_videos(data):
             logger.info("  url duplicada=" + url)
 
     return devuelve
+

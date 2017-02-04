@@ -20,6 +20,8 @@ __type__ = "generic"
 __title__ = "filmpertutti"
 __language__ = "IT"
 
+DEBUG = config.get_setting("debug")
+
 host = "http://www.filmpertutti.online"
 
 headers = [
@@ -28,9 +30,6 @@ headers = [
     ['Accept-Encoding', 'gzip, deflate'],
     ['Cache-Control', 'max-age=0']
 ]
-
-DEBUG = config.get_setting("debug")
-
 
 def isGeneric():
     return True
@@ -47,7 +46,6 @@ def mainlist(item):
                 Item(channel=__channel__,
                      title="[COLOR azure]Categorie film[/COLOR]",
                      action="categorias",
-                     extra="movie",
                      url="%s/category/film/" % host,
                      thumbnail="http://orig03.deviantart.net/6889/f/2014/079/7/b/movies_and_popcorn_folder_icon_by_matheusgrilo-d7ay4tw.png"),
                 Item(channel=__channel__,

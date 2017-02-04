@@ -12,7 +12,7 @@
     <bannermenu>http://www.streaminglove.tv/wp-content/uploads/2016/10/StreamingLoveLogo-3.png</bannermenu>
 
     <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-    <version>5</version>
+    <version>6</version>
     <date>22/06/2016</date>
     <changes>update</changes>
 
