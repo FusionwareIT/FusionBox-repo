@@ -192,26 +192,6 @@
 	</extension>
 </addon>
 
-<addon id="script.speedtest"
-       name="Speedtest"
-       version="0.1"
-       provider-name="FusionWare">
-  <requires>
-    <import addon="xbmc.python" version="2.1.0"/>
-  </requires>
-  <extension point="xbmc.python.script"
-             library="default.py">
-        <provides>executable</provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary lang="en">Speedtest</summary>
-    <description lang="en"> Speedtest will give you accurate Internet speed/ping test results from Ookla speedtest.net</description>
-    <summary lang="it">Speedtest</summary>
-    <description lang="it"> Speedtest fornisce risultati accurati su velocità/ping Internet da Ookla speedtest.net</description>
-    <platform>all</platform>
-  </extension>
-</addon>
-
 <addon id="service.system.aml-vnc"
        name="aml-vnc"
        version="7.0.3"
