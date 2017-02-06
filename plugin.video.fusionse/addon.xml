@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.fusionse"
+       name="FusionSE"
+       version="5.4.5"
+       provider-name="FusionWare">
+    <requires>
+        <import addon="xbmc.python" version="2.1.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="it">Film e serie tv on demand</summary>
+        <description lang="it">Film e Serie TV da ogni sito di streaming nel tuo media center.  </description>
+        <summary lang="en">Movies and TV Shows on demand</summary>
+        <description lang="en">Movies and TV Series from any streaming website in your media center. </description>
+        <platform>all</platform>
+        <license>GNU GPL v3</license>
+        <forum>http://www.fusionbox.it</forum>
+        <source>https://github.com/FusionwareIT/plugin.video.fusionse</source>
+    </extension>
+    <extension point="xbmc.service" library="library_service.py" start="login|startup">
+    </extension>
+</addon>

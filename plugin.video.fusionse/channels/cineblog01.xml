@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+	<id>cineblog01</id>
+	<name>Cineblog01</name>
+
+	<active>true</active>
+	<adult>false</adult>
+	<language>it</language>
+
+	<fanart></fanart>
+	<thumbnail>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/cineblog01.png</thumbnail>
+	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/cineblog01.png</bannermenu>
+
+	<update_url>https://raw.githubusercontent.com/FusionwareIT/plugin.video.fusionse/master/channels/</update_url>
+	<version>22</version>
+	<date>30/07/2016</date>
+	<changes>update</changes>
+
+	<categories>
+		<category>movie</category>
+		<category>serie</category>
+		<category>top channels</category>
+	</categories>
+
+	<settings>
+		<id>include_in_global_search</id>
+		<type>bool</type>
+		<label>Includi ricerca globale</label>
+		<default>true</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
+	</settings>
+</channel>

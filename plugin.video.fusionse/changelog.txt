@@ -1,0 +1,73 @@
+v5.4.5
+- transitional release, not yet Kodi 17 dedicated version
+- new channels
+- various fix
+
+v5.4.4
+- fixed dowload options
+- fixed some servers
+- added new channels
+
+v5.4.3
+- various fix
+
+v5.4.2
+- fix update channels
+- added new channels
+- remove dead channels
+- fix host domains 
+
+v5.4.1
+- transictional release
+
+v5.4.0
+- global search fix
+- update options fix
+- new channels added
+- updated some channels and servers
+- removed channel
+
+v5.3.9
+- configuration fix
+- search options fix
+- captcha fix
+- updated some channels and servers
+
+v5.3.8
+- library fix
+- cookies management fix
+
+v5.3.7
+- Megamerge pelisa
+- Major update
+
+v5.3.6
+- openload big fix
+- jjdecode lib
+
+v5.3.5
+- fix megadrive, streaminto, openload (plus code jsunpack)
+- beautify jjdecode lib
+- translated downloadtools by artioni81
+- new channel: altadefinizioneclub
+- fixed some channels
+
+v5.3.4
+- openload big fix
+- transictional release
+
+v5.3.3
+- openload fix
+- new channel added
+- favorites and download -=NOT WORKING=-
+
+v5.3.2
+- TMDB fix
+- many channels fix
+
+v5.3.1
+- Minor fix menu
+
+v5.3.0
+- Megamerge pelisa
+- Major update

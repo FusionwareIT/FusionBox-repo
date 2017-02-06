@@ -1,0 +1,208 @@
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------
+# fusionse.- XBMC Plugin
+# Canal para vediserie - based on seriehd channel
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
+# ------------------------------------------------------------
+import re
+
+from core import config
+from core import logger
+from core import scrapertools
+from core import servertools
+from core.item import Item
+from core.tmdb import infoSod
+
+__channel__ = "vediserie"
+__category__ = "S"
+__type__ = "generic"
+__title__ = "Vedi Serie"
+__language__ = "IT"
+
+host = "http://www.vediserie.com"
+
+headers = [['Upgrade-Insecure-Requests', '1'],
+           ['User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/53.0.2785.143 Chrome/53.0.2785.143 Safari/537.36'],
+           ['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'],
+           ['Accept-Encoding', 'gzip, deflate'],
+           ['Accept-Language', 'en-US,en;q=0.8']]
+
+def isGeneric():
+    return True
+
+
+def mainlist(item):
+    logger.info("[vediserie.py] mainlist")
+
+    itemlist = [Item(channel=__channel__,
+                     action="fichas",
+                     title="[COLOR azure]Serie TV[/COLOR]",
+                     url=host,
+                     thumbnail="http://i.imgur.com/rO0ggX2.png"),
+                Item(channel=__channel__,
+                     action="list_a_z",
+                     title="[COLOR orange]Ordine Alfabetico A-Z[/COLOR]",
+                     url="%s/lista-completa-serie-tv/" % host,
+                     thumbnail="http://i37.photobucket.com/albums/e88/xzener/NewIcons.png"),
+                Item(channel=__channel__,
+                     action="search",
+                     extra="serie",
+                     title="[COLOR yellow]Cerca...[/COLOR]",
+                     thumbnail="http://dc467.4shared.com/img/fEbJqOum/s7/13feaf0c8c0/Search")]
+
+    return itemlist
+
+
+def search(item, texto):
+    logger.info("[vediserie.py] search")
+
+    item.url = host + "/?s=" + texto
+
+    try:
+        return fichas(item)
+
+    # Se captura la excepción, para no interrumpir al buscador global si un canal falla.
+    except:
+        import sys
+        for line in sys.exc_info():
+            logger.error("%s" % line)
+        return []
+
+
+def list_a_z(item):
+    logger.info("[vediserie.py] ordine alfabetico")
+    itemlist = []
+
+    data = scrapertools.anti_cloudflare(item.url, headers)
+
+    patron = '<li><a href="([^"]+)" title="([^"]+)">.*?</a></li>'
+
+    matches = re.compile(patron, re.DOTALL).findall(data)
+
+    for scrapedurl, scrapedtitle in matches:
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="episodios",
+                 title=scrapedtitle,
+                 url=scrapedurl))
+
+    return itemlist
+
+
+def fichas(item):
+    logger.info("[vediserie.py] fichas")
+    itemlist = []
+
+    data = scrapertools.anti_cloudflare(item.url, headers)
+
+    # ------------------------------------------------
+    cookies = ""
+    matches = config.get_cookie_data(item.url).splitlines()[4:]
+    for cookie in matches:
+        name = cookie.split('\t')[5]
+        value = cookie.split('\t')[6]
+        cookies += name + "=" + value + ";"
+    headers.append(['Cookie', cookies[:-1]])
+    import urllib
+    _headers = urllib.urlencode(dict(headers))
+    # ------------------------------------------------
+
+    patron = '<h2>[^>]+>\s*'
+    patron += '<img[^=]+=[^=]+=[^=]+="([^"]+)"[^>]+>\s*'
+    patron += '<A HREF=([^>]+)>[^>]+>[^>]+>[^>]+>\s*'
+    patron += '[^>]+>[^>]+>(.*?)</[^>]+>[^>]+>'
+
+    matches = re.compile(patron, re.DOTALL).findall(data)
+
+    for scrapedthumbnail, scrapedurl, scrapedtitle in matches:
+        scrapedthumbnail += "|" + _headers
+        scrapedtitle = scrapertools.decodeHtmlentities(scrapedtitle)
+        if scrapedtitle.startswith('<span class="year">'):
+            scrapedtitle = scrapedtitle[19:]
+
+        itemlist.append(infoSod(
+            Item(channel=__channel__,
+                 action="episodios",
+                 title=scrapedtitle,
+                 fulltitle=scrapedtitle,
+                 url=scrapedurl.replace('"', ''),
+                 show=scrapedtitle,
+                 thumbnail=scrapedthumbnail), tipo='tv'))
+
+    patron = '<span class=\'current\'>[^<]+</span><a class="page larger" href="(.*?)">'
+    next_page = scrapertools.find_single_match(data, patron)
+    if next_page != "":
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="fichas",
+                 title="[COLOR orange]Successivo>>[/COLOR]",
+                 url=next_page))
+
+    return itemlist
+
+
+def episodios(item):
+    logger.info("[vediserie.py] episodios")
+
+    itemlist = []
+
+    # Descarga la página
+    data = scrapertools.anti_cloudflare(item.url, headers)
+
+    patron = r'<div class="list" data-stagione="([^"]+)">\s*'
+    patron += r'<ul class="listEpis">\s*'
+    patron += r'<li><a href="javascript:void\(0\)" data-link="([^"]+)" data-id="([^"]+)">'
+
+    matches = re.compile(patron, re.DOTALL).findall(data)
+
+    for season, url, episode in matches:
+        season = str(int(season) + 1)
+        episode = str(int(episode) + 1)
+        if len(episode) == 1: episode = "0" + episode
+        title = season + "x" + episode
+        itemlist.append(
+            Item(channel=__channel__,
+                 action="findvideos",
+                 title=title,
+                 url=item.url,
+                 thumbnail=item.thumbnail,
+                 extra=url,
+                 fulltitle=title + ' - ' + item.show,
+                 show=item.show))
+
+    if config.get_library_support() and len(itemlist) != 0:
+        itemlist.append(
+            Item(channel=__channel__,
+                 title=item.title,
+                 url=item.url,
+                 action="add_serie_to_library",
+                 extra="episodios",
+                 show=item.show))
+        itemlist.append(
+            Item(channel=item.channel,
+                 title="Scarica tutti gli episodi della serie",
+                 url=item.url,
+                 action="download_all_episodes",
+                 extra="episodios",
+                 show=item.show))
+
+    return itemlist
+
+
+def findvideos(item):
+    logger.info("[vediserie.py] findvideos")
+
+    # Descarga la página
+    data = item.extra
+
+    itemlist = servertools.find_video_items(data=data)
+    for videoitem in itemlist:
+        videoitem.title = item.title + videoitem.title
+        videoitem.fulltitle = item.fulltitle
+        videoitem.thumbnail = item.thumbnail
+        videoitem.show = item.show
+        videoitem.plot = item.plot
+        videoitem.channel = __channel__
+
+    return itemlist
+
