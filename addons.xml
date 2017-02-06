@@ -24,6 +24,68 @@
     </extension>
 </addon>
 
+<addon id="repository.unofficialquasar" name="[COLOR red]Unofficial[/COLOR] [COLOR FF005de5]Quasar[/COLOR] Repo" version="1.0.4" provider-name="iCanuck">
+	<extension point="xbmc.addon.repository" name="Unofficial Quasar Repository">
+		<info>https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/addons.xml</info>
+		<checksum>https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/addons.xml.md5</checksum>
+		<datadir zip="true">https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>A Collection of Quasar Providers and Related Addons</summary>
+		<description>Download and install Quasar and Providers</description>
+		<disclaimer>The owners and submitters to this repository do not host or distribute any of the content displayed by these addons nor do they have any affiliation with the content providers.</disclaimer>
+		<website>http://tvaddons.ag/</website>
+		<forum>https://forums.tvaddons.ag/addon-releases/31572-pulsar-providers-unofficial-pulsar-repo.html</forum>
+		<platform>all</platform>
+		<license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
+	</extension>
+</addon>
+
+<addon id="plugin.video.dplay" name="Dplay" version="1.0.2" provider-name="NeverWise">
+  <requires>
+    <import addon="xbmc.python" version="2.14.0"/>
+    <import addon="script.module.neverwise" version="1.0.8"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="it">Dplay</summary>
+    <summary lang="en">Dplay</summary>
+    <description lang="it">Dplay è un servizio di streaming video che ti consente di guardare gratis e on demand i tuoi programmi preferiti di Real Time, Dmax, DeejayTV, Focus, Giallo, Frisbee e K2 dove vuoi e quando vuoi.[CR][CR]Con il meglio della programmazione dei canali free di Discovery Italia, Dplay porta la TV oltre i soliti schermi.</description>
+    <description lang="en">Dplay is a video streaming service that lets you watch, for free and on demand, your favorite Real Time, Dmax, DeejayTv, Focus, Yellow, Frisbee and K2 programs where you want and when you want.[CR][CR]Featuring the best programming free channels of Discovery Italy, Dplay brings the TV beyond the usual TV screens.</description>
+    <disclaimer lang="it">Alcune parti di questo addon potrebbero non essere legali nel tuo paese di residenza. Si prega di verificare la legislazione in vigore prima di installare.</disclaimer>
+    <disclaimer lang="en">Some parts of this addon may not be legal in your country of residence. Please check with your local laws before installing.</disclaimer>
+    <language>it</language>
+    <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+    <forum></forum>
+    <website></website>
+    <email></email>
+    <source>https://github.com/NeverWise/plugin.video.dplay</source>
+  </extension>
+</addon>
+
+<addon
+    id="script.pvr.favourites"
+    name="PVR favourites"
+    version="1.0.7"
+    provider-name="YLLOW_DRAGON">
+    <requires>
+        <import addon="xbmc.python" version="2.1.0"/>
+    </requires>
+    <extension point="xbmc.python.library" library="default.py"/>
+    <extension point="xbmc.addon.metadata">
+        <description lang="en">Retrieves information from the database and displays the channel PVR additional buttons and widgets on the main menu and submenus.</description>
+        <disclaimer lang="en">Skins support needed for correct display.</disclaimer>
+        <description lang="ru">Извлекает информацию из БД PVR каналов и отображает дополнительные кнопки и виджеты в главном меню и подменю.</description>
+        <disclaimer lang="ru">Необходима поддержка скинов для корректного отображения.</disclaimer>
+        <platform>all</platform>
+        <email>nkvoronov@gmail.com</email>
+        <source>https://github.com/nkvoronov/script.pvr.favourites.git</source>
+    </extension>
+</addon>
+
 <addon id="superrepo.kodi.jarvis.all" name="SuperRepo All [Jarvis][v7]" version="0.7.04" provider-name="Bart Otten">
                 <requires>
                 <import addon="xbmc.addon" version="12.0.0"/>
@@ -92,24 +154,62 @@
                 </extension>
                 </addon>
 
-<addon
-    id="script.pvr.favourites"
-    name="PVR favourites"
-    version="1.0.7"
-    provider-name="YLLOW_DRAGON">
-    <requires>
-        <import addon="xbmc.python" version="2.1.0"/>
-    </requires>
-    <extension point="xbmc.python.library" library="default.py"/>
-    <extension point="xbmc.addon.metadata">
-        <description lang="en">Retrieves information from the database and displays the channel PVR additional buttons and widgets on the main menu and submenus.</description>
-        <disclaimer lang="en">Skins support needed for correct display.</disclaimer>
-        <description lang="ru">Извлекает информацию из БД PVR каналов и отображает дополнительные кнопки и виджеты в главном меню и подменю.</description>
-        <disclaimer lang="ru">Необходима поддержка скинов для корректного отображения.</disclaimer>
-        <platform>all</platform>
-        <email>nkvoronov@gmail.com</email>
-        <source>https://github.com/nkvoronov/script.pvr.favourites.git</source>
-    </extension>
+<addon id="repository.xbmcadult" name="XBMC-Adult Addons" version="1.0.6" provider-name="xbmc-adult">
+	<extension point="xbmc.addon.repository" name="XBMC Adult Addons">
+		<info compressed="false">http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster/addons.xml</info>
+		<checksum>http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster/addons.xml.md5</checksum>
+		<datadir zip="true">http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>XBMC Addons for Adults Only</summary>
+		<description>This repository contains addons that are for adults only. You may only view the contents of this repository if you are at least 18 years of age, or at least the age of majority in the jurisdiction where you reside or from which you access this content.</description>
+		<disclaimer>The owners and submitters to this repository do not host or distribute any of the content displayed by these addons nor do they have any affiliation with the content providers.</disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
+
+<addon id="script.speedtest"
+       name="Speedtest"
+       version="0.1"
+       provider-name="FusionWare">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.python.script"
+             library="default.py">
+        <provides>executable</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Speedtest</summary>
+    <description lang="en"> Speedtest will give you accurate Internet speed/ping test results from Ookla speedtest.net</description>
+    <summary lang="it">Speedtest</summary>
+    <description lang="it"> Speedtest fornisce risultati accurati su velocità/ping Internet da Ookla speedtest.net</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="service.system.aml-vnc"
+       name="aml-vnc"
+       version="7.0.3"
+       provider-name="kszaq (kszaquitto at gmail.com)">
+  <requires>
+    <import addon="os.libreelec.tv" version="7.0"/>
+    <import addon="xbmc.python" version="2.1.0"/>
+
+  </requires>
+  <extension point="xbmc.service" library="default.py">
+    <provides></provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>VNC Server for Amlogic devices</summary>
+    <description>
+VNC Server for Amlogic devices
+    </description>
+    <disclaimer>
+this is an unofficial addon. please don't ask for support in libreelec forum / irc channel
+    </disclaimer>
+    <platform>all</platform>
+  </extension>
 </addon>
 
 <addon id="script.module.neverwise" name="NeverWise Kodi toolkit" version="1.0.8" provider-name="NeverWise">
@@ -131,45 +231,6 @@
     <email></email>
     <source>https://github.com/NeverWise/script.module.neverwise</source>
    </extension>
-</addon>
-
-<addon id="plugin.video.dplay" name="Dplay" version="1.0.2" provider-name="NeverWise">
-  <requires>
-    <import addon="xbmc.python" version="2.14.0"/>
-    <import addon="script.module.neverwise" version="1.0.8"/>
-  </requires>
-  <extension point="xbmc.python.pluginsource" library="default.py">
-    <provides>video</provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <platform>all</platform>
-    <summary lang="it">Dplay</summary>
-    <summary lang="en">Dplay</summary>
-    <description lang="it">Dplay è un servizio di streaming video che ti consente di guardare gratis e on demand i tuoi programmi preferiti di Real Time, Dmax, DeejayTV, Focus, Giallo, Frisbee e K2 dove vuoi e quando vuoi.[CR][CR]Con il meglio della programmazione dei canali free di Discovery Italia, Dplay porta la TV oltre i soliti schermi.</description>
-    <description lang="en">Dplay is a video streaming service that lets you watch, for free and on demand, your favorite Real Time, Dmax, DeejayTv, Focus, Yellow, Frisbee and K2 programs where you want and when you want.[CR][CR]Featuring the best programming free channels of Discovery Italy, Dplay brings the TV beyond the usual TV screens.</description>
-    <disclaimer lang="it">Alcune parti di questo addon potrebbero non essere legali nel tuo paese di residenza. Si prega di verificare la legislazione in vigore prima di installare.</disclaimer>
-    <disclaimer lang="en">Some parts of this addon may not be legal in your country of residence. Please check with your local laws before installing.</disclaimer>
-    <language>it</language>
-    <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
-    <forum></forum>
-    <website></website>
-    <email></email>
-    <source>https://github.com/NeverWise/plugin.video.dplay</source>
-  </extension>
-</addon>
-
-<addon id="repository.xbmcadult" name="XBMC-Adult Addons" version="1.0.6" provider-name="xbmc-adult">
-	<extension point="xbmc.addon.repository" name="XBMC Adult Addons">
-		<info compressed="false">http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster/addons.xml</info>
-		<checksum>http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster/addons.xml.md5</checksum>
-		<datadir zip="true">http://raw.github.com/xbmc-adult/xbmc-adult/ghmaster</datadir>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<summary>XBMC Addons for Adults Only</summary>
-		<description>This repository contains addons that are for adults only. You may only view the contents of this repository if you are at least 18 years of age, or at least the age of majority in the jurisdiction where you reside or from which you access this content.</description>
-		<disclaimer>The owners and submitters to this repository do not host or distribute any of the content displayed by these addons nor do they have any affiliation with the content providers.</disclaimer>
-		<platform>all</platform>
-	</extension>
 </addon>
 
 <addon id="repository.xbmchub" name="TVADDONS.ag Addon Repository" version="1.0.6" provider-name="tvaddons.ag">
@@ -227,47 +288,6 @@
 		<disclaimer></disclaimer>
 		<platform>all</platform>
 	</extension>
-</addon>
-
-<addon id="repository.unofficialquasar" name="[COLOR red]Unofficial[/COLOR] [COLOR FF005de5]Quasar[/COLOR] Repo" version="1.0.4" provider-name="iCanuck">
-	<extension point="xbmc.addon.repository" name="Unofficial Quasar Repository">
-		<info>https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/addons.xml</info>
-		<checksum>https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/addons.xml.md5</checksum>
-		<datadir zip="true">https://offshoregit.com/pulsarunofficial/Unofficial-Quasar-Repo/</datadir>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<summary>A Collection of Quasar Providers and Related Addons</summary>
-		<description>Download and install Quasar and Providers</description>
-		<disclaimer>The owners and submitters to this repository do not host or distribute any of the content displayed by these addons nor do they have any affiliation with the content providers.</disclaimer>
-		<website>http://tvaddons.ag/</website>
-		<forum>https://forums.tvaddons.ag/addon-releases/31572-pulsar-providers-unofficial-pulsar-repo.html</forum>
-		<platform>all</platform>
-		<license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
-	</extension>
-</addon>
-
-<addon id="service.system.aml-vnc"
-       name="aml-vnc"
-       version="7.0.3"
-       provider-name="kszaq (kszaquitto at gmail.com)">
-  <requires>
-    <import addon="os.libreelec.tv" version="7.0"/>
-    <import addon="xbmc.python" version="2.1.0"/>
-
-  </requires>
-  <extension point="xbmc.service" library="default.py">
-    <provides></provides>
-  </extension>
-  <extension point="xbmc.addon.metadata">
-    <summary>VNC Server for Amlogic devices</summary>
-    <description>
-VNC Server for Amlogic devices
-    </description>
-    <disclaimer>
-this is an unofficial addon. please don't ask for support in libreelec forum / irc channel
-    </disclaimer>
-    <platform>all</platform>
-  </extension>
 </addon>
 
 <addon id="plugin.video.videomediaset" name="Video Mediaset" provider-name="phate89, aracnoz" version="1.2.0">
