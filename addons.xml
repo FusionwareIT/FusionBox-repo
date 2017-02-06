@@ -194,7 +194,7 @@
 
 <addon id="script.speedtest"
        name="Speedtest"
-       version="0.1"
+       version="0.2"
        provider-name="FusionWare">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>

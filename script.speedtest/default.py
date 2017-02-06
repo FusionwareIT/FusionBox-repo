@@ -830,9 +830,9 @@ class O0iIiIIIIIii ( xbmcgui . WindowDialog ) :
  def __init__ ( self ) :
   self . imgControl = xbmcgui . ControlImage ( 340 , 210 , 600 , 270 , 'https://www.speedtest.net/result/%s.png' % oo00o0Oo0oo )
   self . addControl ( self . imgControl )
-  self . button0 = xbmcgui . ControlButton ( int ( 340 + 505 ) , int ( 210 + 206 ) , 80 , 50 , "[B]Chiudi[/B]" )
-  self . addControl ( self . button0 )
-  self . setFocus ( self . button0 )
+# self . button0 = xbmcgui . ControlButton ( int ( 340 + 505 ) , int ( 210 + 206 ) , 120 , 80 , "Chiudi" )
+# self . addControl ( self . button0 )
+# self . setFocus ( self . button0 )
   if 96 - 96: OoOoOO00
  def onAction ( self , action ) :
   if action == II1Iiii1111i or action == i1IIi11111i :
