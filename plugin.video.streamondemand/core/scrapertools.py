@@ -25,13 +25,13 @@
 # Scraper tools for reading and processing web elements
 # --------------------------------------------------------------------------------
 
-import StringIO
-import gzip
 import os
 import re
 import socket
 import time
 import urllib
+import StringIO
+import gzip
 import urllib2
 import urlparse
 
@@ -330,6 +330,13 @@ def downloadpage(url,post=None,headers=DEFAULT_HEADERS,follow_redirects=True, ti
     logger.info("streamondemand.core.scrapertools downloadpage")
     logger.info("streamondemand.core.scrapertools url="+url)
 
+    data, _ = downloadpageWithResult(url=url, post=post, headers=headers, follow_redirects=follow_redirects, timeout=timeout, header_to_get=header_to_get)
+    return data
+
+def downloadpageWithResult(url,post=None,headers=DEFAULT_HEADERS,follow_redirects=True, timeout=DEFAULT_TIMEOUT, header_to_get=None):
+    logger.info("streamondemand.core.scrapertools downloadpageWithResult")
+    logger.info("streamondemand.core.scrapertools url="+url)
+
     if post is not None:
         logger.info("streamondemand.core.scrapertools post="+post)
     else:
@@ -344,6 +351,7 @@ def downloadpage(url,post=None,headers=DEFAULT_HEADERS,follow_redirects=True, ti
 
     dominio = urlparse.urlparse(url)[1].replace("www.", "")
     ficherocookies = os.path.join(COOKIES_PATH, dominio + ".dat" )
+    resultCode = 0
     logger.info("streamondemand.core.scrapertools ficherocookies="+ficherocookies)
 
     cj = None
@@ -485,12 +493,15 @@ def downloadpage(url,post=None,headers=DEFAULT_HEADERS,follow_redirects=True, ti
         else:
             logger.info("streamondemand.core.scrapertools normal")
             data = handle.read()
+
+        resultCode = handle.code
     except urllib2.HTTPError,e:
         import traceback
         logger.info(traceback.format_exc())
         data = e.read()
+        resultCode = e.code
         #logger.info("data="+repr(data))
-        return data
+        return data, resultCode
 
     info = handle.info()
     logger.info("streamondemand.core.scrapertools Respuesta")
@@ -525,7 +536,7 @@ def downloadpage(url,post=None,headers=DEFAULT_HEADERS,follow_redirects=True, ti
     fin = time.clock()
     logger.info("streamondemand.core.scrapertools Descargado en %d segundos " % (fin-inicio+1))
 
-    return data
+    return data, resultCode
 
 import cookielib
 class MyCookiePolicy(cookielib.DefaultCookiePolicy):
@@ -1323,16 +1334,38 @@ def get_domain_from_url(url):
 
     return filename
 
-# Parses the title of a tv show episode and returns the season id + episode id in format "1x01"
 def get_season_and_episode(title):
-    logger.info("get_season_and_episode('"+title+"')")
+    """
+    Retorna el numero de temporada y de episodio en formato "1x01" obtenido del titulo de un episodio
+    Ejemplos de diferentes valores para title y su valor devuelto:
+        "serie 101x1.strm", "s101e1.avi", "t101e1.avi"  -> '101x01'
+        "Name TvShow 1x6.avi" -> '1x06'
+        "Temp 3 episodio 2.avi" -> '3x02'
+        "Alcantara season 13 episodie 12.avi" -> '13x12'
+        "Temp1 capitulo 14" -> '1x14'
+        "Temporada 1: El origen Episodio 9" -> '' (entre el numero de temporada y los episodios no puede haber otro texto)
+        "Episodio 25: titulo episodio" -> '' (no existe el numero de temporada)
+        "Serie X Temporada 1" -> '' (no existe el numero del episodio)
+    @type title: str
+    @param title: titulo del episodio de una serie
+    @rtype: str
+    @return: Numero de temporada y episodio en formato "1x01" o cadena vacia si no se han encontrado
+    """
+    filename = ""
 
-    patron ="(\d+)[x|X](\d+)"
-    matches = re.compile(patron).findall(title)
-    logger.info(str(matches))
-    filename=matches[0][0]+"x"+matches[0][1]
+    patrons = ["(\d+)x(\d+)", "(?:s|t)(\d+)e(\d+)",
+               "(?:season|stag\w*)\s*(\d+)\s*(?:capitolo|epi\w*)\s*(\d+)"]
 
-    logger.info("get_season_and_episode('"+title+"') -> "+filename)
+    for patron in patrons:
+        try:
+            matches = re.compile(patron, re.I).search(title)
+            if matches:
+                filename = matches.group(1) + "x" + matches.group(2).zfill(2)
+                break
+        except:
+            pass
+
+    logger.info("'" + title + "' -> '" + filename + "'")
 
     return filename
 
@@ -1530,6 +1563,7 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
     logger.info("read_body_and_headers body="+data)
 
     return data,returnheaders
+
 
 def internet(host="8.8.8.8", port=53, timeout=3):
     """

@@ -107,7 +107,7 @@ def peliculas(item):
     data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
-    patron = '<li><a href="([^"]+)" data-thumbnail="([^"]+)"><div><div class="title">(.*?)<'
+    patron = '<li><a href="([^"]+)"[^=]+="([^"]+)"><div>\s*<div[^>]+>(.*?)<'
 
     matches = re.compile(patron, re.DOTALL).findall(data)
 
@@ -127,7 +127,7 @@ def peliculas(item):
                  folder=True), tipo='movie'))
 
     ## Paginación
-    next_page = scrapertools.find_single_match(data, '<li class="active"><a href=[^>]+>[^>]+>[^>]+>[^>]+><a href="([^"]+)">')
+    next_page = scrapertools.find_single_match(data, '<li><a href="([^"]+)" >Pagina')
 
     if next_page != "":
         itemlist.append(
@@ -155,7 +155,7 @@ def peliculas_tv(item):
     data = scrapertools.anti_cloudflare(item.url, headers)
 
     # Extrae las entradas (carpetas)
-    patron = '<li><a href="([^"]+)" data-thumbnail="([^"]+)"><div><div class="title">(.*?)<'
+    patron = '<li><a href="([^"]+)"[^=]+="([^"]+)"><div>\s*<div[^>]+>(.*?)<'
 
     matches = re.compile(patron, re.DOTALL).findall(data)
 
@@ -175,7 +175,7 @@ def peliculas_tv(item):
                  folder=True), tipo='tv'))
 
     ## Paginación
-    next_page = scrapertools.find_single_match(data, '<li class="active"><a href=[^>]+>[^>]+>[^>]+>[^>]+><a href="([^"]+)">')
+    next_page = scrapertools.find_single_match(data, '<li><a href="([^"]+)" >Pagina')
 
     if next_page != "":
         itemlist.append(

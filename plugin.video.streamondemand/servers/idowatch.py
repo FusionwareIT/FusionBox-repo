@@ -24,9 +24,8 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     data = scrapertools.cache_page(page_url)
 
-    try:
-        mediaurl = scrapertools.find_single_match(data, ',{file:(?:\s+|)"([^"]+)"')
-    except:
+    mediaurl = scrapertools.find_single_match(data, ',{file:(?:\s+|)"([^"]+)"')
+    if not mediaurl:
         matches = scrapertools.find_single_match(data, "<script type='text/javascript'>(eval\(function\(p,a,c,k,e,d.*?)</script>")
         matchjs = jsunpack.unpack(matches).replace("\\","")
         mediaurl = scrapertools.find_single_match(matchjs, ',{file:(?:\s+|)"([^"]+)"')

@@ -30,7 +30,7 @@ def get_video_url(page_url , premium = False , user="" , password="" , video_pas
         headers = []
         headers.append( [ "User-Agent" , "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.94 Safari/537.36" ] )
         headers.append( [ "Accept-Encoding","gzip,deflate,sdch" ] )
-        page_url = page_url.replace("https://animeflv.net/embed_izanagi.php?key=","https://animeflv.net/servers/izanagi.php?id=")
+        page_url = page_url.replace("https://animeflv.net/embed_izanagi.php?key=","https://s2.animeflv.net/izanagi.php?id=")
         page_url = page_url.replace("http://animeflv.net/embed_yotta.php?key=","http://s1.animeflv.net/yotta.php?id=")
         data = scrapertools.cache_page(page_url,headers=headers)
         data = data.replace("\\\\", "")
@@ -83,7 +83,7 @@ def find_videos(data):
             logger.info("  url duplicada="+url)
             
     
-    patronvideos  = "(http://www.animeid.moe/embed/.+?/)"
+    patronvideos  = "(http://www.animeid..{2,3}/embed/.+?/)"
     logger.info("[redirects.py] find_videos #"+patronvideos+"#")
     matches = re.compile(patronvideos,re.DOTALL).findall(data)
     

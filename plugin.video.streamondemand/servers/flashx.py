@@ -5,15 +5,15 @@
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 # ------------------------------------------------------------
 
+import base64
 import os
 import re
 import time
 import urllib
-import base64
 
 from core import config
-from core import logger
 from core import jsunpack
+from core import logger
 from core import scrapertools
 
 
@@ -46,7 +46,8 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
             pass
 
     matches = scrapertools.find_multiple_matches(data, "<script type='text/javascript'>(.*?)</script>")
-    for n,m in enumerate(matches):
+    m = ""
+    for n, m in enumerate(matches):
         if m.startswith("eval"):
             try:
                 m = jsunpack.unpack(m)
@@ -58,7 +59,7 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
             except:
                 m = ""
     match = m
-    if not "sources:[{file:" in match:
+    if "sources:[{file:" not in match:
         page_url = page_url.replace("playvid-", "")
 
         headers = {'Host': 'www.flashx.tv', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36',
@@ -78,7 +79,7 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
         headers['Referer'] = "https://www.flashx.tv/"
         headers['Accept'] = "*/*"
         coding = scrapertools.downloadpage(coding_url, headers=headers.items())
-        
+
         coding_url = 'https://www.flashx.tv/counter.cgi?fx=%s' % base64.encodestring(file_id)
         headers['Host'] = "www.flashx.tv"
         coding = scrapertools.downloadpage(coding_url, headers=headers.items())
@@ -127,7 +128,7 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
             except:
                 import traceback
                 logger.info("streamondemand.servers.flashx Error al descargar el subtítulo: "+traceback.format_exc())
-            
+
     for media_url, label in media_urls:
         if not media_url.endswith("png") and not media_url.endswith(".srt"):
             video_urls.append(["." + media_url.rsplit('.', 1)[1] + " [flashx]", media_url, 0, subtitle])

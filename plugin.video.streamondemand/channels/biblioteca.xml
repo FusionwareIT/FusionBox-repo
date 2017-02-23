@@ -14,17 +14,11 @@
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
 	<version>3</version>
 
-
 	<changes>
 		<change>
 			<date>01/07/16</date>
 			<autor>SeiTaN</autor>
 			<description>Eliminado código innecesario.</description>
-		</change>
-		<change>
-			<date>10/05/16</date>
-			<autor>super_berny</autor>
-			<description></description>
 		</change>
 		<change>
 			<date>30/04/2016</date>
@@ -34,4 +28,116 @@
 	</changes>
 
 	<include_in_global_search>disabled</include_in_global_search>
+
+
+	<settings>
+		<id>updatelibrary</id>
+		<type>list</type>
+		<label>Aggiornamento libreria</label>
+		<default>1</default>
+		<visible>true</visible>
+		<lvalues>Mai</lvalues>
+		<lvalues>Quando si avvia Kodi</lvalues>
+		<lvalues>Quotidiano</lvalues>
+	</settings>
+	<settings>
+		<id>updatelibrary_wait</id>
+		<type>list</type>
+		<label>    Attendere prima di aggiornare</label>
+		<default>0</default>
+		<enabled>eq(-1,Quando si avvia Kodi)</enabled>
+		<visible>true</visible>
+		<lvalues>No</lvalues>
+		<lvalues>10 sec</lvalues>
+		<lvalues>20 sec</lvalues>
+		<lvalues>30 sec</lvalues>
+		<lvalues>60 sec</lvalues>
+	</settings>
+	<settings>
+		<id>updatetvshows_interval</id>
+		<type>list</type>
+		<label>    Cercare nuovi episodi nella serie attiva</label>
+		<default>0</default>
+		<enabled>!eq(-2,Mai)</enabled>
+		<visible>true</visible>
+		<lvalues>Sempre</lvalues>
+		<lvalues>Secondo emissione</lvalues>
+	</settings>
+
+	<settings>
+		<id>library_mode</id>
+		<type>list</type>
+		<label>Locazione Database</label>
+		<default>0</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
+		<lvalues>Locale</lvalues>
+		<lvalues>Remota</lvalues>
+	</settings>
+	<settings>
+		<id>xbmc_host</id>
+		<type>text</type>
+		<label>    Nome server</label>
+		<enabled>eq(-1,Remota)</enabled>
+		<visible>true</visible>
+		<default></default>
+	</settings>
+	<settings>
+		<id>xbmc_puerto</id>
+		<type>text</type>
+		<label>    Porta server</label>
+		<enabled>!eq(-1,'')</enabled>
+		<visible>true</visible>
+		<default></default>
+	</settings>
+
+	<settings>
+		<id>mark_as_watched</id>
+		<type>bool</type>
+		<label>Contrassegnato automaticamente quando visto</label>
+		<default>true</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
+	</settings>
+	<settings>
+		<id>watched_setting</id>
+		<type>list</type>
+		<label>    Tempo di visione del video</label>
+		<default>3</default>
+		<enabled>eq(-1,true)</enabled>
+		<visible>true</visible>
+		<lvalues>5 Min</lvalues>
+		<lvalues>30%</lvalues>
+		<lvalues>50%</lvalues>
+		<lvalues>80%</lvalues>
+	</settings>
+	<settings>
+		<id>show_all_seasons</id>
+		<type>bool</type>
+		<label>Mostra l'opzione "Tutte le stagioni"</label>
+		<default>true</default>
+	</settings>
+	<settings>
+		<id>no_pile_on_seasons</id>
+		<type>list</type>
+		<label>Non unire le stagioni delle serie</label>
+		<default>1</default>
+		<lvalues>Mai</lvalues>
+		<lvalues>Solo se c'è una stagione</lvalues>
+		<lvalues>Sempre</lvalues>
+	</settings>
+	<settings>
+		<id>ask_channel</id>
+		<type>bool</type>
+		<label>Mostra dialogo di selezione dei canali</label>
+		<default>false</default>
+	</settings>
+	<settings>
+		<id>original_title_folder</id>
+		<type>list</type>
+		<label>Creare directory sul sistema utilizzando</label>
+		<default>0</default>
+		<lvalues>Titolo in italiano</lvalues>
+		<lvalues>Titolo originale</lvalues>
+	</settings>
 </channel>

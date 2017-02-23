@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<channel>
+    <id>bleachportal</id>
+    <name>BleachPortal</name>
+
+    <active>true</active>
+    <adult>false</adult>
+    <language>it</language>
+
+    <fanart>http://i39.tinypic.com/35ibvcx.jpg</fanart>
+    <thumbnail>http://cgi.di.uoa.gr/~std05181/images/bleach.jpg</thumbnail>
+    <bannermenu>http://cgi.di.uoa.gr/~std05181/images/bleach.jpg</bannermenu>
+
+    <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
+    <version>1</version>
+    <date>15/02/2017</date>
+    <changes>new channel</changes>
+
+    <categories>
+        <category>anime</category>
+    </categories>
+
+ 	<settings>
+		<id>include_in_global_search</id>
+		<type>bool</type>
+		<label>Includi ricerca globale</label>
+		<default>true</default>
+		<enabled>true</enabled>
+		<visible>true</visible>
+	</settings>
+</channel>

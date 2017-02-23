@@ -8,13 +8,13 @@
        <language>it</language>
 
        <fanart></fanart>
-       <thumbnail>http://filmhdstreaming.net/css/images/logo3.png</thumbnail>
-       <bannermenu>http://filmhdstreaming.net/css/images/logo3.png</bannermenu>
+       <thumbnail>http://filmhdstreaming.org/css/images/logo3.png</thumbnail>
+       <bannermenu>http://filmhdstreaming.org/css/images/logo3.png</bannermenu>
 
        <update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-       <version>3</version>
-       <date>05/10/2016</date>
-       <changes>New channel</changes>
+       <version>4</version>
+       <date>05/02/2017</date>
+       <changes>Fix Logo</changes>
 
        <categories>
           <category>movie</category>

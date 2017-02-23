@@ -52,7 +52,7 @@ def find_videos(data):
     encontrados = set()
     devuelve = []
 
-    patronvideos = '(?://|\.)(?:youwatch\.org)/(?:embed-)?([A-Za-z0-9]+)'
+    patronvideos = '(?://|\.)(?:youwatch\.org||chouhaa\.info)/(?:embed-)?([A-Za-z0-9]+)'
     logger.info("youwatch find_videos #" + patronvideos + "#")
     matches = re.compile(patronvideos, re.DOTALL).findall(data)
 

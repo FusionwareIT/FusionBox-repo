@@ -1,27 +1,10 @@
 <advancedsettings>
 <network>
-    <buffermode>1</buffermode>
-    <cachemembuffersize>157286400</cachemembuffersize>
-    <readbufferfactor>20</readbufferfactor>
-    <autodetectpingtime>30</autodetectpingtime>
-    <curlclienttimeout>60</curlclienttimeout>
-    <curllowspeedtime>60</curllowspeedtime>
-    <curlretries>2</curlretries>
-    <disableipv6>true</disableipv6>
+<autodetectpingtime>30</autodetectpingtime> 	<!-- Tiempo en segundos entre pings para detectar nuevas xbox. Por defecto 30, minimo 1, maximo 240 -->
+<curlclienttimeout>60</curlclienttimeout> 		<!-- Timeout en segundos para el reproductor (y otras conexiones). Por defecto 10, minimo 1, maximo 1000 -->
+<curllowspeedtime>60</curllowspeedtime> 		<!-- Tiempo en segundos que el cliente http espera antes de considerar una conexion como lenta. Por defecto 20, minimo 1, maximo 1000 -->
+<curlretries>2</curlretries> 					<!-- Numero de veces que el cliente http reintenta. Por defecto 2, minimo 0, maximo 10 -->
+<disableipv6>true</disableipv6> 				<!-- Desactiva ipv6. Por defecto false -->
+<cachemembuffersize>0</cachemembuffersize>  	<!-- Tamanyo de la cache del reproductor en bytes. Por defecto 20M (20*1024*1024), si es 0 usa una SimpleFileCache. -->
 </network>
-<gui>
-    <algorithmdirtyregions>0</algorithmdirtyregions>
-    <nofliptimeout>0</nofliptimeout>
-</gui>
-<playlistasfolders1>false</playlistasfolders1>
-<audio>
-    <defaultplayer>dvdplayer</defaultplayer>
-</audio>
-    <imageres>540</imageres>
-    <fanartres>720</fanartres>
-    <splash>false</splash>
-    <handlemounting>0</handlemounting>
-<samba>
-    <clienttimeout>30</clienttimeout>
-</samba>
 </advancedsettings>

@@ -7,41 +7,39 @@
 
 import re
 
+from core import jsontools
 from core import logger
 from core import scrapertools
 
 
 # Returns an array of possible video url's from the page_url
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
-    logger.info("[alldebrid.py] get_video_url( page_url='%s' , user='%s' , password='%s', video_password=%s)" % (page_url , user , "**************************"[0:len(password)] , video_password) )
+    logger.info("streamondemand.servers.alldebrid get_video_url( page_url='%s' , user='%s' , password='%s', video_password=%s)"
+                % (page_url , user , "**************************"[0:len(password)] , video_password) )
     page_url = correct_url(page_url)
 
-#Sin Logear
+    url = 'http://www.alldebrid.com/service.php?pseudo=%s&password=%s&link=%s&nb=0&json=true&pw=' % (user, password, page_url)
 
-#    url = 'http://alldebrid.com/service.php?&link=%s' % page_url
+    data = jsontools.load_json(scrapertools.downloadpage(url))
 
-    url = 'http://www.alldebrid.com/service.php?pseudo=%s&password=%s&link=%s' % (user,password,page_url)
+    video_urls = []
+    if data and data["link"] and not data["error"]:
+        extension = ".%s [alldebrid]" % data["filename"].rsplit(".",1)[1]
+        video_urls.append([extension, data["link"]])
 
-    data = scrapertools.cache_page(url)
-    #print data
-
-    patron = "href='(.+?)'"
-    matches = re.compile(patron).findall(data)
-    if len(matches)>0:
-        return matches[0]
     else:
-        server_error = ""
-        if "login" in data:
-            server_error = " AllDebrid : Tu Cuenta puede haber expirado."
+        try:
+            server_error = "Alldebrid: "+data["error"].decode("utf-8","ignore")
+            server_error = server_error.replace("This link isn't available on the hoster website.",
+                                                "Enlace no disponible en el servidor de descarga") \
+                                                .replace("Hoster unsupported or under maintenance.",
+                                                "Servidor no soportado o en mantenimiento")
+        except:
+            server_error = "Alldebrid: Error en el usuario/password o en la web"
             
-        elif "Hoster unsupported or under maintenance" in data:
-            server_error = " AllDebrid : Host no soportado o en mantenimiento."
+        video_urls.append([server_error, ''])
 
-        elif '"error":"' in data:
-            server_error = " Alldebrid ERROR<br/>"+scrapertools.get_match(data,'"error"\:"([^"]+)"')
-
-        logger.info(data)
-        return server_error
+    return video_urls
       
 def correct_url(url):
     if "userporn.com" in url:

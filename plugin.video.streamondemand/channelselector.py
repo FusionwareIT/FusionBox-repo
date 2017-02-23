@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------
-# streamondemand 5
+# pelisalacarta 4
 # Copyright 2015 tvalacarta@gmail.com
-# http://www.mimediacenter.info/foro/viewforum.php?f=36
+# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 #
 # Distributed under the terms of GNU General Public License v3 (GPLv3)
 # http://www.gnu.org/licenses/gpl-3.0.html
 # ------------------------------------------------------------
 # This file is part of streamondemand 5.
 #
-# streamondemand 5 is free software: you can redistribute it and/or modify
+# pelisalacarta 4 is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# streamondemand 5 is distributed in the hope that it will be useful,
+# pelisalacarta 4 is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
+# along with pelisalacarta 4.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------
 
 import glob
@@ -35,15 +35,14 @@ from core.item import Item
 
 DEBUG = config.get_setting("debug")
 
-
 def getmainlist(preferred_thumb=""):
     logger.info("channelselector.getmainlist")
-    itemlist = []
+    itemlist = list()
 
     # Añade los canales que forman el menú principal
 
-    itemlist.append( Item( title=config.get_localized_string(30121) , channel="channelselector" , action="listchannels" , category="all" , thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_all.png"),viewmode="movie") )
-    itemlist.append( Item(title=config.get_localized_string(30119) , channel="channelselector" , action="channeltypes", thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_category.png"),viewmode="movie") )
+    itemlist.append( Item( title=config.get_localized_string(30121) , channel="channelselector" , action="filterchannels" , channel_type="all", category="all" , thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_all.png"),viewmode="movie") )
+    itemlist.append( Item(title=config.get_localized_string(30119) , channel="channelselector" , action="getchanneltypes", thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_category.png"),viewmode="movie") )
     itemlist.append( Item(title="Ricerca Globale" , channel="buscadorall" , action="mainlist" , thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_search.png"),viewmode="movie") )
     itemlist.append( Item(title="Oggi in TV" , channel="filmontv" , action="mainlist" , thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_filmontv.png"),viewmode="movie") )
     itemlist.append( Item(title=config.get_localized_string(30102) , channel="favoritos" , action="mainlist" , thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_fav.png"),viewmode="movie") )
@@ -58,6 +57,9 @@ def getmainlist(preferred_thumb=""):
 
     itemlist.append( Item(title=config.get_localized_string(30104) , channel="ayuda" , action="mainlist", thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_help.png"),viewmode="movie") )
     return itemlist
+
+def get_thumb(preferred_thumb,thumb_name):
+    return urlparse.urljoin(get_thumbnail_path(preferred_thumb),thumb_name)
 
 def getchanneltypes(preferred_thumb=""):
     logger.info("channelselector getchanneltypes")
@@ -109,51 +111,45 @@ def getchanneltypes(preferred_thumb=""):
     # Ahora construye el itemlist ordenadamente
     itemlist = list()
 
-    itemlist.append(Item(title="Top Channels", channel="channelselector", action="listchannels",
-                         category="top channels", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_topchannels.png"),
+    itemlist.append(Item(title="Top Channels", channel="channelselector", action="filterchannels",
+                         category="top channels", channel_type="top channels", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_topchannels.png"),
                          viewmode="movie"))
-    itemlist.append(Item(title=config.get_localized_string(30122), channel="channelselector", action="listchannels",
-                         category="movie", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_film.png"), viewmode="movie"))
-    itemlist.append(Item(title=config.get_localized_string(30123), channel="channelselector", action="listchannels",
-                         category="serie", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_series.png"), viewmode="movie"))
-    itemlist.append(Item(title=config.get_localized_string(30124), channel="channelselector", action="listchannels",
-                         category="anime", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_anime.png"), viewmode="movie"))
-    itemlist.append(Item(title=config.get_localized_string(30125), channel="channelselector", action="listchannels",
-                         category="documentary", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_documentales.png"),
+    itemlist.append(Item(title=config.get_localized_string(30122), channel="channelselector", action="filterchannels",
+                         category="movie", channel_type="movie", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_film.png"), viewmode="movie"))
+    itemlist.append(Item(title=config.get_localized_string(30123), channel="channelselector", action="filterchannels",
+                         category="serie", channel_type="serie", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_series.png"), viewmode="movie"))
+    itemlist.append(Item(title=config.get_localized_string(30124), channel="channelselector", action="filterchannels",
+                         category="anime", channel_type="anime", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_anime.png"), viewmode="movie"))
+    itemlist.append(Item(title=config.get_localized_string(30125), channel="channelselector", action="filterchannels",
+                         category="documentary", channel_type="documentary", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_documentales.png"),
+                         viewmode="movie"))
+    itemlist.append(Item(title="Cult", channel="channelselector", action="filterchannels",
+                         category="cult", channel_type="cult", thumbnail= os.path.join(config.get_runtime_path() , "resources" , "images", "main_menu_filmontv.png"),
                          viewmode="movie"))
     itemlist.append(Item(title="Saghe", channel="saghe", action="mainlist",
-                         category="saghe", thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_saghe.png")))
+                         category="saghe", channel_type="saghe", thumbnail = os.path.join(config.get_runtime_path() , "resources" , "images", "cat_menu_saghe.png")))
     logger.info("channelselector.getchanneltypes Ordenados:")
     for channel_type in valid_types:
-        logger.info("channelselector.getchanneltypes channel_type=" + channel_type)
+        logger.info("channelselector.getchanneltypes channel_type="+channel_type)
         if channel_type in channel_types:
             title = dict_cat_lang.get(channel_type, channel_type)
-            itemlist.append(Item(title=title, channel="channelselector", action="listchannels", category=channel_type,
+            itemlist.append(Item(title=title, channel="channelselector", action="filterchannels", category=title,
+                                 channel_type= channel_type, viewmode="thumbnails",
                                  thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),
-                                                            "thumb_canales_" + channel_type + ".png"),
-                                 viewmode="movie"))
+                                                            "thumb_canales_"+channel_type+".png")))
 
     return itemlist
-
-def channeltypes(params, url, category):
-    logger.info("channelselector.mainlist channeltypes")
-
-    lista = getchanneltypes()
-    # Se devuelve el itemlist para que xbmctools se encarge de mostrarlo
-    return lista
-
-
-def listchannels(params, url, category):
-    logger.info("channelselector.listchannels")
-
-    lista = filterchannels(category)
-    # Se devuelve el itemlist para que xbmctools se encarge de mostrarlo
-    return lista
 
 def filterchannels(category,preferred_thumb=""):
     logger.info("channelselector.filterchannels")
 
     channelslist =[]
+
+    # Si category = "allchannelstatus" es que estamos activando/desactivando canales
+    appenddisabledchannels = "false"
+    if category == "allchannelstatus":
+        category = "all"
+        appenddisabledchannels = "true"
 
     # Lee la lista de canales
     channel_path = os.path.join( config.get_runtime_path() , "channels" , '*.xml' )
@@ -180,9 +176,16 @@ def filterchannels(category,preferred_thumb=""):
                 if preferred_thumb=="bannermenu" and "bannermenu" in channel_parameters:
                     channel_parameters["thumbnail"] = channel_parameters["bannermenu"]
 
-                # Se salta el canal si no está activo
-                if not channel_parameters["active"] == "true":
-                    continue
+                # Se salta el canal si no está activo y no estamos activando/desactivando los canales
+                channel_status = None
+                if config.get_setting("enabled", channel_parameters["channel"]):
+                    channel_status = config.get_setting("enabled", channel_parameters["channel"])
+                else:
+                    channel_status = channel_parameters["active"]
+
+                if channel_status != "true":
+                    if appenddisabledchannels != "true":
+                        continue
 
                 # Se salta el canal para adultos si el modo adultos está desactivado
                 if channel_parameters["adult"] == "true" and config.get_setting("adult_mode") != "true": 
@@ -197,7 +200,12 @@ def filterchannels(category,preferred_thumb=""):
                     continue
 
                 # Si ha llegado hasta aquí, lo añade
-                channelslist.append(Item(title=channel_parameters["title"], channel=channel_parameters["channel"], action="mainlist", thumbnail=channel_parameters["thumbnail"] , fanart=channel_parameters["fanart"], category=", ".join(channel_parameters["categories"])[:-2], language=channel_parameters["language"], viewmode="list" ))
+                channelslist.append(Item(title=channel_parameters["title"], channel=channel_parameters["channel"],
+                                         action="mainlist", thumbnail=channel_parameters["thumbnail"] ,
+                                         fanart=channel_parameters["fanart"],
+                                         category=channel_parameters["title"],
+                                         language=channel_parameters["language"], viewmode="list" ))
+
             
             except:
                 logger.info("Se ha producido un error al leer los datos del canal " + channel)

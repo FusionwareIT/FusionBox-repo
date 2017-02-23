@@ -83,25 +83,31 @@ class Client(object):
             return "http://" + self.ip + ":" + str(self.port) + "/" + urllib.quote(self.files[0].name.encode("utf8"))
 
     def get_files(self):
+        files = []
         if self.files:
-            files = []
             for file in self.files:
                 n = file.name.encode("utf8")
                 u = "http://" + self.ip + ":" + str(self.port) + "/" + urllib.quote(n)
                 s = file.size
-                files.append({"name":n,"url":u,"size":s})
+                file_id = file.file_id
+                files.append({"name":n,"url":u,"size":s, "id": file_id})
         return files
 
     def add_url(self, url):
         url = url.split("/#")[1]
+        id_video = None
+        if "|" in url:
+            url, id_video = url.split("|")
         if url.startswith("F!"):
             if len(url.split("!")) ==3:
                 folder_id = url.split("!")[1]
                 folder_key = url.split("!")[2]
                 master_key = self.base64_to_a32(folder_key)
-                files = self.api_req({"a":"f","c":1},"&n="+folder_id)
+                files = self.api_req({"a":"f","c":1,"r":1},"&n="+folder_id)
                 for file in files["f"]:
                  if file["t"] == 0:
+                    if id_video and id_video != file["h"]:
+                        continue
                     key = file['k'][file['k'].index(':') + 1:]
                     key = self.decrypt_key(self.base64_to_a32(key), master_key)
                     k = (key[0] ^ key[4], key[1] ^ key[5], key[2] ^ key[6], key[3] ^ key[7])

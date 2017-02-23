@@ -21,7 +21,7 @@ __type__ = "generic"
 __title__ = "AltaDefinizioneclick"
 __language__ = "IT"
 
-host = "http://altadefinizione.blue"
+host = "http://altadefinizione.cafe"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'],

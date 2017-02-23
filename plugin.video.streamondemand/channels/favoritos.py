@@ -26,78 +26,143 @@
 # ------------------------------------------------------------
 
 import os
-import sys
-import urllib
+import time
 
-from lib.sambatools import libsmb as samba
+from core import scrapertools
 
 from core import config
+from core import filetools
 from core import logger
 from core.item import Item
+from platformcode import platformtools
 
+# Fijamos la ruta a favourites.xml
 if config.is_xbmc():
     import xbmc
+    FAVOURITES_PATH = xbmc.translatePath("special://home/userdata/favourites.xml")
+else:
+    FAVOURITES_PATH = os.path.join(config.get_data_path(), "favourites.xml")
 
-CHANNELNAME = "favoritos"
-DEBUG = config.get_setting("debug")
-BOOKMARK_PATH = config.get_setting("bookmarkpath")
-
-if not BOOKMARK_PATH.upper().startswith("SMB://"):
-    if BOOKMARK_PATH.startswith("special://") and config.is_xbmc():
-        # logger.info("pelisalacarta.channels.favoritos Se esta utilizando el protocolo 'special'")
-        BOOKMARK_PATH = xbmc.translatePath(config.get_setting("bookmarkpath"))
-    if BOOKMARK_PATH == "":
-        BOOKMARK_PATH = os.path.join(config.get_data_path(), "bookmarks")
-    if not os.path.exists(BOOKMARK_PATH):
-        # logger.debug("[favoritos.py] Path de bookmarks no existe, se crea: " + BOOKMARK_PATH)
-        os.mkdir(BOOKMARK_PATH)
 
 def mainlist(item):
     logger.info("streamondemand.channels.favoritos mainlist")
     itemlist = []
+    #bookmarkpath = config.get_setting("bookmarkpath") #TODO si solo se usa para esto podriamos eliminarlo
 
-    # Crea un listado con las entradas de favoritos
-    if samba.usingsamba(BOOKMARK_PATH):
-        ficheros = samba.get_files(BOOKMARK_PATH)
-    else:
-        ficheros = os.listdir(BOOKMARK_PATH)
+    for name,thumb,data in read_favourites():
+        if "plugin://plugin.video.%s/?" % config.PLUGIN_NAME in data:
+            url = scrapertools.find_single_match(data, 'plugin://plugin.video.%s/\?([^;]*)'  % config.PLUGIN_NAME)\
+                .replace("&quot", "")
     
-    # Ordena el listado por nombre de fichero (orden de incorporación)
-    ficheros.sort()
+            item = Item().fromurl(url)
+            item.title = name
+            item.thumbnail = thumb
+            item.isFavourite = True
     
-    # Rellena el listado
-    for fichero in ficheros:
+            item.context = [{"title": config.get_localized_string(30154), #"Quitar de favoritos"
+                             "action": "delFavourite",
+                             "channel": "favoritos",
+                             "from_title": item.title},
+                            {"title": "Renombrar",
+                             "action": "renameFavourite",
+                             "channel": "favoritos",
+                             "from_title": item.title}
+                            ]
+            #logger.debug(item.tostring('\n'))
+            itemlist.append(item)
 
-        try:
-            # Lee el bookmark
-            canal, titulo, thumbnail, plot, server, url, fulltitle = readbookmark(fichero)
-            if canal == "":
-                canal = "favoritos"
-
-            # Crea la entrada
-            # En extra va el nombre del fichero para poder borrarlo
-            # <-- Añado fulltitle con el titulo de la peli
-            itemlist.append(Item(channel=canal, action="play", url=url, server=server, title=fulltitle,
-                                 thumbnail=thumbnail, plot=plot, fanart=thumbnail,
-                                 extra=os.path.join(BOOKMARK_PATH, fichero), fulltitle=fulltitle, folder=False))
-        except:
-            for line in sys.exc_info():
-                logger.error("%s" % line)
-    
     return itemlist
 
+def read_favourites():
+    favourites_list = []
+    if filetools.exists(FAVOURITES_PATH):
+        data = filetools.read(FAVOURITES_PATH)
+    
+        matches = scrapertools.find_multiple_matches(data, "<favourite([^<]*)</favourite>")
+        for match in matches:
+            name = scrapertools.find_single_match(match, 'name="([^"]*)')
+            thumb = scrapertools.find_single_match(match, 'thumb="([^"]*)')
+            data = scrapertools.find_single_match(match, '[^>]*>([^<]*)')
+            favourites_list.append((name,thumb,data))
 
-def readbookmark(filename, readpath=BOOKMARK_PATH):
-    logger.info("streamondemand.channels.favoritos readbookmark")
+    return favourites_list
 
-    if samba.usingsamba(readpath):
-        bookmarkfile = samba.get_file_handle_for_reading(filename, readpath)
-    else:
-        filepath = os.path.join(readpath, filename)
 
-        # Lee el fichero de configuracion
-        logger.info("streamondemand.channels.favoritos filepath="+filepath)
-        bookmarkfile = open(filepath)
+def save_favourites(favourites_list):
+    raw = '<favourites>' + chr(10)
+    for name,thumb,data in favourites_list:
+        raw += '    <favourite name="%s" thumb="%s">%s</favourite>' %(name,thumb,data) + chr(10)
+    raw += '</favourites>' + chr(10)
+
+    return filetools.write(FAVOURITES_PATH, raw)
+
+
+def addFavourite(item):
+    logger.info("streamondemand.core.favoritos addFavourite")
+    #logger.debug(item.tostring('\n'))
+
+    # Si se llega aqui mediante el menu contextual, hay que recuperar los parametros action y channel
+    if item.from_action:
+        item.__dict__["action"] = item.__dict__.pop("from_action")
+    if item.from_channel:
+        item.__dict__["channel"] = item.__dict__.pop("from_channel")
+
+    favourites_list = read_favourites()
+    data = "ActivateWindow(10025,&quot;plugin://plugin.video.%s/?" % config.PLUGIN_NAME + item.tourl() + "&quot;,return)"
+    titulo = item.title.replace('"',"'")
+    favourites_list.append((titulo,item.thumbnail,data))
+
+    if save_favourites(favourites_list):
+        platformtools.dialog_ok(config.get_localized_string(30102),titulo,
+                                config.get_localized_string(30108))  # 'se ha añadido a favoritos'
+
+
+def delFavourite(item):
+    logger.info("streamondemand.core.favoritos delFavourite")
+    #logger.debug(item.tostring('\n'))
+
+    if item.from_title:
+        item.title = item.from_title
+
+    favourites_list = read_favourites()
+    for fav in favourites_list[:]:
+        if fav[0] == item.title:
+            favourites_list.remove(fav)
+
+            if save_favourites(favourites_list):
+                platformtools.dialog_ok(config.get_localized_string(30102), item.title,
+                                        config.get_localized_string(30105).lower())  # 'Se ha quitado de favoritos'
+                platformtools.itemlist_refresh()
+            break
+
+
+def renameFavourite(item):
+    logger.info("streamondemand.core.favoritos renameFavourite")
+    #logger.debug(item.tostring('\n'))
+
+    #Buscar el item q queremos renombrar en favourites.xml
+    favourites_list = read_favourites()
+    for i,fav in enumerate(favourites_list):
+        if fav[0] == item.from_title:
+            # abrir el teclado
+            new_title = platformtools.dialog_input(item.from_title, item.title)
+            if new_title:
+                favourites_list[i] = (new_title, fav[1], fav[2])
+                if save_favourites(favourites_list):
+                    platformtools.dialog_ok(config.get_localized_string(30102), item.from_title,
+                                            "è stato rinominato:",new_title)  # 'Se ha quitado de favoritos'
+                    platformtools.itemlist_refresh()
+
+
+
+
+##################################################
+# Funciones para migrar favoritos antiguos (.txt)
+def readbookmark(filepath):
+    logger.info("[favoritos.py] readbookmark")
+    import urllib
+
+    bookmarkfile = filetools.open_for_reading(filepath)
     lines = bookmarkfile.readlines()
 
     try:
@@ -147,75 +212,39 @@ def readbookmark(filename, readpath=BOOKMARK_PATH):
     return canal, titulo, thumbnail, plot, server, url, fulltitle
 
 
-def savebookmark(canal=CHANNELNAME, titulo="", url="", thumbnail="", server="", plot="", fulltitle="",
-                 savepath=BOOKMARK_PATH):
-    logger.info("streamondemand.channels.favoritos savebookmark(path="+savepath+")")
+def check_bookmark(readpath):
+    # Crea un listado con las entradas de favoritos
+    itemlist = []
 
-    # Crea el directorio de favoritos si no existe
-    if not samba.usingsamba(savepath):
-        try:
-            os.mkdir(savepath)
-        except:
-            pass
+    if readpath.startswith("special://") and config.is_xbmc():
+        import xbmc
+        readpath = xbmc.translatePath(readpath)
 
-    # Lee todos los ficheros
-    if samba.usingsamba(savepath):
-        ficheros = samba.get_files(savepath)
-    else:
-        ficheros = os.listdir(savepath)
-    ficheros.sort()
+    for fichero in sorted(filetools.listdir(readpath)):
+        # Ficheros antiguos (".txt")
+        if fichero.endswith(".txt"):
+            # Esperamos 0.1 segundos entre ficheros, para que no se solapen los nombres de archivo
+            time.sleep(0.1)
     
-    # Averigua el último número
-    if len(ficheros) > 0:
-        # XRJ: Linea problemática, sustituida por el bucle siguiente
-        # filenumber = int( ficheros[len(ficheros)-1][0:-4] )+1
-        filenumber = 1
-        for fichero in ficheros:
-            logger.info("streamondemand.channels.favoritos fichero="+fichero)
-            try:
-                tmpfilenumber = int(fichero[0:8])+1
-                if tmpfilenumber > filenumber:
-                    filenumber = tmpfilenumber
-            except:
-                pass
-    else:
-        filenumber = 1
+            # Obtenemos el item desde el .txt
+            canal, titulo, thumbnail, plot, server, url, fulltitle = readbookmark(filetools.join(readpath, fichero))
+            if canal == "":
+                canal = "favoritos"
+            item = Item(channel=canal, action="play", url=url, server=server, title=fulltitle, thumbnail=thumbnail,
+                        plot=plot, fanart=thumbnail, fulltitle=fulltitle, folder=False)
 
-    # Genera el contenido
-    filecontent = ""
-    filecontent = filecontent + urllib.quote_plus(titulo)+'\n'
-    filecontent = filecontent + urllib.quote_plus(url)+'\n'
-    filecontent = filecontent + urllib.quote_plus(thumbnail)+'\n'
-    filecontent = filecontent + urllib.quote_plus(server)+'\n'
-    filecontent = filecontent + urllib.quote_plus(plot)+'\n'
-    filecontent = filecontent + urllib.quote_plus(fulltitle)+'\n'
-    filecontent = filecontent + urllib.quote_plus(canal)+'\n'
+            filetools.rename(filetools.join(readpath, fichero),fichero[:-4] + ".old")
+            itemlist.append(item)
 
-    # Genera el nombre de fichero
-    from core import scrapertools
-    filename = '%08d-%s.txt' % (filenumber, scrapertools.slugify(fulltitle))
-    logger.info("streamondemand.channels.favoritos savebookmark filename="+filename)
-
-    # Graba el fichero
-    if not samba.usingsamba(savepath):
-        fullfilename = os.path.join(savepath, filename)
-        bookmarkfile = open(fullfilename, "w")
-        bookmarkfile.write(filecontent)
-        bookmarkfile.flush()
-        bookmarkfile.close()
-    else:
-        samba.store_File(filename, filecontent, savepath)
+    # Si hay Favoritos q guardar
+    if itemlist:
+        favourites_list = read_favourites()
+        for item in itemlist:
+            data = "ActivateWindow(10025,&quot;plugin://plugin.video.streamondemand/?" + item.tourl() + "&quot;,return)"
+            favourites_list.append((item.title, item.thumbnail, data))
+        if save_favourites(favourites_list):
+            logger.debug("Conversion de txt a xml correcta")
 
 
-def deletebookmark(fullfilename, deletepath=BOOKMARK_PATH):
-    logger.info("streamondemand.channels.favoritos deletebookmark(fullfilename="+fullfilename+",deletepath="+deletepath+")")
 
-    if not samba.usingsamba(deletepath):
-        os.remove(os.path.join(urllib.unquote_plus(deletepath), urllib.unquote_plus(fullfilename)))
-    else:
-        fullfilename = fullfilename.replace("\\", "/")
-        partes = fullfilename.split("/")
-        filename = partes[len(partes)-1]
-        logger.info("streamondemand.channels.favoritos filename="+filename)
-        logger.info("streamondemand.channels.favoritos deletepath="+deletepath)
-        samba.delete_files(filename, deletepath)
+check_bookmark(config.get_setting("bookmarkpath"))

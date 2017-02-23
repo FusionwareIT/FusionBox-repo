@@ -12,15 +12,28 @@ from core import logger
 from core import scrapertools
 
 
+def test_video_exists(page_url):
+    logger.info("streamondemand.servers.spruto test_video_exists(page_url='%s')" % page_url)
+
+    data = scrapertools.cache_page(page_url)
+    if "404.txt" in data:
+        return False, "Il video è stato rimosso"
+
+    return True, ""
+
+
 def get_video_url(page_url, premium=False, user="", password="", video_password=""):
-    logger.info("[spruto.py] url=" + page_url)
-    video_urls = []
+    logger.info("streamondemand.servers.spruto url=" + page_url)
 
     data = scrapertools.cache_page(page_url)
 
-    # URL del vídeo
-    for url in re.findall(r'file: "(.*?\.mp4)"', data):
-        video_urls.append([".mp4" + " [spruto]", url])
+    video_urls = []
+    media_urls = scrapertools.find_multiple_matches(data, 'file":\s*"([^"]+)"')
+
+    for media_url in media_urls:
+        extension = scrapertools.get_filename_from_url(media_url)[-3:]
+        if extension != "png" and extension != "php":
+            video_urls.append([scrapertools.get_filename_from_url(media_url)[-4:] + " [spruto]", media_url])
 
     return video_urls
 

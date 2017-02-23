@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # ------------------------------------------------------------
 # streamondemand 5
 # Copyright 2015 tvalacarta@gmail.com
@@ -30,7 +30,7 @@ import time
 from core import jsontools
 from core import logger
 from core import scrapertools
-from platformcode import platformtools
+from core.item import InfoLabels
 
 # -----------------------------------------------------------------------------------------------------------
 # Conjunto de funciones relacionadas con las infoLabels.
@@ -86,91 +86,82 @@ from platformcode import platformtools
 otmdb_global = None
 
 
-def cb_select_from_tmdb(item, tmdb_result):
-    if tmdb_result is None:
-        logger.debug("he pulsado 'cancelar' en la ventana de info de la serie/pelicula")
-        return None
+def set_infoLabels(source, seekTmdb=True, idioma_busqueda='it'):
+    """
+    Dependiendo del tipo de dato de source obtiene y fija (item.infoLabels) los datos extras de una o varias series,
+    capitulos o peliculas.
+
+    @param source: variable que contiene la información para establecer infoLabels
+    @type source: list, item
+    @param seekTmdb: si es True hace una busqueda en www.themoviedb.org para obtener los datos, en caso contrario
+        obtiene los datos del propio Item.
+    @type seekTmdb: bool
+    @param idioma_busqueda: fija el valor de idioma en caso de busqueda en www.themoviedb.org
+    @type idioma_busqueda: str
+    @return: un numero o lista de numeros con el resultado de las llamadas a set_infoLabels_item
+    @rtype: int, list
+    """
+    start_time = time.time()
+    if type(source) == list:
+        ret = set_infoLabels_itemlist(source, seekTmdb, idioma_busqueda)
+        logger.debug("Se han obtenido los datos de %i enlaces en %f segundos" % (len(source), time.time() - start_time))
     else:
-        return tmdb_result
+        ret = set_infoLabels_item(source, seekTmdb, idioma_busqueda)
+        logger.debug("Se han obtenido los datos del enlace en %f segundos" % (time.time() - start_time))
+    return ret
 
 
-def find_and_set_infoLabels_tmdb(item, ask_video=True):
-    global otmdb_global
+def set_infoLabels_itemlist(item_list, seekTmdb=False, idioma_busqueda='it'):
+    """
+    De manera concurrente, obtiene los datos de los items incluidos en la lista item_list.
 
-    contentType = item.contentType if item.contentType else ("movie" if not item.contentSerieName else "tvshow")
-    title = item.contentSerieName if contentType == "tvshow" else item.contentTitle
-    season = int(item.contentSeason) if item.contentSeason else ""
-    episode = int(item.contentEpisodeNumber) if item.contentEpisodeNumber else ""
-    contentType = "episode" if contentType == "tvshow" and item.contentSeason and item.contentEpisodeNumber else \
-        contentType
-    year = item.infoLabels.get('year', '')
+    La API tiene un limite de 40 peticiones por IP cada 10'' y por eso la lista no deberia tener mas de 30 items
+    para asegurar un buen funcionamiento de esta funcion.
 
-    video_type = "tv" if contentType in ["tvshow", "episode"] else "movie"
+    :param item_list: listado de objetos Item que representan peliculas, series o capitulos. El atributo
+        infoLabels de cada objeto Item sera modificado incluyendo los datos extras localizados.
+    :type item_list: list
+    :param seekTmdb: Si es True hace una busqueda en www.themoviedb.org para obtener los datos, en caso contrario
+        obtiene los datos del propio Item si existen.
+    :type seekTmdb: bool
+    :param idioma_busqueda: Codigo del idioma segun ISO 639-1, en caso de busqueda en www.themoviedb.org.
+    :type idioma_busqueda: str
 
-    tmdb_result = None
-    while not tmdb_result:
-        if not item.infoLabels.get("tmdb_id"):
-            otmdb_global = Tmdb(texto_buscado=title, tipo=video_type, year=year)
-        elif not otmdb_global or otmdb_global.result.get("id") != item.infoLabels['tmdb_id']:
-            otmdb_global = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=video_type, idioma_busqueda="it")
+    :return: Una lista de numeros cuyo valor absoluto representa la cantidad de elementos incluidos en el atributo
+        infoLabels de cada Item. Este numero sera positivo si los datos se han obtenido de www.themoviedb.org y
+        negativo en caso contrario.
+    :rtype: list
+    """
+    import threading
 
-        results = otmdb_global.get_list_resultados()
+    semaforo = threading.Semaphore(20)
+    lock = threading.Lock()
+    r_list = list()
+    i = 0
+    l_hilo = list()
 
+    def sub_thread(item, _i, _seekTmdb):
+        semaforo.acquire()
+        ret = set_infoLabels_item(item, _seekTmdb, idioma_busqueda, lock)
+        # logger.debug(str(ret) + "item: " + item.tostring())
+        semaforo.release()
+        r_list.append((_i, item, ret))
 
-        if len(results) > 1 and ask_video:
-            tmdb_result = platformtools.show_video_info(results, caption="[{0}]: Seleziona {1} corretta"
-                                                        .format(title, "la serie" if video_type == "tv" else "il film"),
-                                                        callback='cb_select_from_tmdb', item=item)
-        elif len(results) > 0:
-            tmdb_result = results[0]
+    for item in item_list:
+        t = threading.Thread(target=sub_thread, args=(item, i, seekTmdb))
+        t.start()
+        i += 1
+        l_hilo.append(t)
 
+    # esperar q todos los hilos terminen
+    for x in l_hilo:
+        x.join()
 
-        if tmdb_result is None:
-            if platformtools.dialog_yesno("Ricerca titolo" ,
-                                          "Titolo non travato {0}:".
-                                          format("della serie" if video_type == "tv" else "del film"),
-                                          title,
-                                          'Vuoi cercare con titolo diverso ?'):
-                # Pregunta el titulo
-                it = platformtools.dialog_input(title, "Inserire il nome {0} per la ricerca".
-                                                format("serie" if video_type == "tv" else "film"))
-                if it is not None:
-                    title = it
-                else:
-                    logger.debug("he pulsado 'cancelar' en la ventana 'introduzca el nombre correcto'")
-                    break
-            else:
-                break
+    # Ordenar lista de resultados por orden de llamada para mantener el mismo orden q item_list
+    r_list.sort(key=lambda i: i[0])
 
-
-    infoLabels = item.infoLabels if type(item.infoLabels) == dict else {}
-
-    if not tmdb_result:
-        item.infoLabels = infoLabels
-        return False
-
-    infoLabels = otmdb_global.get_infoLabels(infoLabels, tmdb_result)
-    infoLabels["mediatype"] = contentType
-
-    if infoLabels["mediatype"] == "episode":
-        try:
-            episodio = otmdb_global.get_episodio(season, episode)
-        except:
-            pass
-            # No se ha podido buscar
-        else:
-            if episodio:
-                # Actualizar datos
-                infoLabels['title'] = episodio['episodio_titulo']
-                infoLabels['season'] = season
-                infoLabels['episode'] = episode
-                if episodio['episodio_sinopsis']:
-                    infoLabels['plot'] = episodio['episodio_sinopsis']
-                if episodio['episodio_imagen']:
-                    infoLabels['thumbnail'] = episodio['episodio_imagen']
-
-    item.infoLabels = infoLabels
-    return True
+    # Reconstruir y devolver la lista solo con los resultados de las llamadas individuales
+    return [ii[2] for ii in r_list]
 
 
 def set_infoLabels_item(item, seekTmdb=True, idioma_busqueda='it', lock=None):
@@ -178,94 +169,74 @@ def set_infoLabels_item(item, seekTmdb=True, idioma_busqueda='it', lock=None):
     # Obtiene y fija (item.infoLabels) los datos extras de una serie, capitulo o pelicula.
     #
     #   Parametros:
-    #       item: (Item) Objeto Item que representa un pelicula, serie o capitulo. El diccionario item.infoLabels sera
+    #       item: (Item) Objeto Item que representa un pelicula, serie o capitulo. El atributo infoLabels sera
     #               modificado incluyendo los datos extras localizados.
     #       (opcional) seekTmdb: (bool) Si es True hace una busqueda en www.themoviedb.org para obtener los datos,
     #                   en caso contrario obtiene los datos del propio Item si existen.
     #       (opcional) idioma_busqueda: (str) Codigo del idioma segun ISO 639-1, en caso de busqueda en
     # www.themoviedb.org.
     #   Retorna:
-    #       Un numero cuyo valor absoluto representa la cantidad de elementos incluidos en el diccionario
+    #       Un numero cuyo valor absoluto representa la cantidad de elementos incluidos en el atributo
     # item.infoLabels.
     #       Este numero sera positivo si los datos se han obtenido de www.themoviedb.org y negativo en caso contrario.
     # ---------------------------------------------------------------------------------------------------------
-
     global otmdb_global
-
-    def __inicializar():
-        # Inicializar con valores por defecto
-        if 'year' not in item.infoLabels:
-            item.infoLabels['year'] = ''
-        if 'IMDBNumber' not in item.infoLabels:
-            item.infoLabels['IMDBNumber'] = ''
-        if 'code' not in item.infoLabels:
-            item.infoLabels['code'] = ''
-        if 'imdb_id' not in item.infoLabels:
-            item.infoLabels['imdb_id'] = ''
-        if 'plot' not in item.infoLabels:
-            item.infoLabels['plot'] = item.plot if item.plot != '' else item.contentPlot
-        if 'genre' not in item.infoLabels:
-            item.infoLabels['genre'] = item.category
-        item.infoLabels['duration'] = item.duration
-        item.infoLabels['AudioLanguage'] = item.language
-        titulo = item.fulltitle if item.fulltitle != '' else \
-            (item.contentTitle if item.contentTitle != '' else item.title)
-        if 'title' not in item.infoLabels:
-            item.infoLabels['title'] = titulo
-        item.infoLabels['tvshowtitle'] = item.show if item.show != '' else item.contentSerieName
-        if 'mediatype' not in item.infoLabels:
-            item.infoLabels['mediatype'] = 'movie' if item.infoLabels['tvshowtitle'] == '' else 'tvshow'
-
-    def obtener_datos_item():
-        if item.contentSeason != '':
-            item.infoLabels['mediatype'] = 'season'
-        if item.contentEpisodeNumber != '' or item.contentEpisodeTitle != '':
-            item.infoLabels['mediatype'] = 'episode'
-        if item.contentTitle == '':
-            item.contentTitle = item.title
-        return -1 * len(item.infoLabels)
 
     def __leer_datos(otmdb_aux):
         item.infoLabels = otmdb_aux.get_infoLabels(item.infoLabels)
-        if 'thumbnail' in item.infoLabels:
+        if item.infoLabels['thumbnail']:
             item.thumbnail = item.infoLabels['thumbnail']
-        if 'fanart' in item.infoLabels:
+        if item.infoLabels['fanart']:
             item.fanart = item.infoLabels['fanart']
 
     if seekTmdb:
         # Comprobamos q tipo de contenido es...
-        if 'mediatype' not in item.infoLabels:
-            item.infoLabels['tvshowtitle'] = item.show if item.show != '' else item.contentSerieName
-            item.infoLabels['mediatype'] = 'movie' if item.infoLabels['tvshowtitle'] == '' else 'tvshow'
-        tipo = 'movie' if item.infoLabels['mediatype'] == 'movie' else 'tv'
-        if 'season' in item.infoLabels and 'tmdb_id' in item.infoLabels:
+        if item.contentType == 'movie':
+            tipo_busqueda = 'movie'
+        else:
+            tipo_busqueda = 'tv'
+
+
+        if item.infoLabels['season']:
             try:
                 numtemporada = int(item.infoLabels['season'])
             except ValueError:
                 logger.debug("El numero de temporada no es valido")
-                return obtener_datos_item()
-
+                return -1 * len(item.infoLabels)
 
             if lock:
                 lock.acquire()
-            if not otmdb_global:
-                otmdb_global = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=tipo, idioma_busqueda=idioma_busqueda)
+
+            if not otmdb_global or (item.infoLabels['tmdb_id'] and
+                                    otmdb_global.result.get("id") != item.infoLabels['tmdb_id']) \
+                                or (otmdb_global.texto_buscado and
+                                    otmdb_global.texto_buscado != item.infoLabels['tvshowtitle']):
+                if item.infoLabels['tmdb_id']:
+                    otmdb_global = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=tipo_busqueda,
+                                        idioma_busqueda=idioma_busqueda)
+                else:
+                    otmdb_global = Tmdb(texto_buscado=item.infoLabels['tvshowtitle'], tipo=tipo_busqueda,
+                                        idioma_busqueda=idioma_busqueda, year=item.infoLabels['year'])
+
                 __leer_datos(otmdb_global)
-                temporada = otmdb_global.get_temporada(numtemporada)
+
+            temporada = otmdb_global.get_temporada(numtemporada)
+
             if lock:
                 lock.release()
 
-            if 'episode' in item.infoLabels:
+            if item.infoLabels['episode']:
                 try:
                     episode = int(item.infoLabels['episode'])
                 except ValueError:
                     logger.debug("El número de episodio (%s) no es valido" % repr(item.infoLabels['episode']))
-                    return obtener_datos_item()
+                    return -1 * len(item.infoLabels)
 
                 # Tenemos numero de temporada y numero de episodio validos...
                 # ... buscar datos episodio
                 item.infoLabels['mediatype'] = 'episode'
                 episodio = otmdb_global.get_episodio(numtemporada, episode)
+
                 if episodio:
                     # Actualizar datos
                     __leer_datos(otmdb_global)
@@ -283,191 +254,162 @@ def set_infoLabels_item(item, seekTmdb=True, idioma_busqueda='it', lock=None):
 
                     return len(item.infoLabels)
 
+
             else:
                 # Tenemos numero de temporada valido pero no numero de episodio...
                 # ... buscar datos temporada
                 item.infoLabels['mediatype'] = 'season'
                 temporada = otmdb_global.get_temporada(numtemporada)
+
                 if temporada:
                     # Actualizar datos
                     __leer_datos(otmdb_global)
-                    logger.debug(str(item.infoLabels))
-                    logger.debug(str(temporada))
                     item.infoLabels['title'] = temporada['name']
                     if temporada['overview']:
                         item.infoLabels['plot'] = temporada['overview']
                     if temporada['air_date']:
-                        item.infoLabels['aired'] = temporada['air_date']
+                        date = temporada['air_date'].split('-')
+                        item.infoLabels['aired'] = date[2] + "/" + date[1] + "/" + date[0]
                     if temporada['poster_path']:
                         item.infoLabels['poster_path'] = 'http://image.tmdb.org/t/p/original' + temporada['poster_path']
                         item.thumbnail = item.infoLabels['poster_path']
-
-            return len(item.infoLabels)
+                    return len(item.infoLabels)
 
         # Buscar...
         else:
-            __inicializar()
             otmdb = copy.copy(otmdb_global)
+            #if otmdb is None: # Se elimina por q sino falla al añadir series por falta de imdb, pero por contra provoca mas llamadas
             # Busquedas por ID...
-            if 'tmdb_id' in item.infoLabels and item.infoLabels['tmdb_id']:
+            if item.infoLabels['tmdb_id']:
                 # ...Busqueda por tmdb_id
-                otmdb = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=tipo, idioma_busqueda=idioma_busqueda)
+                otmdb = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=tipo_busqueda,
+                             idioma_busqueda=idioma_busqueda)
 
-            elif item.infoLabels['IMDBNumber'] or item.infoLabels['code'] or item.infoLabels['imdb_id']:
-                if item.infoLabels['IMDBNumber']:
-                    item.infoLabels['code'] = item.infoLabels['IMDBNumber']
-                    item.infoLabels['imdb_id'] = item.infoLabels['IMDBNumber']
-                elif item.infoLabels['code']:
-                    item.infoLabels['IMDBNumber'] = item.infoLabels['code']
-                    item.infoLabels['imdb_id'] = item.infoLabels['code']
-                else:
-                    item.infoLabels['code'] = item.infoLabels['imdb_id']
-                    item.infoLabels['IMDBNumber'] = item.infoLabels['imdb_id']
+            elif item.infoLabels['imdb_id']:
                 # ...Busqueda por imdb code
-                otmdb = Tmdb(external_id=item.infoLabels['imdb_id'], external_source="imdb_id", tipo=tipo,
-                                    idioma_busqueda=idioma_busqueda)
+                otmdb = Tmdb(external_id=item.infoLabels['imdb_id'], external_source="imdb_id",
+                             tipo=tipo_busqueda,
+                             idioma_busqueda=idioma_busqueda)
 
-            elif tipo == 'tv':  # buscar con otros codigos
-                if 'tvdb_id' in item.infoLabels and item.infoLabels['tvdb_id']:
+            elif tipo_busqueda == 'tv':  # buscar con otros codigos
+                if item.infoLabels['tvdb_id']:
                     # ...Busqueda por tvdb_id
-                    otmdb = Tmdb(external_id=item.infoLabels['tvdb_id'], external_source="tvdb_id", tipo=tipo,
-                                        idioma_busqueda=idioma_busqueda)
-                elif 'freebase_mid' in item.infoLabels and item.infoLabels['freebase_mid']:
+                    otmdb = Tmdb(external_id=item.infoLabels['tvdb_id'], external_source="tvdb_id",
+                                 tipo=tipo_busqueda,
+                                 idioma_busqueda=idioma_busqueda)
+                elif item.infoLabels['freebase_mid']:
                     # ...Busqueda por freebase_mid
                     otmdb = Tmdb(external_id=item.infoLabels['freebase_mid'], external_source="freebase_mid",
-                                        tipo=tipo, idioma_busqueda=idioma_busqueda)
-                elif 'freebase_id' in item.infoLabels and item.infoLabels['freebase_id']:
+                                 tipo=tipo_busqueda, idioma_busqueda=idioma_busqueda)
+                elif item.infoLabels['freebase_id']:
                     # ...Busqueda por freebase_id
                     otmdb = Tmdb(external_id=item.infoLabels['freebase_id'], external_source="freebase_id",
-                                        tipo=tipo, idioma_busqueda=idioma_busqueda)
-                elif 'tvrage_id' in item.infoLabels and item.infoLabels['tvrage_id']:
+                                 tipo=tipo_busqueda, idioma_busqueda=idioma_busqueda)
+                elif item.infoLabels['tvrage_id']:
                     # ...Busqueda por tvrage_id
                     otmdb = Tmdb(external_id=item.infoLabels['tvrage_id'], external_source="tvrage_id",
-                                        tipo=tipo, idioma_busqueda=idioma_busqueda)
+                                 tipo=tipo_busqueda, idioma_busqueda=idioma_busqueda)
 
             if otmdb is None:
                 # No se ha podido buscar por ID...
                 # hacerlo por titulo
-                if item.infoLabels['title'] != '':
-                    if tipo == 'tv':
-                        # Busqueda de serie por titulo y filtrando sus resultados si es necesario
-                        otmdb = Tmdb(texto_buscado=item.infoLabels['tvshowtitle'], tipo=tipo,
-                                            idioma_busqueda=idioma_busqueda, filtro=item.infoLabels.get('filtro', {}),
-                                            year=str(item.infoLabels.get('year', '')))
-                    else:
-                        # Busqueda de pelicula por titulo...
-                        if item.infoLabels['year'] or 'filtro' in item.infoLabels:
-                            # ...y año o filtro
-                            titulo_buscado = item.fulltitle if item.fulltitle != '' else item.contentTitle
-                            otmdb = Tmdb(texto_buscado=titulo_buscado, tipo=tipo,
-                                         idioma_busqueda=idioma_busqueda,
-                                         filtro=item.infoLabels.get('filtro', {}),
-                                         year=str(item.infoLabels.get('year', '')))
+                if tipo_busqueda == 'tv':
+                    # Busqueda de serie por titulo y filtrando sus resultados si es necesario
+                    otmdb = Tmdb(texto_buscado=item.infoLabels['tvshowtitle'], tipo=tipo_busqueda,
+                                 idioma_busqueda=idioma_busqueda, filtro=item.infoLabels.get('filtro', {}),
+                                 year=item.infoLabels['year'])
+                else:
+                    # Busqueda de pelicula por titulo...
+                    if item.infoLabels['year'] or item.infoLabels['filtro']:
+                        # ...y año o filtro
+                        if item.contentTitle:
+                            titulo_buscado = item.contentTitle
+                        else:
+                            titulo_buscado = item.fulltitle
 
-            if otmdb is None or not otmdb.get_id():
-                # La busqueda no ha dado resultado
-                return obtener_datos_item()
-            else:
+                        otmdb = Tmdb(texto_buscado=titulo_buscado, tipo=tipo_busqueda,
+                                     idioma_busqueda=idioma_busqueda,
+                                     filtro=item.infoLabels.get('filtro', {}),
+                                     year=item.infoLabels['year'])
+
+                if otmdb.get_id() and not lock:
+                    # Si la busqueda ha dado resultado y no se esta buscando una lista de items,
+                    # realizar otra busqueda para ampliar la informacion
+                    otmdb = Tmdb(id_Tmdb=otmdb.result.get("id"), tipo=tipo_busqueda,
+                                 idioma_busqueda=idioma_busqueda)
+
+            if otmdb is not None and otmdb.get_id():
                 # La busqueda ha encontrado un resultado valido
                 __leer_datos(otmdb)
                 return len(item.infoLabels)
 
-    else:
-        __inicializar()
-        return obtener_datos_item()
+    # La busqueda en tmdb esta desactivada o no ha dado resultado
+    # item.contentType = item.infoLabels['mediatype']
+    return -1 * len(item.infoLabels)
 
 
-def set_infoLabels_itemlist(item_list, seekTmdb=False, idioma_busqueda='it'):
-    """
-    De manera concurrente, obtiene los datos de los items incluidos en la lista item_list.
+# Clase auxiliar
+class ResultDictDefault(dict):
+    #Python 2.4
+    def __getitem__(self, key):
+        try:
+          return super(ResultDictDefault, self).__getitem__(key)
+        except:
+          return self.__missing__(key)
+          
+    def __missing__(self, key):
+        '''
+        valores por defecto en caso de que la clave solicitada no exista
+        '''
+        if key in ['genre_ids', 'genre', 'genres']:
+            return list()
+        elif key == 'images_posters':
+            posters = dict()
+            if 'images' in super(ResultDictDefault,self).keys() and \
+                'posters' in super(ResultDictDefault,self).__getitem__('images'):
+                    posters = super(ResultDictDefault,self).__getitem__('images')['posters']
+                    super(ResultDictDefault, self).__setattr__("images_posters", posters)
 
-    La API tiene un limite de 40 peticiones por IP cada 10'' y por eso la lista no deberia tener mas de 30 items
-    para asegurar un buen funcionamiento de esta funcion.
+            return posters
 
-    :param item_list: listado de objetos Item que representan peliculas, series o capitulos. El diccionario
-        item.infoLabels de cada objeto Item sera modificado incluyendo los datos extras localizados.
-    :type item_list: list
-    :param seekTmdb: Si es True hace una busqueda en www.themoviedb.org para obtener los datos, en caso contrario
-        obtiene los datos del propio Item si existen.
-    :type seekTmdb: bool
-    :param idioma_busqueda: Codigo del idioma segun ISO 639-1, en caso de busqueda en www.themoviedb.org.
-    :type idioma_busqueda: str
+        elif key == "images_backdrops":
+            backdrops = dict()
+            if 'images' in super(ResultDictDefault, self).keys() and \
+                'backdrops' in super(ResultDictDefault, self).__getitem__('images'):
+                    backdrops = super(ResultDictDefault, self).__getitem__('images')['backdrops']
+                    super(ResultDictDefault, self).__setattr__("images_backdrops", backdrops)
 
-    :return: Una lista de numeros cuyo valor absoluto representa la cantidad de elementos incluidos en el diccionario
-        item.infoLabels de cada Item. Este numero sera positivo si los datos se han obtenido de www.themoviedb.org y
-        negativo en caso contrario.
-    :rtype: list
-    """
-    import threading
+            return backdrops
 
-    semaforo = threading.Semaphore(20)
-    lock = threading.Lock()
-    r_list = list()
-    i = 0
-    l_hilo = list()
+        elif key == "images_profiles":
+            profiles = dict()
+            if 'images' in super(ResultDictDefault, self).keys() and \
+                'profiles' in super(ResultDictDefault, self).__getitem__('images'):
+                    profiles = super(ResultDictDefault, self).__getitem__('images')['profiles']
+                    super(ResultDictDefault, self).__setattr__("images_profiles", profiles)
 
-    def sub_get(item, _i, _seekTmdb):
-        semaforo.acquire()
-        ret = set_infoLabels_item(item, _seekTmdb, idioma_busqueda, lock)
-        # logger.debug(str(ret) + "item: " + item.tostring())
-        semaforo.release()
-        r_list.append((_i, item, ret))
+            return profiles
 
-    for item in item_list:
-        t = threading.Thread(target=sub_get, args=(item, i, seekTmdb))
-        t.start()
-        i += 1
-        l_hilo.append(t)
+        else:
+            # El resto de claves devuelven cadenas vacias por defecto
+            return ""
 
-    # esperar q todos los hilos terminen
-    for x in l_hilo:
-        x.join()
+    def __str__(self):
+        return self.tostring(separador= ',\n')
 
-    # Ordenar lista de resultados por orden de llamada para mantener el mismo orden q item_list
-    r_list.sort(key=lambda i: i[0])
+    def tostring(self,separador= ',\n'):
+        ls = []
+        for i in super(ResultDictDefault, self).items():
+            i_str = str(i)[1:-1]
+            if isinstance(i[0], str):
+                old = i[0] + "',"
+                new = i[0] + "':"
+            else:
+                old = str(i[0]) + ","
+                new = str(i[0]) + ":"
+            ls.append(i_str.replace(old, new, 1))
 
-    # Reconstruir y devolver la lista solo con los resultados de las llamadas individuales
-    return [ii[2] for ii in r_list]
-
-
-def set_infoLabels(source, seekTmdb=False, idioma_busqueda='it'):
-    """
-    Dependiendo del tipo de dato de source obtiene y fija (item.infoLabels) los datos extras de una o varias series,
-    capitulos o peliculas.
-
-    @param source: variable que contiene la información para establecer infoLabels
-    @type source: list, item
-    @param seekTmdb: si es True hace una busqueda en www.themoviedb.org para obtener los datos, en caso contrario
-        obtiene los datos del propio Item.
-    @type seekTmdb: bool
-    @param idioma_busqueda: fija el valor de idioma en caso de busqueda en www.themoviedb.org
-    @type idioma_busqueda: str
-    @return: un numero o lista de numeros con el resultado de las llamadas a set_infoLabels_item
-    @rtype: int, list
-    """
-    start_time = time.time()
-
-    if type(source) == list:
-        ret = set_infoLabels_itemlist(source, seekTmdb, idioma_busqueda)
-        logger.debug("Se han obtenido los datos de %i enlaces en %f segundos" % (len(source), time.time() - start_time))
-    else:
-        ret = set_infoLabels_item(source, seekTmdb, idioma_busqueda)
-        logger.debug("Se han obtenido los datos del enlace en %f segundos" % (time.time() - start_time))
-    return ret
-
-
-def infoLabels_tostring(item, separador="\n"):
-    """
-    Retorna un str con la lista ordenada con los infoLabels del item
-
-    @param item: item
-    @type item: item
-    @param separador: tipo de separador de los campos
-    @type separador: str
-    @return: la lista ordenada con los infoLabels del item
-    @rtype: str
-    """
-    return separador.join([var + "= " + str(item.infoLabels[var]) for var in sorted(item.infoLabels)])
+        return "{%s}" % separador.join(ls)
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -527,7 +469,6 @@ def infoLabels_tostring(item, separador="\n"):
 #    get_sinopsis(idioma_alternativo): Retorna un str con la sinopsis de la serie o pelicula cargada.
 #    get_poster (tipo_respuesta,size): Obtiene el poster o un listado de posters.
 #    get_backdrop (tipo_respuesta,size): Obtiene una imagen de fondo o un listado de imagenes de fondo.
-#    get_fanart (tipo,idioma,temporada): Obtiene un listado de imagenes del tipo especificado de la web Fanart.tv
 #    get_temporada(temporada): Obtiene un diccionario con datos especificos de la temporada.
 #    get_episodio (temporada, capitulo): Obtiene un diccionario con datos especificos del episodio.
 #    get_generos(): Retorna un str con la lista de generos a los que pertenece la pelicula o serie.
@@ -556,303 +497,447 @@ class Tmdb(object):
                                 }
                 }
     '''
-
-    def __search(self, index_resultado=0, page=1):
-        # http://api.themoviedb.org/3/search/movie?api_key=f7f51775877e0bb6703520952b3c7840&query=superman&language=es
-        # &include_adult=false&page=1
-        url = ('http://api.themoviedb.org/3/search/%s?api_key=f7f51775877e0bb6703520952b3c7840&query=%s&language=%s'
-               '&include_adult=%s&page=%s' % (self.busqueda["tipo"], self.busqueda["texto"].replace(' ', '%20'),
-                                              self.busqueda["idioma"], self.busqueda["include_adult"], str(page)))
-        if self.busqueda["year"] != '':
-            url += '&year=' + str(self.busqueda["year"])
-
-        buscando = self.busqueda["texto"].capitalize()
-        logger.info("[Tmdb.py] Buscando %s en pagina %s:\n%s" % (buscando, page, url))
-
-        response_dic = {}
-        try:
-            response_dic = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
-            self.total_results = response_dic["total_results"]
-            self.total_pages = response_dic["total_pages"]
-        except:
-            self.total_results = 0
-
-        if self.total_results > 0:
-            self.results = response_dic["results"]
-
-        if len(self.results) > 0:
-            if self.busqueda['filtro']:
-                # TODO documentar esta parte
-                for key, value in dict(self.busqueda['filtro']).items():
-                    for r in self.results[:]:
-                        '''  # Opcion mas permisiva
-                        if r.has_key(k) and r[k] != v:
-                            self.results.remove(r)
-                            self.total_results -= 1
-                        '''
-                        # Opcion mas precisa
-                        if key not in r or r[key] != value:
-                            self.results.remove(r)
-                            self.total_results -= 1
-
-            if index_resultado < len(self.results):
-                self.__leer_resultado(self.results[index_resultado])
-            else:
-                logger.error("La busqueda de '{0}' no dio {1} resultados para la pagina {2}"
-                             .format(buscando, index_resultado + 1, page))
-        else:
-            # No hay resultados de la busqueda
-            logger.error("La busqueda de '%s' no dio resultados para la pagina %s" % (buscando, page))
-
-    def __by_id(self, source="tmdb"):
-
-        if source == "tmdb":
-            # http://api.themoviedb.org/3/movie/1924?api_key=f7f51775877e0bb6703520952b3c7840&language=es
-            # &append_to_response=images,videos,external_ids,credits&include_image_language=es,null
-            # http://api.themoviedb.org/3/tv/1407?api_key=f7f51775877e0bb6703520952b3c7840&language=es
-            # &append_to_response=images,videos,external_ids,credits&include_image_language=es,null
-            url = ('http://api.themoviedb.org/3/%s/%s?api_key=f7f51775877e0bb6703520952b3c7840&language=%s'
-                   '&append_to_response=images,videos,external_ids,credits&include_image_language=%s,null' %
-                   (self.busqueda["tipo"], self.busqueda["id"], self.busqueda["idioma"], self.busqueda["idioma"]))
-            buscando = "id_Tmdb: " + self.busqueda["id"]
-
-        else:
-            # http://api.themoviedb.org/3/find/%s?external_source=imdb_id&api_key=f7f51775877e0bb6703520952b3c7840
-            url = ('http://api.themoviedb.org/3/find/%s?external_source=%s&api_key=f7f51775877e0bb6703520952b3c7840'
-                   '&language=%s' % (self.busqueda["id"], source, self.busqueda["idioma"]))
-            buscando = source.capitalize() + ": " + self.busqueda["id"]
-
-        logger.info("[Tmdb.py] Buscando %s:\n%s" % (buscando, url))
-        try:
-            resultado = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
-
-            if source != "tmdb":
-                if self.busqueda["tipo"] == "movie":
-                    resultado = resultado["movie_results"]
-                else:
-                    resultado = resultado["tv_results"]
-                if len(resultado) > 0:
-                    resultado = resultado[0]
-        except:
-            resultado = {}
-
-        if len(resultado) > 0:
-            self.result = resultado
-            if self.total_results == 0:
-                self.results.append(resultado)
-                self.total_results = 1
-                self.total_pages = 1
-
-            self.__leer_resultado(resultado)
-
-        else:  # No hay resultados de la busqueda
-            logger.debug("La busqueda de %s no dio resultados." % buscando)
-
-
-    def __inicializar(self):
-        # Inicializamos las colecciones de resultados, fanart y temporada
-        for i in (self.result, self.fanart, self.temporada):
-            for k in i.keys():
-                if type(i[k]) == str:
-                    i[k] = ""
-                elif type(i[k]) == list:
-                    i[k] = []
-                elif type(i[k]) == dict:
-                    i[k] = {}
+    dic_country = {"AD": "Andorra", "AE": "Emiratos Árabes Unidos", "AF": "Afganistán", "AG": "Antigua y Barbuda",
+                   "AI": "Anguila", "AL": "Albania", "AM": "Armenia", "AN": "Antillas Neerlandesas", "AO": "Angola",
+                   "AQ": "Antártida", "AR": "Argentina", "AS": "Samoa Americana", "AT": "Austria", "AU": "Australia",
+                   "AW": "Aruba", "AX": "Islas de Åland", "AZ": "Azerbayán", "BA": "Bosnia y Herzegovina",
+                   "BD": "Bangladesh", "BE": "Bélgica", "BF": "Burkina Faso", "BG": "Bulgaria", "BI": "Burundi",
+                   "BJ": "Benín", "BL": "San Bartolomé", "BM": "Islas Bermudas", "BN": "Brunéi", "BO": "Bolivia",
+                   "BR": "Brasil", "BS": "Bahamas", "BT": "Bhután", "BV": "Isla Bouvet", "BW": "Botsuana",
+                   "BY": "Bielorrusia", "BZ": "Belice", "CA": "Canadá", "CC": "Islas Cocos (Keeling)", "CD": "Congo",
+                   "CF": "República Centroafricana", "CG": "Congo", "CH": "Suiza", "CI": "Costa de Marfil",
+                   "CK": "Islas Cook", "CL": "Chile", "CM": "Camerún", "CN": "China", "CO": "Colombia",
+                   "CR": "Costa Rica", "CU": "Cuba", "CV": "Cabo Verde", "CX": "Isla de Navidad", "CY": "Chipre",
+                   "CZ": "República Checa", "DE": "Alemania", "DJ": "Yibuti", "DK": "Dinamarca", "DZ": "Algeria",
+                   "EC": "Ecuador", "EE": "Estonia", "EG": "Egipto", "EH": "Sahara Occidental", "ER": "Eritrea",
+                   "ES": "España", "ET": "Etiopía", "FI": "Finlandia", "FJ": "Fiyi", "FK": "Islas Malvinas",
+                   "FM": "Micronesia", "FO": "Islas Feroe", "FR": "Francia", "GA": "Gabón", "GB": "Gran Bretaña",
+                   "GD": "Granada", "GE": "Georgia", "GF": "Guayana Francesa", "GG": "Guernsey", "GH": "Ghana",
+                   "GI": "Gibraltar", "GL": "Groenlandia", "GM": "Gambia", "GN": "Guinea", "GP": "Guadalupe",
+                   "GQ": "Guinea Ecuatorial", "GR": "Grecia", "GS": "Islas Georgias del Sur y Sandwich del Sur",
+                   "GT": "Guatemala", "GW": "Guinea-Bissau", "GY": "Guyana", "HK": "Hong kong",
+                   "HM": "Islas Heard y McDonald", "HN": "Honduras", "HR": "Croacia", "HT": "Haití", "HU": "Hungría",
+                   "ID": "Indonesia", "IE": "Irlanda", "IM": "Isla de Man", "IN": "India",
+                   "IO": "Territorio Británico del Océano Índico", "IQ": "Irak", "IR": "Irán", "IS": "Islandia",
+                   "IT": "Italia", "JE": "Jersey", "JM": "Jamaica", "JO": "Jordania", "JP": "Japón", "KG": "Kirgizstán",
+                   "KH": "Camboya", "KM": "Comoras", "KP": "Corea del Norte", "KR": "Corea del Sur", "KW": "Kuwait",
+                   "KY": "Islas Caimán", "KZ": "Kazajistán", "LA": "Laos", "LB": "Líbano", "LC": "Santa Lucía",
+                   "LI": "Liechtenstein", "LK": "Sri lanka", "LR": "Liberia", "LS": "Lesoto", "LT": "Lituania",
+                   "LU": "Luxemburgo", "LV": "Letonia", "LY": "Libia", "MA": "Marruecos", "MC": "Mónaco",
+                   "MD": "Moldavia", "ME": "Montenegro", "MF": "San Martín (Francia)", "MG": "Madagascar",
+                   "MH": "Islas Marshall", "MK": "Macedônia", "ML": "Mali", "MM": "Birmania", "MN": "Mongolia",
+                   "MO": "Macao", "MP": "Islas Marianas del Norte", "MQ": "Martinica", "MR": "Mauritania",
+                   "MS": "Montserrat", "MT": "Malta", "MU": "Mauricio", "MV": "Islas Maldivas", "MW": "Malawi",
+                   "MX": "México", "MY": "Malasia", "NA": "Namibia", "NE": "Niger", "NG": "Nigeria", "NI": "Nicaragua",
+                   "NL": "Países Bajos", "NO": "Noruega", "NP": "Nepal", "NR": "Nauru", "NU": "Niue",
+                   "NZ": "Nueva Zelanda", "OM": "Omán", "PA": "Panamá", "PE": "Perú", "PF": "Polinesia Francesa",
+                   "PH": "Filipinas", "PK": "Pakistán", "PL": "Polonia", "PM": "San Pedro y Miquelón",
+                   "PN": "Islas Pitcairn", "PR": "Puerto Rico", "PS": "Palestina", "PT": "Portugal", "PW": "Palau",
+                   "PY": "Paraguay", "QA": "Qatar", "RE": "Reunión", "RO": "Rumanía", "RS": "Serbia", "RU": "Rusia",
+                   "RW": "Ruanda", "SA": "Arabia Saudita", "SB": "Islas Salomón", "SC": "Seychelles", "SD": "Sudán",
+                   "SE": "Suecia", "SG": "Singapur", "SH": "Santa Elena", "SI": "Eslovenia", "SJ": "Svalbard y Jan Mayen",
+                   "SK": "Eslovaquia", "SL": "Sierra Leona", "SM": "San Marino", "SN": "Senegal", "SO": "Somalia",
+                   "SV": "El Salvador", "SY": "Siria", "SZ": "Swazilandia", "TC": "Islas Turcas y Caicos", "TD": "Chad",
+                   "TF": "Territorios Australes y Antárticas Franceses", "TG": "Togo", "TH": "Tailandia",
+                   "TJ": "Tadjikistán", "TK": "Tokelau", "TL": "Timor Oriental", "TM": "Turkmenistán", "TN": "Tunez",
+                   "TO": "Tonga", "TR": "Turquía", "TT": "Trinidad y Tobago", "TV": "Tuvalu", "TW": "Taiwán",
+                   "TZ": "Tanzania", "UA": "Ucrania", "UG": "Uganda", "UM": "Islas Ultramarinas Menores de Estados Unidos",
+                   "UY": "Uruguay", "UZ": "Uzbekistán", "VA": "Ciudad del Vaticano", "VC": "San Vicente y las Granadinas",
+                   "VE": "Venezuela", "VG": "Islas Vírgenes Británicas", "VI": "Islas Vírgenes de los Estados Unidos",
+                   "VN": "Vietnam", "VU": "Vanuatu", "WF": "Wallis y Futuna", "WS": "Samoa", "YE": "Yemen",
+                   "YT": "Mayotte", "ZA": "Sudáfrica", "ZM": "Zambia", "ZW": "Zimbabue", "BB": "Barbados","BH": "Bahrein",
+                   "DM": "Dominica", "DO": "República Dominicana", "GU": "Guam", "IL": "Israel", "KE": "Kenia",
+                   "KI": "Kiribati", "KN": "San Cristóbal y Nieves", "MZ": "Mozambique", "NC": "Nueva Caledonia",
+                   "NF": "Isla Norfolk", "PG": "Papúa Nueva Guinea", "SR": "Surinám", "ST": "Santo Tomé y Príncipe",
+                   "US": "EEUU"}
 
     def __init__(self, **kwargs):
         self.page = kwargs.get('page', 1)
+        self.index_results = 0
         self.results = []
+        self.result = ResultDictDefault()
         self.total_pages = 0
         self.total_results = 0
-        self.fanart = {}
+
         self.temporada = {}
+        self.texto_buscado = kwargs.get('texto_buscado', '')
 
-        self.busqueda = {'id': "",
-                         'texto': "",
-                         'tipo': kwargs.get('tipo', 'movie'),
-                         'idioma': kwargs.get('idioma_busqueda', 'it'),
-                         'include_adult': str(kwargs.get('include_adult', 'false')),
-                         'year': kwargs.get('year', ''),
-                         'filtro': kwargs.get('filtro', {})
-                         }
+        self.busqueda_id = kwargs.get('id_Tmdb', '')
+        self.busqueda_texto = re.sub('\[\\\?(B|I|COLOR)\s?[^\]]*\]', '', self.texto_buscado)
+        self.busqueda_tipo = kwargs.get('tipo', '')
+        self.busqueda_idioma = kwargs.get('idioma_busqueda', 'it')
+        self.busqueda_include_adult = kwargs.get('include_adult', False)
+        self.busqueda_year = kwargs.get('year', '')
+        self.busqueda_filtro = kwargs.get('filtro', {})
+        self.discover = kwargs.get('discover', {})
 
-        self.result = {'adult': "",
-                       'backdrop_path': "",  # ruta imagen de fondo mas valorada
-                       # belongs_to_collection
-                       'budget': "",  # Presupuesto
-                       'genres': [],  # lista de generos
-                       'homepage': "",
-                       'id': "", 'imdb_id': "", 'freebase_mid': "", 'freebase_id': "", 'tvdb_id': "", 'tvrage_id': "",
-                       # IDs equivalentes
-                       'original_language': "",
-                       'original_title': "",
-                       'overview': "",  # sinopsis
-                       # popularity
-                       'poster_path': "",
-                       'production_companies': [],
-                       'production_countries': [],
-                       'origin_country': [],
-                       'release_date': "",
-                       'first_air_date': "",
-                       'revenue': "",  # recaudacion
-                       'runtime': "",  # runtime duracion
-                       # spoken_languages
-                       'status': "",
-                       'tagline': "",
-                       'title': "",
-                       'video': "",  # ("true" o "false") indica si la busqueda movies/id/videos devolvera algo o no
-                       'vote_average': "",
-                       'vote_count': "",
-                       'name': "",  # nombre en caso de personas o series (tv)
-                       'profile_path': "",  # ruta imagenes en caso de personas
-                       'known_for': {},  # Diccionario de peliculas en caso de personas (id_pelicula:titulo)
-                       'images_backdrops': [],
-                       'images_posters': [],
-                       'images_profiles': [],
-                       'videos': []
-                       }
+        # Reellenar diccionario de generos si es necesario
+        if (self.busqueda_tipo == 'movie' or self.busqueda_tipo == "tv") and \
+            (self.busqueda_idioma not in Tmdb.dic_generos or
+             self.busqueda_tipo not in Tmdb.dic_generos[self.busqueda_idioma]):
+                self.rellenar_dic_generos(self.busqueda_tipo, self.busqueda_idioma)
 
-        def rellenar_dic_generos():
-            # Rellenar diccionario de generos del tipo e idioma seleccionados
-            if self.busqueda["idioma"] not in Tmdb.dic_generos:
-                Tmdb.dic_generos[self.busqueda["idioma"]] = {}
-            if self.busqueda["tipo"] not in Tmdb.dic_generos[self.busqueda["idioma"]]:
-                Tmdb.dic_generos[self.busqueda["idioma"]][self.busqueda["tipo"]] = {}
-            url = ('http://api.themoviedb.org/3/genre/%s/list?api_key=f7f51775877e0bb6703520952b3c7840&language=%s'
-                   % (self.busqueda["tipo"], self.busqueda["idioma"]))
-            try:
-                lista_generos = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))["genres"]
-            except:
-                pass
-            for i in lista_generos:
-                Tmdb.dic_generos[self.busqueda["idioma"]][self.busqueda["tipo"]][str(i["id"])] = i["name"]
+        if not self.busqueda_tipo:
+            self.busqueda_tipo = 'movie'
 
-        if self.busqueda["tipo"] == 'movie' or self.busqueda["tipo"] == "tv":
-            if self.busqueda["idioma"] not in Tmdb.dic_generos:
-                rellenar_dic_generos()
-            elif self.busqueda["tipo"] not in Tmdb.dic_generos[self.busqueda["idioma"]]:
-                rellenar_dic_generos()
-        else:
-            # La busqueda de personas no esta soportada en esta version.
-            raise Exception("Parametros no validos al crear el objeto Tmdb.\nConsulte los modos de uso.")
-
-        if 'id_Tmdb' in kwargs:
-            self.busqueda["id"] = kwargs.get('id_Tmdb')
+        if self.busqueda_id:
+            # Busqueda por identificador tmdb
             self.__by_id()
-        elif 'texto_buscado' in kwargs:
-            self.busqueda["texto"] = kwargs.get('texto_buscado')
+
+        elif self.busqueda_texto:
+            # Busqueda por texto
             self.__search(page=self.page)
+
         elif 'external_source' in kwargs and 'external_id' in kwargs:
+            # Busqueda por identificador externo segun el tipo.
             # TV Series: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id
             # Movies: imdb_id
-            if (self.busqueda["tipo"] == 'movie' and kwargs.get('external_source') == "imdb_id") or \
-                    (self.busqueda["tipo"] == 'tv' and kwargs.get('external_source') in (
+            if (self.busqueda_tipo == 'movie' and kwargs.get('external_source') == "imdb_id") or \
+                    (self.busqueda_tipo == 'tv' and kwargs.get('external_source') in (
                             "imdb_id", "freebase_mid", "freebase_id", "tvdb_id", "tvrage_id")):
-                self.busqueda["id"] = kwargs.get('external_id')
+                self.busqueda_id = kwargs.get('external_id')
                 self.__by_id(source=kwargs.get('external_source'))
+
+        elif self.discover:
+            self.__discover()
+
         else:
-            raise Exception("Parametros no validos al crear el objeto Tmdb.\nConsulte los modos de uso.")
+            logger.debug("Creado objeto vacio")
 
-    def __leer_resultado(self, data):
-        for k, v in data.items():
-            if k == "genre_ids":  # Lista de generos (lista con los id de los generos)
-                self.result["genres"] = []
-                for i in v:
-                    try:
-                        self.result["genres"].append(
-                            self.dic_generos[self.busqueda["idioma"]][self.busqueda["tipo"]][str(i)])
-                    except:
-                        pass
-            elif k == "genre" or k == "genres":  # Lista  de generos (lista de objetos {id,nombre})
-                self.result["genres"] = []
-                for i in v:
-                    self.result["genres"].append(i['name'])
+    def __call__(self, **kwargs):
+        self.page = kwargs.get('page', 1)
+        self.index_results = 0
+        self.results = []
+        self.result = ResultDictDefault()
+        self.total_pages = 0
+        self.total_results = 0
 
-            elif k == "known_for":  # Lista de peliculas de un actor
-                for i in v:
-                    self.result["known_for"][i['id']] = i['title']
+        self.temporada = {}
+        self.texto_buscado = kwargs.get('texto_buscado', '')
 
-            elif k == "images":  # Se incluyen los datos de las imagenes
-                if "backdrops" in v:
-                    self.result["images_backdrops"] = v["backdrops"]
-                if "posters" in v:
-                    self.result["images_posters"] = v["posters"]
-                if "profiles" in v:
-                    self.result["images_profiles"] = v["profiles"]
+        self.busqueda_id = kwargs.get('id_Tmdb', '')
+        self.busqueda_texto = re.sub('\[\\\?(B|I|COLOR)\s?[^\]]*\]', '', self.texto_buscado)
+        self.busqueda_tipo = kwargs.get('tipo', '')
+        self.busqueda_idioma = kwargs.get('idioma_busqueda', 'it')
+        self.busqueda_include_adult = kwargs.get('include_adult', False)
+        self.busqueda_year = kwargs.get('year', '')
+        self.busqueda_filtro = kwargs.get('filtro', {})
+        self.discover = kwargs.get('discover', {})
 
-            elif k == "credits":  # Se incluyen los creditos
-                if "cast" in v:
-                    self.result["credits_cast"] = v["cast"]
-                if "crew" in v:
-                    self.result["credits_crew"] = v["crew"]
+        # Reellenar diccionario de generos si es necesario
+        if (self.busqueda_tipo == 'movie' or self.busqueda_tipo == "tv") and \
+            (self.busqueda_idioma not in Tmdb.dic_generos or
+             self.busqueda_tipo not in Tmdb.dic_generos[self.busqueda_idioma]):
+                self.rellenar_dic_generos(self.busqueda_tipo, self.busqueda_idioma)
 
-            elif k == "videos":  # Se incluyen los datos de los videos
-                self.result["videos"] = v["results"]
+        if not self.busqueda_tipo:
+            self.busqueda_tipo = 'movie'
 
-            elif k == "external_ids":  # Listado de IDs externos
-                for kj, _id in v.items():
-                    # print kj + ":" + str(id)
-                    if kj in self.result:
-                        self.result[kj] = str(_id)
+        if self.busqueda_id:
+            # Busqueda por identificador tmdb
+            self.__by_id()
 
-            elif k in self.result:  # el resto
-                if type(v) == list or type(v) == dict:
-                    self.result[k] = v
-                elif v is None:
-                    self.result[k] = ""
+        elif self.busqueda_texto:
+            # Busqueda por texto
+            self.__search(page=self.page)
+
+        elif 'external_source' in kwargs and 'external_id' in kwargs:
+            # Busqueda por identificador externo segun el tipo.
+            # TV Series: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id
+            # Movies: imdb_id
+            if (self.busqueda_tipo == 'movie' and kwargs.get('external_source') == "imdb_id") or \
+                    (self.busqueda_tipo == 'tv' and kwargs.get('external_source') in (
+                            "imdb_id", "freebase_mid", "freebase_id", "tvdb_id", "tvrage_id")):
+                self.busqueda_id = kwargs.get('external_id')
+                self.__by_id(source=kwargs.get('external_source'))
+
+        elif self.discover:
+            self.__discover()
+
+        else:
+            logger.debug("Creado objeto vacio")
+
+        return self
+
+    @classmethod
+    def rellenar_dic_generos(cls, tipo='movie', idioma='it'):
+        resultado = {}
+
+        # Si se busca en idioma catalán, se cambia a español para el diccionario de géneros
+        if idioma == "ca":
+            idioma = "es"
+
+        # Rellenar diccionario de generos del tipo e idioma pasados como parametros
+        if idioma not in cls.dic_generos:
+            cls.dic_generos[idioma] = {}
+
+        if tipo not in cls.dic_generos[idioma]:
+            cls.dic_generos[idioma][tipo] = {}
+            url = ('http://api.themoviedb.org/3/genre/%s/list?api_key=f7f51775877e0bb6703520952b3c7840&language=%s'
+                   % (tipo, idioma))
+            try:
+                logger.info("[Tmdb.py] Rellenando dicionario de generos")
+                resultado = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
+                lista_generos = resultado["genres"]
+
+                for i in lista_generos:
+                    cls.dic_generos[idioma][tipo][str(i["id"])] = i["name"]
+            except:
+                pass
+
+            if "status_code" in resultado:
+                msg = "Error de tmdb: %s %s" % (resultado["status_code"], resultado["status_message"])
+                logger.error(msg)
+
+    def __by_id(self, source='tmdb'):
+        resultado = {}
+        buscando = ""
+
+        if self.busqueda_id:
+            if source == "tmdb":
+                # http://api.themoviedb.org/3/movie/1924?api_key=f7f51775877e0bb6703520952b3c7840&language=es
+                #   &append_to_response=images,videos,external_ids,credits&include_image_language=es,null
+                # http://api.themoviedb.org/3/tv/1407?api_key=f7f51775877e0bb6703520952b3c7840&language=es
+                #   &append_to_response=images,videos,external_ids,credits&include_image_language=es,null
+                url = ('http://api.themoviedb.org/3/%s/%s?api_key=f7f51775877e0bb6703520952b3c7840&language=%s'
+                       '&append_to_response=images,videos,external_ids,credits&include_image_language=%s,null' %
+                       (self.busqueda_tipo, self.busqueda_id, self.busqueda_idioma, self.busqueda_idioma))
+                buscando = "id_Tmdb: %s" % self.busqueda_id
+            else:
+                # http://api.themoviedb.org/3/find/%s?external_source=imdb_id&api_key=f7f51775877e0bb6703520952b3c7840
+                url = ('http://api.themoviedb.org/3/find/%s?external_source=%s&api_key=f7f51775877e0bb6703520952b3c7840'
+                       '&language=%s' % (self.busqueda_id, source, self.busqueda_idioma))
+                buscando = "%s: %s" %(source.capitalize(), self.busqueda_id)
+
+            logger.info("[Tmdb.py] Buscando %s:\n%s" % (buscando, url))
+
+            try:
+                resultado = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
+                if source != "tmdb":
+                    if self.busqueda_tipo == "movie":
+                        resultado = resultado["movie_results"][0]
+                    else:
+                        resultado = resultado["tv_results"][0]
+            except:
+                resultado = {}
+
+        if resultado and not "status_code" in resultado:
+            self.results = [resultado]
+            self.total_results = 1
+            self.total_pages = 1
+            self.result = ResultDictDefault(resultado)
+        else:
+            # No hay resultados de la busqueda
+            msg = "La busqueda de %s no dio resultados." % buscando
+            if "status_code" in resultado:
+                msg += "\nError de tmdb: %s %s" % (resultado["status_code"], resultado["status_message"])
+            logger.debug(msg)
+
+    def __search(self, index_results=0, page=1):
+        resultado = {}
+        self.result = ResultDictDefault()
+        results = []
+        total_results = 0
+        total_pages = 0
+        buscando = ""
+
+        if self.busqueda_texto:
+            # http://api.themoviedb.org/3/search/movie?api_key=f7f51775877e0bb6703520952b3c7840&query=superman&language=es
+            # &include_adult=false&page=1
+            url = ('http://api.themoviedb.org/3/search/%s?api_key=f7f51775877e0bb6703520952b3c7840&query=%s&language=%s'
+                   '&include_adult=%s&page=%s' % (self.busqueda_tipo, self.busqueda_texto.replace(' ', '%20'),
+                                                  self.busqueda_idioma, self.busqueda_include_adult,page))
+
+            if self.busqueda_year:
+                url += '&year=%s' %(self.busqueda_year)
+
+            buscando = self.busqueda_texto.capitalize()
+            logger.info("[Tmdb.py] Buscando %s en pagina %s:\n%s" % (buscando, page, url))
+
+            try:
+                resultado = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
+                total_results = resultado["total_results"]
+                total_pages = resultado["total_pages"]
+            except:
+                total_results = 0
+
+
+            if total_results > 0:
+                results = resultado["results"]
+
+            if self.busqueda_filtro and results:
+                # TODO documentar esta parte
+                for key, value in dict(self.busqueda_filtro).items():
+                    for r in results[:]:
+                        if key not in r or r[key] != value:
+                            results.remove(r)
+                            total_results -= 1
+
+
+        if results:
+            if index_results >= len(results):
+                # Se ha solicitado un numero de resultado mayor de los obtenidos
+                logger.error(
+                    "La busqueda de '%s' dio %s resultados para la pagina %s\nImposible mostrar el resultado numero %s"
+                    % (buscando, len(results), page, index_results))
+                return 0
+
+            # Retornamos el numero de resultados de esta pagina
+            self.results = results
+            self.total_results = total_results
+            self.total_pages = total_pages
+            self.result = ResultDictDefault(self.results[index_results])
+            return len(self.results)
+
+        else:
+            # No hay resultados de la busqueda
+            msg = "La busqueda de '%s' no dio resultados para la pagina %s" % (buscando, page)
+            if "status_code" in resultado:
+                msg += "\nError de tmdb: %s %s" % (resultado["status_code"], resultado["status_message"])
+            logger.error(msg)
+            return 0
+
+    def __discover(self, index_results=0):
+        resultado = {}
+        self.result = ResultDictDefault()
+        results = []
+        total_results = 0
+        total_pages = 0
+
+        # Ejemplo self.discover: {'url': 'discover/movie', 'with_cast': '1'}
+        # url: Método de la api a ejecutar
+        # resto de claves: Parámetros de la búsqueda concatenados a la url
+        type_search = self.discover.get('url', '')
+        if type_search:
+            params = []
+            for key, value in self.discover.items():
+                if key != "url":
+                    params.append(key + "=" + str(value))
+            # http://api.themoviedb.org/3/discover/movie?api_key=f7f51775877e0bb6703520952b3c7840&query=superman&language=es
+            url = ('http://api.themoviedb.org/3/%s?api_key=f7f51775877e0bb6703520952b3c7840&%s'
+                  % (type_search, "&".join(params)))
+
+            logger.info("[Tmdb.py] Buscando %s:\n%s" % (type_search, url))
+
+            try:
+                resultado = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
+                total_results = resultado["total_results"]
+                total_pages = resultado["total_pages"]
+            except:
+                if resultado and not "status_code" in resultado:
+                    total_results = -1
+                    total_pages = 1
                 else:
-                    self.result[k] = str(v)
+                    total_results = 0
 
-    def load_resultado(self, index_resultado=0, page=1):
-        # Si no hay mas de un resultado no podemos cambiar
-        if self.total_results <= 1:
-            return None
+            if total_results > 0:
+                results = resultado["results"]
+                if self.busqueda_filtro and results:
+                    # TODO documentar esta parte
+                    for key, value in dict(self.busqueda_filtro).items():
+                        for r in results[:]:
+                            if key not in r or r[key] != value:
+                                results.remove(r)
+                                total_results -= 1
+            elif total_results == -1:
+                results = resultado
 
-        if page < 1 or page > self.total_pages:
-            page = 1
-        if index_resultado < 0:
-            index_resultado = 0
+            if index_results >= len(results):
+                logger.error(
+                    "La busqueda de '%s' no dio %s resultados" % (type_search, index_results))
+                return 0
 
-        self.__inicializar()
-        if page != self.page:
-            self.__search(index_resultado=index_resultado, page=page)
-            self.page = page
+        # Retornamos el numero de resultados de esta pagina
+        if results:
+            self.results = results
+            self.total_results = total_results
+            self.total_pages = total_pages
+            if total_results > 0:
+                self.result = ResultDictDefault(self.results[index_results])
+            else:
+                self.result = results
+            return len(self.results)
         else:
-            # print self.result["genres"]
-            self.__leer_resultado(self.results[index_resultado])
+            # No hay resultados de la busqueda
+            logger.error("La busqueda de '%s' no dio resultados" % type_search)
+            return 0
 
-    def get_list_resultados(self, numResult=20):
+
+    def load_resultado(self, index_results=0, page=1):
+        # Si no hay resultados, solo hay uno o
+        # si el numero de resultados de esta pagina es menor al indice buscado salir
+        self.result = ResultDictDefault()
+        num_result_page = len(self.results)
+
+        if page > self.total_pages:
+            return False
+
+        if page != self.page:
+            num_result_page = self.__search(index_results, page)
+
+        if num_result_page == 0 or num_result_page <= index_results:
+            return False
+
+        self.page = page
+        self.index_results = index_results
+        self.result = ResultDictDefault(self.results[index_results])
+        return True
+
+    def get_list_resultados(self, num_result=20):
+        logger.info("self %s" % str(self))
         # TODO documentar
         res = []
 
-        numResult = numResult if numResult > 0 else self.total_results
-        numResult = min([numResult, self.total_results])
+        if num_result <= 0:
+            num_result = self.total_results
+        num_result = min([num_result, self.total_results])
 
         cr = 0
         for p in range(1, self.total_pages + 1):
             for r in range(0, len(self.results)):
                 try:
-                    self.load_resultado(r, p)
-                    self.result['type'] = self.busqueda.get("tipo", "movie")
-                    self.result['thumbnail'] = self.get_poster(size="w300")
-                    self.result['fanart'] = self.get_backdrop()
-                    res.append(self.result.copy())
-                    cr += 1
-                    if cr >= numResult:
-                        return res
+                    if self.load_resultado(r, p):
+                        result = self.result.copy()
+
+                        result['thumbnail'] = self.get_poster(size="w300")
+                        result['fanart'] = self.get_backdrop()
+                        res.append(result)
+                        cr += 1
+                        if cr >= num_result:
+                            return res
                 except:
                     continue
+
         return res
 
-    def get_generos(self):
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        #   Parametros:
-        #       none
-        #   Return: (str)
-        #       Devuelve la lista de generos a los que pertenece la pelicula o serie.
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        return ', '.join(self.result["genres"])
+    def get_generos(self, origen=None):
+        """
+        :param origen: Diccionario origen de donde se obtiene los infoLabels, por omision self.result
+        :type origen: Dict
+        :return: Devuelve la lista de generos a los que pertenece la pelicula o serie.
+        :rtype: str
+        """
+        genre_list =[]
+
+        if not origen:
+            origen = self.result
+
+        if "genre_ids" in origen:
+            # Buscar lista de generos por IDs
+            for i in origen.get("genre_ids"):
+                try:
+                    genre_list.append(Tmdb.dic_generos[self.busqueda_idioma][self.busqueda_tipo][str(i)])
+                except:
+                    pass
+
+        elif "genre" in origen or "genres" in origen:
+            # Buscar lista de generos (lista de objetos {id,nombre})
+            v = origen["genre"]
+            v.extend(origen["genres"])
+            for i in v:
+                genre_list.append(i['name'])
+
+        return ', '.join(genre_list)
 
     def get_id(self):
         """
@@ -861,7 +946,7 @@ class Tmdb(object):
             hubiese nada cargado. Se puede utilizar este metodo para saber si una busqueda ha dado resultado o no.
         :rtype: str
         """
-        return str(self.result['id'])
+        return str(self.result.get('id',""))
 
     def get_sinopsis(self, idioma_alternativo=""):
         """
@@ -874,27 +959,34 @@ class Tmdb(object):
         :return: Devuelve la sinopsis de una pelicula o serie
         :rtype: str
         """
+        resultado = {}
         ret = ""
-        if self.result['id']:
-            ret = self.result['overview']
-            if self.result['overview'] == "" and str(idioma_alternativo).lower() != 'none':
+
+        if 'id' in self.result:
+            ret = self.result.get('overview')
+            if ret == "" and str(idioma_alternativo).lower() != 'none':
                 # Vamos a lanzar una busqueda por id y releer de nuevo la sinopsis
-                self.busqueda["id"] = str(self.result["id"])
+                self.busqueda_id = str(self.result["id"])
                 if idioma_alternativo:
-                    self.busqueda["idioma"] = idioma_alternativo
+                    self.busqueda_idioma = idioma_alternativo
                 else:
-                    self.busqueda["idioma"] = self.result['original_language']
+                    self.busqueda_idioma = self.result['original_language']
+
                 url = ('http://api.themoviedb.org/3/%s/%s?api_key=f7f51775877e0bb6703520952b3c7840&language=%s' %
-                       (self.busqueda["tipo"], self.busqueda["id"], self.busqueda["idioma"]))
+                       (self.busqueda_tipo, self.busqueda_id, self.busqueda_idioma))
                 try:
                     resultado = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
                 except:
                     pass
 
-                if resultado:
-                    if 'overview' in resultado:
-                        self.result['overview'] = resultado['overview']
-                        ret = self.result['overview']
+                if 'overview' in resultado:
+                    self.result['overview'] = resultado['overview']
+                    ret = self.result['overview']
+
+                if "status_code" in resultado:
+                    msg = "Error de tmdb: %s %s" % (resultado["status_code"], resultado["status_message"])
+                    logger.debug(msg)
+
         return ret
 
     def get_poster(self, tipo_respuesta="str", size="original"):
@@ -912,8 +1004,7 @@ class Tmdb(object):
         @rtype: list, str
         """
         ret = []
-        if size not in ("w45", "w92", "w154", "w185", "w300", "w342", "w500", "w600", "h632", "w780", "w1280",
-                        "original"):
+        if size not in ("w45", "w92", "w154", "w185", "w300", "w342", "w500", "w600", "h632", "w780", "w1280"):
             size = "original"
 
         if self.result["poster_path"] is None or self.result["poster_path"] == "":
@@ -923,12 +1014,12 @@ class Tmdb(object):
 
         if tipo_respuesta == 'str':
             return poster_path
-        elif self.result["id"] == "":
+        elif not self.result["id"]:
             return []
 
         if len(self.result['images_posters']) == 0:
-            # Vamos a lanzar una busqueda por id y releer de nuevo todo
-            self.busqueda["id"] = str(self.result["id"])
+            # Vamos a lanzar una busqueda por id y releer de nuevo
+            self.busqueda_id = str(self.result["id"])
             self.__by_id()
 
         if len(self.result['images_posters']) > 0:
@@ -961,8 +1052,7 @@ class Tmdb(object):
         @rtype: list, str
         """
         ret = []
-        if size not in ("w45", "w92", "w154", "w185", "w300", "w342", "w500", "w600", "h632", "w780", "w1280",
-                        "original"):
+        if size not in ("w45", "w92", "w154", "w185", "w300", "w342", "w500", "w600", "h632", "w780", "w1280"):
             size = "original"
 
         if self.result["backdrop_path"] is None or self.result["backdrop_path"] == "":
@@ -977,7 +1067,7 @@ class Tmdb(object):
 
         if len(self.result['images_backdrops']) == 0:
             # Vamos a lanzar una busqueda por id y releer de nuevo todo
-            self.busqueda["id"] = str(self.result["id"])
+            self.busqueda_id = str(self.result["id"])
             self.__by_id()
 
         if len(self.result['images_backdrops']) > 0:
@@ -995,151 +1085,6 @@ class Tmdb(object):
 
         return ret
 
-    def get_fanart(self, tipo="hdclearart", idioma=None, temporada="all"):
-        """
-
-        @param tipo: ("hdclearlogo", "poster",	"banner", "thumbs",	"hdclearart", "clearart", "background",	"clearlogo",
-            "characterart", "seasonthumb", "seasonposter", "seasonbanner", "moviedisc")
-            Indica el tipo de Art que se desea obtener, segun la web Fanart.tv. Alguno de estos tipos pueden estar solo
-            disponibles para peliculas o series segun el caso. Por defecto "hdclearart"
-        @type tipo: str
-        @param idioma: (opcional) Codigos del idioma segun ISO 639-1, "all" (por defecto) para todos los idiomas o "00"
-            para ninguno. Por ejemplo: idioma=["es","00","en"] Incluiria los resultados en español, sin idioma definido
-            y en ingles, en este orden.
-        @type idioma: list
-        @param temporada: (opcional solo para series) Un numero entero que representa el numero de temporada, el numero
-            cero para especiales o "all" para imagenes validas para cualquier temporada. Por defecto "all".
-        @type: temporada: str
-        @return: Retorna una lista con las url de las imagenes segun los parametros de entrada y ordenadas segun las
-            votaciones de Fanart.tv
-        @rtype: list
-
-        """
-        if idioma is None:
-            idioma = ["all"]
-
-        if self.result["id"] == "":
-            return []
-
-        if len(self.fanart) == 0:  # Si esta vacio acceder a Fanart.tv y cargar el resultado
-            if self.busqueda['tipo'] == 'movie':
-                # http://assets.fanart.tv/v3/movies/1924?api_key=dffe90fba4d02c199ae7a9e71330c987
-                url = "http://assets.fanart.tv/v3/movies/" + str(
-                    self.result["id"]) + "?api_key=dffe90fba4d02c199ae7a9e71330c987"
-                temporada = ""
-            elif self.busqueda['tipo'] == 'tv':
-                # En este caso necesitamos el tvdb_id
-                if self.result["tvdb_id"] == '':
-                    # Vamos lanzar una busqueda por id y releer de nuevo todo
-                    self.busqueda["id"] = str(self.result["id"])
-                    self.__by_id()
-
-                # http://assets.fanart.tv/v3/tv/153021?api_key=dffe90fba4d02c199ae7a9e71330c987
-                url = "http://assets.fanart.tv/v3/tv/" + str(
-                    self.result["tvdb_id"]) + "?api_key=dffe90fba4d02c199ae7a9e71330c987"
-            else:
-                # 'person' No soportado
-                return None
-
-            fanarttv = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
-            if fanarttv is None:  # Si el item buscado no esta en Fanart.tv devolvemos una lista vacia
-                return []
-
-            for k, v in fanarttv.items():
-                if k in ("hdtvlogo", "hdmovielogo"):
-                    self.fanart["hdclearlogo"] = v
-                elif k in ("tvposter", "movieposter"):
-                    self.fanart["poster"] = v
-                elif k in ("tvbanner", "moviebanner"):
-                    self.fanart["banner"] = v
-                elif k in ("tvthumb", "moviethumb"):
-                    self.fanart["thumbs"] = v
-                elif k in ("hdclearart", "hdmovieclearart"):
-                    self.fanart["hdclearart"] = v
-                elif k in ("clearart", "movieart"):
-                    self.fanart["clearart"] = v
-                elif k in ("showbackground", "moviebackground"):
-                    self.fanart["background"] = v
-                elif k in ("clearlogo", "movielogo"):
-                    self.fanart["clearlogo"] = v
-                elif k in ("characterart", "seasonthumb", "seasonposter", "seasonbanner", "moviedisc"):
-                    self.fanart[k] = v
-
-        # inicializamos el diccionario con los idiomas
-        ret_dic = {}
-        for i in idioma:
-            ret_dic[i] = []
-
-        for i in self.fanart[tipo]:
-            if i["lang"] in idioma:
-                if "season" not in i:
-                    ret_dic[i["lang"]].append(i["url"])
-                elif temporada == "" or (temporada == 'all' and i["season"] == 'all'):
-                    ret_dic[i["lang"]].append(i["url"])
-                else:
-                    if i["season"] == "":
-                        i["season"] = 0
-                    else:
-                        i["season"] = int(i["season"])
-                    if i["season"] == int(temporada):
-                        ret_dic[i["lang"]].append(i["url"])
-            elif "all" in idioma:
-                ret_dic["all"].append(i["url"])
-
-        ret_list = []
-        for i in idioma:
-            ret_list.extend(ret_dic[i])
-
-        # print ret_list
-        return ret_list
-
-    def get_episodio(self, numtemporada=1, capitulo=1):
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        #   Parametros:
-        #       numtemporada(opcional): (int) Numero de temporada. Por defecto 1.
-        #       capitulo: (int) Numero de capitulo. Por defecto 1.
-        #   Return: (dic)
-        #       Devuelve un dicionario con los siguientes elementos:
-        #           "temporada_nombre", "temporada_sinopsis", "temporada_poster", "temporada_num_episodios"(int),
-        #           "episodio_titulo", "episodio_sinopsis", "episodio_imagen", "episodio_air_date", "episodio_air_date",
-        #           "episodio_crew", "episodio_guest_stars", "episodio_vote_count" y "episodio_vote_average"
-        # --------------------------------------------------------------------------------------------------------------------------------------------
-        if self.result["id"] == "" or self.busqueda["tipo"] != "tv":
-            return {}
-
-        capitulo = int(capitulo)
-        if capitulo < 1:
-            capitulo = 1
-
-        temporada = self.get_temporada(numtemporada)
-        if not temporada:
-            # Se ha producido un error
-            return {}
-        if len(temporada["episodes"]) < capitulo:
-            # Se ha producido un error
-            logger.error("Episodio %d de la temporada %d no encontrado." % (capitulo, numtemporada))
-            return {}
-
-        ret_dic = dict()
-        ret_dic["temporada_nombre"] = temporada["name"]
-        ret_dic["temporada_sinopsis"] = temporada["overview"]
-        ret_dic["temporada_poster"] = ('http://image.tmdb.org/t/p/original' + temporada["poster_path"]) if temporada[
-            "poster_path"] else ""
-        ret_dic["temporada_num_episodios"] = len(temporada["episodes"])
-
-        episodio = temporada["episodes"][capitulo - 1]
-        ret_dic["episodio_titulo"] = episodio["name"]
-        ret_dic["episodio_sinopsis"] = episodio["overview"]
-        ret_dic["episodio_imagen"] = ('http://image.tmdb.org/t/p/original' + episodio["still_path"]) if episodio[
-            "still_path"] else ""
-
-        ret_dic["episodio_air_date"] = episodio["air_date"]
-        ret_dic["episodio_crew"] = episodio["crew"]
-        ret_dic["episodio_guest_stars"] = episodio["guest_stars"]
-        ret_dic["episodio_vote_count"] = episodio["vote_count"]
-        ret_dic["episodio_vote_average"] = episodio["vote_average"]
-        return ret_dic
-
     def get_temporada(self, numtemporada=1):
         # --------------------------------------------------------------------------------------------------------------------------------------------
         #   Parametros:
@@ -1150,38 +1095,122 @@ class Tmdb(object):
         #           http://docs.themoviedb.apiary.io/#reference/tv-seasons/tvidseasonseasonnumber/get
         #           http://docs.themoviedb.apiary.io/#reference/tv-seasons/tvidseasonseasonnumbercredits/get
         # --------------------------------------------------------------------------------------------------------------------------------------------
-        if self.result["id"] == "" or self.busqueda["tipo"] != "tv":
+        if not self.result["id"] or self.busqueda_tipo != "tv":
             return {}
 
         numtemporada = int(numtemporada)
         if numtemporada < 0:
             numtemporada = 1
 
-        # if not self.temporada.has_key("season_number") or self.temporada["season_number"] != numtemporada:
-        # if numtemporada > len(self.temporada) or self.temporada[numtemporada] is None:
-        if not self.temporada.has_key(numtemporada) or not self.temporada[numtemporada]:
+        if not self.temporada.get(numtemporada,{}):
             # Si no hay datos sobre la temporada solicitada, consultar en la web
 
             # http://api.themoviedb.org/3/tv/1407/season/1?api_key=f7f51775877e0bb6703520952b3c7840&language=es&
             # append_to_response=credits
             url = "http://api.themoviedb.org/3/tv/%s/season/%s?api_key=f7f51775877e0bb6703520952b3c7840&language=%s" \
-                  "&append_to_response=credits" % (self.result["id"], numtemporada, self.busqueda["idioma"])
+                  "&append_to_response=credits" % (self.result["id"], numtemporada, self.busqueda_idioma)
 
             buscando = "id_Tmdb: " + str(self.result["id"]) + " temporada: " + str(numtemporada) + "\nURL: " + url
             logger.info("[Tmdb.py] Buscando " + buscando)
-
             try:
                 self.temporada[numtemporada] = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
             except:
-                self.temporada[numtemporada] = ["status_code"]
+                self.temporada[numtemporada] = {"status_code": 15, "status_message": "Failed"}
 
             if "status_code" in self.temporada[numtemporada]:
                 # Se ha producido un error
-                self.temporada[numtemporada] = {}
-                logger.error("La busqueda de " + buscando + " no dio resultados.")
-                return {}
+                msg = "La busqueda de " + buscando + " no dio resultados."
+                msg += "\nError de tmdb: %s %s" % (self.temporada[numtemporada]["status_code"], self.temporada[numtemporada]["status_message"])
+                logger.debug(msg)
+                self.temporada[numtemporada] = {"episodes": {}}
+
+
 
         return self.temporada[numtemporada]
+
+    def get_episodio(self, numtemporada=1, capitulo=1):
+        # --------------------------------------------------------------------------------------------------------------------------------------------
+        #   Parametros:
+        #       numtemporada(opcional): (int) Numero de temporada. Por defecto 1.
+        #       capitulo: (int) Numero de capitulo. Por defecto 1.
+        #   Return: (dic)
+        #       Devuelve un dicionario con los siguientes elementos:
+        #           "temporada_nombre", "temporada_sinopsis", "temporada_poster", "temporada_num_episodios"(int),
+        #           "temporada_air_date",  "episodio_vote_count", "episodio_vote_average",
+        #           "episodio_titulo", "episodio_sinopsis", "episodio_imagen", "episodio_air_date",
+        #           "episodio_crew" y "episodio_guest_stars",
+        #       Con capitulo == -1 el diccionario solo tendra los elementos referentes a la temporada
+        # --------------------------------------------------------------------------------------------------------------------------------------------
+        if not self.result["id"] or self.busqueda_tipo != "tv":
+            return {}
+
+        try:
+            capitulo = int(capitulo)
+            numtemporada = int(numtemporada)
+        except ValueError:
+            logger.debug("El número de episodio o temporada no es valido")
+            return {}
+
+        temporada = self.get_temporada(numtemporada)
+        if not temporada:
+            # Se ha producido un error
+            return {}
+
+        if len(temporada["episodes"]) == 0 or len(temporada["episodes"]) < capitulo:
+            # Se ha producido un error
+            logger.error("Episodio %d de la temporada %d no encontrado." % (capitulo, numtemporada))
+            return {}
+
+        ret_dic = dict()
+        # Obtener datos para esta temporada
+        ret_dic["temporada_nombre"] = temporada["name"]
+        ret_dic["temporada_sinopsis"] = temporada["overview"]
+        ret_dic["temporada_num_episodios"] = len(temporada["episodes"])
+        if temporada["air_date"]:
+            date = temporada["air_date"].split("-")
+            ret_dic["temporada_air_date"] = date[2] + "/" + date[1] + "/" + date[0]
+        else:
+            ret_dic["temporada_air_date"] = ""
+        if temporada["poster_path"]:
+            ret_dic["temporada_poster"] = 'http://image.tmdb.org/t/p/original' + temporada["poster_path"]
+        else:
+            ret_dic["temporada_poster"] = ""
+        dic_aux = temporada.get('credits', {})
+        ret_dic["temporada_cast"] = dic_aux.get('cast', [])
+        ret_dic["temporada_crew"] = dic_aux.get('crew', [])
+        if capitulo == -1:
+            # Si solo buscamos datos de la temporada,
+            # incluir el equipo tecnico que ha intervenido en algun capitulo
+            dic_aux = dict((i['id'], i) for i in ret_dic["temporada_crew"])
+            for e in temporada["episodes"]:
+                for crew in e['crew']:
+                    if crew['id'] not in dic_aux.keys():
+                        dic_aux[crew['id']] = crew
+            ret_dic["temporada_crew"] = dic_aux.values()
+
+
+
+        # Obtener datos del capitulo si procede
+        if capitulo != -1:
+            episodio = temporada["episodes"][capitulo - 1]
+            ret_dic["episodio_titulo"] = episodio["name"]
+            ret_dic["episodio_sinopsis"] = episodio["overview"]
+            if episodio["air_date"]:
+                date = episodio["air_date"].split("-")
+                ret_dic["episodio_air_date"] = date[2] + "/" + date[1] + "/" + date[0]
+            else:
+                ret_dic["episodio_air_date"] = ""
+            ret_dic["episodio_crew"] = episodio["crew"]
+            ret_dic["episodio_guest_stars"] = episodio["guest_stars"]
+            ret_dic["episodio_vote_count"] = episodio["vote_count"]
+            ret_dic["episodio_vote_average"] = episodio["vote_average"]
+            if episodio["still_path"]:
+                ret_dic["episodio_imagen"] = 'http://image.tmdb.org/t/p/original' + episodio["still_path"]
+            else:
+                ret_dic["episodio_imagen"] = ""
+
+
+        return ret_dic
 
     def get_videos(self):
         """
@@ -1191,10 +1220,12 @@ class Tmdb(object):
         """
         ret = []
         if self.result['id']:
-            if not self.result['videos']:
+            if self.result['videos']:
+                self.result["videos"] = self.result["videos"]['results']
+            else:
                 # Primera búsqueda de videos en el idioma de busqueda
                 url = "http://api.themoviedb.org/3/%s/%s/videos?api_key=f7f51775877e0bb6703520952b3c7840&language=%s" \
-                      % (self.busqueda['tipo'], self.result['id'], self.busqueda["idioma"])
+                      % (self.busqueda_tipo, self.result['id'], self.busqueda_idioma)
                 try:
                     dict_videos = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
                 except:
@@ -1205,9 +1236,9 @@ class Tmdb(object):
                     self.result["videos"] = dict_videos['results']
 
             # Si el idioma de busqueda no es ingles, hacer una segunda búsqueda de videos en inglés
-            if self.busqueda["idioma"] != 'en':
+            if self.busqueda_idioma != 'en':
                 url = "http://api.themoviedb.org/3/%s/%s/videos?api_key=f7f51775877e0bb6703520952b3c7840" \
-                      % (self.busqueda['tipo'], self.result['id'])
+                      % (self.busqueda_tipo, self.result['id'])
                 try:
                     dict_videos = jsontools.load_json(scrapertools.downloadpageWithoutCookies(url))
                 except:
@@ -1216,6 +1247,10 @@ class Tmdb(object):
                 if dict_videos['results']:
                     dict_videos['results'] = sorted(dict_videos['results'], key=lambda x: (x['type'], x['size']))
                     self.result["videos"].extend(dict_videos['results'])
+
+            if "status_code" in dict_videos:
+                msg = "Error de tmdb: %s %s" % (dict_videos["status_code"], dict_videos["status_message"])
+                logger.debug(msg)
 
             # Si las busqueda han obtenido resultados devolver un listado de objetos
             for i in self.result['videos']:
@@ -1232,89 +1267,158 @@ class Tmdb(object):
         """
         :param infoLabels: Informacion extra de la pelicula, serie, temporada o capitulo.
         :type infoLabels: Dict
+        :param origen: Diccionario origen de donde se obtiene los infoLabels, por omision self.result
+        :type origen: Dict
         :return: Devuelve la informacion extra obtenida del objeto actual. Si se paso el parametro infoLables, el valor
         devuelto sera el leido como parametro debidamente actualizado.
         :rtype: Dict
         """
-        ret_infoLabels = copy.copy(infoLabels) if infoLabels else {}
-        items = self.result.items() if not origen else origen.items()
+
+        if infoLabels:
+            ret_infoLabels = InfoLabels(infoLabels)
+        else:
+            ret_infoLabels = InfoLabels()
+
+        # Iniciar listados
+        l_country = [i.strip() for i in ret_infoLabels['country'].split(',') if ret_infoLabels['country']]
+        l_director = [i.strip() for i in ret_infoLabels['director'].split(',') if ret_infoLabels['director']]
+        l_writer = [i.strip() for i in ret_infoLabels['writer'].split(',') if ret_infoLabels['writer']]
+        l_castandrole = ret_infoLabels.get('castandrole', [])
+
+        if not origen:
+            origen = self.result
+
+        if 'credits' in origen.keys():
+            dic_origen_credits = origen['credits']
+            origen['credits_cast'] = dic_origen_credits.get('cast',[])
+            origen['credits_crew'] = dic_origen_credits.get('crew', [])
+            del origen['credits']
+
+        items = origen.items()
+
+        # Informacion Temporada/episodio
+        if ret_infoLabels['season'] and self.temporada.get(ret_infoLabels['season']):
+            # Si hay datos cargados de la temporada indicada
+            episodio = -1
+            if ret_infoLabels['episode']: episodio = ret_infoLabels['episode']
+
+            items.extend(self.get_episodio(ret_infoLabels['season'], episodio).items())
+
 
         for k, v in items:
-            if v == '':
+            if not v:
                 continue
             elif type(v) == str:
                 v = re.sub(r"\n|\r|\t", "", v)
 
             if k == 'overview':
-                ret_infoLabels['plot'] = self.get_sinopsis()
+                if origen:
+                    ret_infoLabels['plot'] = v
+                else:
+                    ret_infoLabels['plot'] = self.get_sinopsis()
+
             elif k == 'runtime':
-                ret_infoLabels['duration'] = v
+                ret_infoLabels['duration'] = int(v) * 60
+
             elif k == 'release_date':
                 ret_infoLabels['year'] = int(v[:4])
+                ret_infoLabels['release_date'] = v.split("-")[2] + "/" + v.split("-")[1] + "/" + v.split("-")[0]
+
             elif k == 'first_air_date':
                 ret_infoLabels['year'] = int(v[:4])
-                ret_infoLabels['aired'] = v
-                ret_infoLabels['premiered'] = v
-            elif k == 'original_title':
+                ret_infoLabels['aired'] = v.split("-")[2] + "/" + v.split("-")[1] + "/" + v.split("-")[0]
+                ret_infoLabels['premiered'] = ret_infoLabels['aired']
+
+            elif k == 'original_title' or k == 'original_name':
                 ret_infoLabels['originaltitle'] = v
+
             elif k == 'vote_average':
                 ret_infoLabels['rating'] = float(v)
+
             elif k == 'vote_count':
                 ret_infoLabels['votes'] = v
+
             elif k == 'poster_path':
                 ret_infoLabels['thumbnail'] = 'http://image.tmdb.org/t/p/original' + v
+
             elif k == 'backdrop_path':
                 ret_infoLabels['fanart'] = 'http://image.tmdb.org/t/p/original' + v
+
             elif k == 'id':
                 ret_infoLabels['tmdb_id'] = v
+
             elif k == 'imdb_id':
                 ret_infoLabels['imdb_id'] = v
-                ret_infoLabels['IMDBNumber'] = v
-                ret_infoLabels['code'] = v
-            elif k == 'genres':
-                ret_infoLabels['genre'] = self.get_generos()
-            elif k == 'name':
+
+            elif k == 'external_ids':
+                if 'tvdb_id' in v: ret_infoLabels['tvdb_id'] = v['tvdb_id']
+                if 'imdb_id' in v: ret_infoLabels['imdb_id'] = v['imdb_id']
+
+            elif k in ['genres', "genre_ids", "genre"]:
+                ret_infoLabels['genre'] = self.get_generos(origen)
+
+            elif k == 'name' or k == 'title':
                 ret_infoLabels['title'] = v
+
             elif k == 'production_companies':
                 ret_infoLabels['studio'] = ", ".join(i['name'] for i in v)
+
+            elif k == 'credits_cast' or k == 'temporada_cast' or k == 'episodio_guest_stars':
+                dic_aux = dict((name, character) for (name, character) in l_castandrole)
+                l_castandrole.extend([(p['name'], p['character']) for p in v if p['name'] not in dic_aux.keys()])
+
+            elif k == 'videos':
+                if not isinstance(v, list):
+                    v = v.get('result', [])
+                for i in v:
+                    if i.get("site", "") == "YouTube":
+                        ret_infoLabels['trailer'] = "https://www.youtube.com/watch?v=" + v[0]["key"]
+                        break
+
             elif k == 'production_countries' or k == 'origin_country':
-                if 'country' not in ret_infoLabels:
-                    ret_infoLabels['country'] = ", ".join(i if type(i) == str else i['name'] for i in v)
-                else:
-                    ret_infoLabels['country'] = ", " + ", ".join(i if type(i) == str else i['name'] for i in v)
-            elif k == 'credits_cast':
-                ret_infoLabels['castandrole'] = []
-                for c in sorted(v, key=lambda c: c.get("order")):
-                    ret_infoLabels['castandrole'].append((c['name'], c['character']))
-            elif k == 'credits_crew':
-                l_director = []
-                l_writer = []
+                if isinstance(v,str):
+                    l_country = list(set(l_country + v.split(',')))
+
+                elif isinstance(v,list) and len(v) > 0:
+                    if isinstance(v[0],str):
+                        l_country = list(set(l_country + v))
+                    elif isinstance(v[0],dict):
+                        # {'iso_3166_1': 'FR', 'name':'France'}
+                        for i in v:
+                            if i.has_key('iso_3166_1'):
+                                pais = Tmdb.dic_country.get(i['iso_3166_1'], i['iso_3166_1'])
+                                l_country = list(set(l_country + [pais]))
+
+            elif k == 'credits_crew' or k == 'episodio_crew' or k == 'temporada_crew':
                 for crew in v:
                     if crew['job'].lower() == 'director':
-                        l_director.append(crew['name'])
+                        l_director = list(set(l_director + [crew['name']]))
+
                     elif crew['job'].lower() in ('screenplay', 'writer'):
-                        l_writer.append(crew['name'])
-                if l_director:
-                    ret_infoLabels['director'] = ", ".join(l_director)
-                if l_writer:
-                    if 'writer' not in ret_infoLabels:
-                        ret_infoLabels['writer'] = ", ".join(l_writer)
-                    else:
-                        ret_infoLabels['writer'] += "," + (",".join(l_writer))
+                        l_writer = list(set(l_writer + [crew['name']]))
+
             elif k == 'created_by':
-                l_writer = []
-                for cr in v:
-                    l_writer.append(cr['name'])
-                if 'writer' not in ret_infoLabels:
-                    ret_infoLabels['writer'] = ",".join(l_writer)
-                else:
-                    ret_infoLabels['writer'] += "," + (",".join(l_writer))
-            elif k == 'videos' and len(v) > 0:
-                if v[0]["site"] == "YouTube":
-                    ret_infoLabels['trailer'] = "https://www.youtube.com/watch?v=" + v[0]["key"]
-            elif type(v) == str:
+                for crew in v:
+                    l_writer = list(set(l_writer + [crew['name']]))
+
+
+            elif isinstance(v,str) or isinstance(v,int) or isinstance(v,float):
                 ret_infoLabels[k] = v
-                # logger.debug(k +'= '+ v)
+
+            else:
+                #logger.debug("Atributos no añadidos: " + k +'= '+ str(v))
+                pass
+
+        # Ordenar las listas y convertirlas en str si es necesario
+        if l_castandrole:
+            ret_infoLabels['castandrole'] = sorted(l_castandrole, key=lambda tup: tup[0])
+        if l_country:
+            ret_infoLabels['country'] = ', '.join(sorted(l_country))
+        if l_director:
+            ret_infoLabels['director'] = ', '.join(sorted(l_director))
+        if l_writer:
+            ret_infoLabels['writer'] = ', '.join(sorted(l_writer))
+
 
         return ret_infoLabels
 
@@ -1338,7 +1442,7 @@ def infoSod(item, tipo="movie"):
                      idioma_busqueda='it',
                      year=year)
 
-        item.infoLabels = otmdb.get_infoLabels()
+        item.infoLabels = otmdb.get_infoLabels(item.infoLabels)
         if 'thumbnail' in item.infoLabels:
             item.thumbnail = item.infoLabels['thumbnail']
         if 'fanart' in item.infoLabels:

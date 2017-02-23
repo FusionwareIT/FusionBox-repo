@@ -9,7 +9,7 @@
 
 	<fanart></fanart>
 	<thumbnail>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/liberoita.png</thumbnail>
-	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/liberoita.png/bannermenu>
+	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/liberoita.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
 	<version>2</version>

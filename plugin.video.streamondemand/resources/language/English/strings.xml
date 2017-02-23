@@ -7,7 +7,7 @@
     <!-- ======================================= -->
     
     <!-- Commons -->
-    <string id="30000">Default player:</string>
+    <string id="30000">Default player (XBOX only):</string>
     <string id="30001">Check for updates:</string>
     <string id="30004">Automatic update channels:</string>
     <string id="30201">Update library each time XBMC opens</string>

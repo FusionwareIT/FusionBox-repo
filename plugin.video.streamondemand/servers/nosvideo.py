@@ -5,7 +5,6 @@
 # http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 
-import base64
 import re
 
 from core import logger
@@ -29,10 +28,19 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
 
     # Lee la URL
     data = scrapertools.cache_page(page_url)
-    decode = scrapertools.find_single_match(data, 'tracker: "([^"]+)"')
-    media_url = base64.b64decode(decode)
+    urls = scrapertools.find_multiple_matches(data, ":'(http:\/\/.+?(?:v.mp4|.smil))")
+    urls = set(urls)
 
-    video_urls.append([scrapertools.get_filename_from_url(media_url)[-4:] + " [nosvideo]", media_url])
+    for media_url in urls:
+        if ".smil" in media_url:
+            data = scrapertools.downloadpage(media_url)
+            rtmp = scrapertools.find_single_match(data, '<meta base="([^"]+)"')
+            playpath = scrapertools.find_single_match(data, '<video src="([^"]+)"')
+            media_url = rtmp + " playpath=" + playpath
+            filename = "rtmp"
+        else:
+            filename = scrapertools.get_filename_from_url(media_url)[-4:]
+        video_urls.append([ filename + " [nosvideo]", media_url])
 
     for video_url in video_urls:
         logger.info("streamondemand.servers.nosvideo.py %s - %s" % (video_url[0], video_url[1]))

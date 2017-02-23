@@ -7,11 +7,11 @@
     <!-- ======================================= -->
     
     <!-- Comandi -->
-    <string id="30000">Lettore predefinito:</string>
+    <string id="30000">Lettore predefinito (XBOX only):</string>
     <string id="30001">Controlla aggiornamenti:</string>
     <string id="30004">Aggiornamento automatico canali:</string>
-    <string id="30201">Aggiorna la biblioteca all'avvio di Kodi</string>
-    <string id="30002">Abilita modalità adulti:</string>
+    <string id="30201">Actualizar la biblioteca al abrir XBMC</string>
+    <string id="30002">Abilita modalità adult:</string>
     <string id="30003">Abilita logging di debug:</string>
     <string id="30043">Forza modalità di visualizzazione:</string>
 
@@ -75,14 +75,20 @@
     <string id="30045">Video list URL / file</string>
     <string id="30047">Elements per page</string>
 
+    <!-- Filtri -->
+    <string id="30068">Filtro per server:</string>
+    <string id="30069">White List:</string>
+    <string id="30070">Blacklist:</string>
+    <string id="30071">Per mettere più server che utilizzano "," come separatore</string>
+
     <!-- =============================================================== -->
     <!-- 30050 to 30099: Info / Messaggi d' errore                       -->
     <!-- =============================================================== -->
-    <string id="30050">Errore di connessione al server</string> <!-- No se puede conectar con el servidor -->
+    <string id="30050">Errore connessione server</string> <!-- No se puede conectar con el servidor -->
     <string id="30051">Messaggio d'errore sito web (codice http %d)</string> <!-- El sitio web no funciona correctamente (error http %d) -->
     <string id="30052">Megavideo ha un limite di 72 minuti</string> <!-- Megavideo tiene un límite de reproducción de 72 minutos -->
     <string id="30053">Per utenti free. Il limite non è applicato agli utenti</string> <!-- Para evitar que los vídeos se corten pasado ese tiempo -->
-    <string id="30054">Necessita il login con un account premium</string> <!-- necesitas una cuenta Premium -->
+    <string id="30054">Necessita il login in un account premium</string> <!-- necesitas una cuenta Premium -->
     <string id="30055">Video non disponibile</string> <!-- Vídeo no disponible -->
     <string id="30056">Non ci sono video disponibili nella pagina web</string> <!-- No se han podido localizar videos en la página del sitio web -->
     <string id="30057">Il video è stato rimosso da %s</string> <!-- El vídeo ya no está en %s -->
@@ -91,8 +97,9 @@
     <string id="30060">Impossibile accedere a causa di un errore del sito</string> <!-- No se puede acceder por un error en el sitio web -->
     <string id="30061">Qualità non disponibile o video rimosso</string> <!-- La calidad elegida no esta disponible o el video ha sido borrado -->
     <string id="30062">Prova un' altra qualità</string> <!-- Prueba a reproducir en otra calidad -->
-    <string id="30063">Canale aggiornato con successo.</string>
-    <string id="30064">Lista canali disponibili aggiornata con successo.</string>
+    <string id="30063">Questo canale è state scaricato ed aggiornato!</string>
+    <string id="30064">Lista ¡Channel aggiornata!</string>
+
     <string id="30065">Server non supportato</string>
 
     <!-- =============================================================== -->
@@ -116,23 +123,23 @@
     <string id="30114">Trailer non trovato</string> <!-- Trailer no encontrado -->
     <string id="30115">Trailer per %s</string> <!-- El Trailer para %s -->
     <string id="30116">Non può essere trovato</string> <!-- no se ha podido localizar. -->
-    <string id="30117">Vuoi definire la ricerca utilizzando la tastiera?</string> <!-- ¿Quieres refinar la búsqueda con el teclado? -->
+    <string id="30117">Vuoi refiner la ricerca utilizzando la tastiera?</string> <!-- ¿Quieres refinar la búsqueda con el teclado? -->
     <string id="30135">Aggiunto alla libreria</string>
 
-    <string id="30130">Novità</string>
+    <string id="30130">Nuovo</string>
     <string id="30118">Canali</string>
     <string id="30119">Scegli una categoria</string>
     <string id="30120">Scegli una lingua</string>
-    <string id="30121">Tutti i Canali</string>
+    <string id="30121">Tutto</string>
     <string id="30122">Film</string>
-    <string id="30123">Serie TV</string>
+    <string id="30123">Show televisivi</string>
     <string id="30124">Anime</string>
     <string id="30125">Documentari</string>
-    <string id="30136">Sub-Ita</string>
+    <string id="30136">Versioni originali</string>
     <string id="30126">Adulti</string>
     <string id="30127">Latino</string>
     <string id="30128">Cerca trailer</string>
-    <string id="30129">Adulti</string>
+    <string id="30129">Adulto</string>
     <string id="30131">Libreria</string>
     <string id="30132">Tema</string>
     <string id="30133">Internet</string>
@@ -216,7 +223,7 @@
     
     <!-- Lasciatemi guardare questo -->
     <string id="40001">Film - Appena aggiunti</string>
-    <string id="40002">Serie TV - Appena aggiunti</string>
+    <string id="40002">Show televisivi - Appena aggiunti</string>
     <string id="40003">Pagina successiva</string>
     
     <!-- Stringhe TVShack -->

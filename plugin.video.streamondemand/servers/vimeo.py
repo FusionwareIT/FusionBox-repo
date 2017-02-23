@@ -35,7 +35,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     return video_urls
 
-# Encuentra vÃ­deos del servidor en el texto pasado
+# Encuentra vídeos del servidor en el texto pasado
 def find_videos(text):
     encontrados = set()
     devuelve = []

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------
+# streamondemand 5
+# Copyright 2015 tvalacarta@gmail.com
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
+#
+# Distributed under the terms of GNU General Public License v3 (GPLv3)
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ------------------------------------------------------------
+# This file is part of streamondemand 5.
+#
+# streamondemand 5 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# streamondemand 5 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
+# ------------------------------------------------------------
 import BaseHTTPServer
 import urlparse
 import time
@@ -29,15 +53,18 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.server.request = self
 
         if self.do_HEAD():
-            with self.server.file.create_cursor(self.offset) as f:
-                while f == self.server.file.cursor:
-                    buf= f.read(1024)
-                    if buf:
-                        self.wfile.write(buf)
-
-                    else:
-                        break
-
+            f = self.server.file.create_cursor(self.offset)
+            while f == self.server.file.cursor:
+                buf= f.read(1024)
+                if buf:
+                    try:
+                      self.wfile.write(buf)
+                    except:
+                      break
+                else:
+                    break
+            f.close()
+            
       def send_pls(self, files):
         playlist = "[playlist]\n\n"
         for x,f in enumerate(files):

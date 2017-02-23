@@ -34,105 +34,101 @@ from core import jsontools
 from core import logger
 from core import scrapertools
 from core import servertools
+from core.item import Item
 from platformcode import platformtools
 
+result = None
+window_select = []
 DEBUG = config.get_setting("debug")
 # Para habilitar o no la opción de búsqueda manual
-if config.is_xbmc() or config.get_platform() == "mediaserver":
+if config.get_platform() != "plex":
     keyboard = True
 else:
     keyboard = False
 
 
-def buscartrailer(item):
+def buscartrailer(item, trailers=[]):
     logger.info("streamondemand.channels.trailertools buscartrailer")
 
-    # Se elimina la opciçon de Buscar Trailer del menú contextual para evitar redundancias
-    item.context = item.context.replace("5", "")
-    item.text_color = ""
-    # Si no se indica el parámetro contextual se entiende que no se ejecuta desde este mení
-    if item.contextual == "":
-        item.contextual = False
-
-    itemlist = []
-    if item.contentTitle != "":
-        item.contentTitle = item.contentTitle.strip()
-    elif keyboard:
-        item.contentTitle = platformtools.dialog_input(heading="Introduce el título a buscar")
-        if item.contentTitle is None:
-            item.contentTitle = item.fulltitle.strip()
-        else:
-            item.contentTitle = item.contentTitle.strip()
-    else:
-        item.contentTitle = item.fulltitle.strip()
-        
-    item.year = item.infoLabels['year'] if "year" in item.infoLabels else ""
-    logger.info("streamondemand.channels.trailertools Búsqueda: %s" % item.contentTitle)
-    logger.info("streamondemand.channels.trailertools Año: %s" % item.year)
-
     # Lista de acciones si se ejecuta desde el menú contextual
-    if item.action == "manual_search":
+    if item.action == "manual_search" and item.contextual:
         itemlist = manual_search(item)
         item.contentTitle = itemlist[0].contentTitle
-    elif item.action == "youtube_search":
-        itemlist = youtube_search(item)
-    elif item.action == "filmaffinity_search":
-        itemlist = filmaffinity_search(item)
-    elif item.action == "abandomoviez_search":
-        itemlist = abandomoviez_search(item)
-    elif item.action == "jayhap_search":
-        itemlist = jayhap_search(item)
+    elif 'search' in item.action and item.contextual:
+        itemlist = globals()[item.action](item)
     else:
-        if "trailer" in item.infoLabels and item.infoLabels['trailer'] != "":
+        # Se elimina la opción de Buscar Trailer del menú contextual para evitar redundancias
+        if type(item.context) is str and "buscar_trailer" in item.context:
+            item.context = item.context.replace("buscar_trailer", "")
+        elif type(item.context) is list and "buscar_trailer" in item.context:
+            item.context.remove("buscar_trailer")
+
+        item.text_color = ""
+
+        itemlist = []
+        if item.contentTitle != "":
+            item.contentTitle = item.contentTitle.strip()
+        elif keyboard:
+            fulltitle = re.sub('\[\/*(B|I|COLOR)\s*[^\]]*\]', '', item.fulltitle.strip())
+            item.contentTitle = platformtools.dialog_input(default=fulltitle, heading="Introduce el título a buscar")
+            if item.contentTitle is None:
+                item.contentTitle = fulltitle
+            else:
+                item.contentTitle = item.contentTitle.strip()
+        else:
+            fulltitle = re.sub('\[\/*(B|I|COLOR)\s*[^\]]*\]', '', item.fulltitle.strip())
+            item.contentTitle = fulltitle
+        
+        item.year = item.infoLabels['year']
+
+        logger.info("streamondemand.channels.trailertools Búsqueda: %s" % item.contentTitle)
+        logger.info("streamondemand.channels.trailertools Año: %s" % item.year)
+        if item.infoLabels['trailer'] and not trailers:
             url = item.infoLabels['trailer']
             if "youtube" in url:
                 url = url.replace("embed/", "watch?v=")
             titulo, url, server = servertools.findvideos(url)[0]
             title = "Trailer por defecto  [" + server + "]"
             itemlist.append(item.clone(title=title, url=url, server=server, action="play"))
-        if item.show != "" or ("tvshowtitle" in item.infoLabels and item.infoLabels['tvshowtitle'] != ""):
-            type = "tv"
+        if item.show or item.infoLabels['tvshowtitle'] or item.contentType != "movie":
+            tipo = "tv"
         else:
-            type = "movie"
+            tipo = "movie"
         try:
-            itemlist.extend(tmdb_trailers(item, type))
+            if not trailers:
+                itemlist.extend(tmdb_trailers(item, tipo))
+            else:
+                for trailer in trailers:
+                    title = trailer['name'] + " [" + trailer['size'] + "p] (" + trailer['language'].replace("en", "ING")\
+                            .replace("es", "ESP")+")  [tmdb/youtube]"
+                    itemlist.append(item.clone(action="play", title=title, url=trailer['url'], server="youtube"))
         except:
             import traceback
             logger.error(traceback.format_exc())
         
-        title = "[COLOR green]%s[/COLOR]" if item.contextual else "%s"
+        if item.contextual:
+            title = "[COLOR green]%s[/COLOR]"
+        else:
+            title = "%s"
         itemlist.append(item.clone(title=title % "Búsqueda en Youtube", action="youtube_search",
                                    text_color="green"))
         itemlist.append(item.clone(title=title % "Búsqueda en Filmaffinity",
                                    action="filmaffinity_search", text_color="green"))
         # Si se trata de una serie, no se incluye la opción de buscar en Abandomoviez
-        if item.show == "" and ("tvshowtitle" not in item.infoLabels or item.infoLabels['tvshowtitle'] == ""):
+        if not item.show and not item.infoLabels['tvshowtitle']:
             itemlist.append(item.clone(title=title % "Búsqueda en Abandomoviez",
                                        action="abandomoviez_search", text_color="green"))
         itemlist.append(item.clone(title=title % "Búsqueda en Jayhap (Youtube, Vimeo & Dailymotion)",
                                    action="jayhap_search", text_color="green"))
 
     if item.contextual:
-        opciones = []
-        if itemlist:
-            for video_url in itemlist:
-                opciones.append(video_url.title)
+        global window_select, result
+        select = Select("DialogSelect.xml", config.get_runtime_path(), item=item, itemlist=itemlist, caption="Buscando: "+item.contentTitle)
+        window_select.append(select)
+        select.doModal()
 
-            seleccion = platformtools.dialog_select("Buscando: "+item.contentTitle, opciones)
-            logger.info("seleccion=%d" % seleccion)
-            logger.info("seleccion=%s" % opciones[seleccion])
-
-            if seleccion < 0:
-                return
-            else:
-                item = itemlist[seleccion]
-                if "search" in item.action:
-                    buscartrailer(item)
-                else:
-                    if item.action == "play":
-                        from platformcode import xbmctools
-                        xbmctools.play_video(item)
-                    return
+        if item.windowed:
+            return result, window_select
     else:
         return itemlist
 
@@ -151,16 +147,16 @@ def manual_search(item):
             return jayhap_search(item.clone(contentTitle=texto))
 
 
-def tmdb_trailers(item, type="movie"):
+def tmdb_trailers(item, tipo="movie"):
     logger.info("streamondemand.channels.trailertools tmdb_trailers")
 
     from core.tmdb import Tmdb
     itemlist = []
     tmdb_search = None
-    if "tmdb_id" in item.infoLabels and item.infoLabels['tmdb_id'] != "":
-        tmdb_search = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=type, idioma_busqueda='it')
-    elif "year" in item.infoLabels and item.infoLabels['year'] != "":
-        tmdb_search = Tmdb(texto_buscado=item.contentTitle, tipo=type, year=item.infoLabels['year'])
+    if item.infoLabels['tmdb_id']:
+        tmdb_search = Tmdb(id_Tmdb=item.infoLabels['tmdb_id'], tipo=tipo, idioma_busqueda='it')
+    elif item.infoLabels['year']:
+        tmdb_search = Tmdb(texto_buscado=item.contentTitle, tipo=tipo, year=item.infoLabels['year'])
 
     if tmdb_search:
         for result in tmdb_search.get_videos():
@@ -175,13 +171,14 @@ def youtube_search(item):
     logger.info("streamondemand.channels.trailertools youtube_search")
     itemlist = []
 
+    titulo = item.contentTitle
     if item.extra != "youtube":
-        item.contentTitle += " trailer"
+        titulo += " trailer"
     # Comprueba si es una búsqueda de cero o viene de la opción Siguiente
     if item.page != "":
         data = scrapertools.downloadpage(item.page)
     else:
-        titulo = urllib.quote(item.contentTitle)
+        titulo = urllib.quote(titulo)
         titulo = titulo.replace("%20", "+")
         data = scrapertools.downloadpage("https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q="+titulo)
 
@@ -208,11 +205,14 @@ def youtube_search(item):
                                    thumbnail="", text_color=""))
     
     if not itemlist:
-        itemlist.append(item.clone(title="La búsqueda no ha dado resultados (%s)" % item.contentTitle,
+        itemlist.append(item.clone(title="La búsqueda no ha dado resultados (%s)" % titulo,
                                    action="", thumbnail="", text_color=""))
 
     if keyboard:
-        title = "[COLOR green]%s[/COLOR]" if item.contextual else "%s"
+        if item.contextual:
+            title = "[COLOR green]%s[/COLOR]"
+        else: 
+            title = "%s"
         itemlist.append(item.clone(title=title % "Búsqueda Manual en Youtube", action="manual_search",
                                    text_color="green", thumbnail="", extra="youtube"))
 
@@ -236,10 +236,8 @@ def abandomoviez_search(item):
             url = "http://www.abandomoviez.net/indie/busca_titulo_advance.php"
             item.prefix = "indie/"
             data = scrapertools.downloadpage(url, post=post).decode("iso-8859-1").encode('utf-8')
-            logger.info(data)
 
     itemlist = []
-    devuelve = []
     patron = '(?:<td width="85"|<div class="col-md-2 col-sm-2 col-xs-3">).*?<img src="([^"]+)"' \
              '.*?href="([^"]+)">(.*?)(?:<\/td>|<\/small>)'
     matches = scrapertools.find_multiple_matches(data, patron)
@@ -247,7 +245,7 @@ def abandomoviez_search(item):
     if len(matches) == 1:
         item.url = urlparse.urljoin("http://www.abandomoviez.net/%s" % item.prefix, matches[0][1])
         item.thumbnail = matches[0][0]
-        devuelve = search_links_abando(item)
+        itemlist = search_links_abando(item)
     elif len(matches) > 1:
         for scrapedthumbnail, scrapedurl, scrapedtitle in matches:
             scrapedurl = urlparse.urljoin("http://www.abandomoviez.net/%s" % item.prefix, scrapedurl)
@@ -261,35 +259,19 @@ def abandomoviez_search(item):
             itemlist.append(item.clone(title=">> Siguiente", action="abandomoviez_search", page=next_page, thumbnail="",
                                        text_color=""))
 
-        if item.contextual:
-            opciones = []
-            for item_abando in itemlist:
-                opciones.append(item_abando.title)
-
-            seleccion = platformtools.dialog_select("Buscando: "+item.contentTitle, opciones)
-            logger.info("seleccion=%d" % seleccion)
-            logger.info("seleccion=%s" % opciones[seleccion])
-            if seleccion < 0:
-                return
-            else:
-                item_abando = itemlist[seleccion]
-                if item_abando.title == ">> Siguiente":
-                    return buscartrailer(item_abando)
-                else:
-                    devuelve = search_links_abando(item_abando)
-        else:
-            devuelve = itemlist
-
-    if not devuelve:
-        devuelve.append(item.clone(title="La búsqueda no ha dado resultados", action="", thumbnail="",
+    if not itemlist:
+        itemlist.append(item.clone(title="La búsqueda no ha dado resultados", action="", thumbnail="",
                                    text_color=""))
     
         if keyboard:
-            title = "[COLOR green]%s[/COLOR]" if item.contextual else "%s"
-            devuelve.append(item.clone(title=title % "Búsqueda Manual en Abandomoviez",
+            if item.contextual:
+                title = "[COLOR green]%s[/COLOR]"
+            else: 
+                title = "%s"
+            itemlist.append(item.clone(title=title % "Búsqueda Manual en Abandomoviez",
                                        action="manual_search", thumbnail="", text_color="green", extra="abandomoviez"))
 
-    return devuelve
+    return itemlist
 
 
 def search_links_abando(item):
@@ -312,11 +294,16 @@ def search_links_abando(item):
             trailer_url = scrapertools.find_single_match(data, '<iframe.*?src="([^"]+)"')
             if trailer_url != "":
                 trailer_url = trailer_url.replace("embed/", "watch?v=")
+                code = scrapertools.find_single_match(trailer_url, 'v=([A-z0-9\-_]+)')
+                thumbnail = "https://img.youtube.com/vi/%s/0.jpg" % code
                 itemlist.append(item.clone(title="Trailer  [youtube]", url=trailer_url, server="youtube",
-                                           action="play", text_color="white"))
+                                           thumbnail=thumbnail, action="play", text_color="white"))
         else:
             for scrapedurl, language, scrapedtitle in matches:
-                idioma = " (ESP)" if language == "1" else " (V.O)"
+                if language == "1":
+                    idioma = " (ESP)"
+                else:
+                    idioma = " (V.O)"
                 scrapedurl = urlparse.urljoin("http://www.abandomoviez.net/%s" % item.prefix, scrapedurl)
                 scrapedtitle = scrapertools.htmlclean(scrapedtitle) + idioma + "  [youtube]"
                 if item.contextual:
@@ -328,14 +315,19 @@ def search_links_abando(item):
                 data_trailer = scrapertools.downloadpage(scrapedurl)
                 trailer_url = scrapertools.find_single_match(data_trailer, 'iframe.*?src="([^"]+)"')
                 trailer_url = trailer_url.replace("embed/", "watch?v=")
-                itemlist.append(item.clone(title=scrapedtitle, url=trailer_url, server="youtube",
-                                           action="play", text_color="white"))
+                code = scrapertools.find_single_match(trailer_url, 'v=([A-z0-9\-_]+)')
+                thumbnail = "https://img.youtube.com/vi/%s/0.jpg" % code
+                itemlist.append(item.clone(title=scrapedtitle, url=trailer_url, server="youtube", action="play",
+                                           thumbnail=thumbnail, text_color="white"))
         
         if item.contextual:
             progreso.close()
 
     if keyboard:
-        title = "[COLOR green]%s[/COLOR]" if item.contextual else "%s"
+        if item.contextual:
+            title = "[COLOR green]%s[/COLOR]"
+        else: 
+            title = "%s"
         itemlist.append(item.clone(title=title % "Búsqueda Manual en Abandomoviez",
                                    action="manual_search", thumbnail="", text_color="green", extra="abandomoviez"))
     return itemlist
@@ -343,6 +335,10 @@ def search_links_abando(item):
 
 def filmaffinity_search(item):
     logger.info("streamondemand.channels.trailertools filmaffinity_search")
+
+    if item.filmaffinity:
+        item.url = item.filmaffinity
+        return search_links_filmaff(item)
 
     # Comprueba si es una búsqueda de cero o viene de la opción Siguiente
     if item.page != "":
@@ -353,7 +349,6 @@ def filmaffinity_search(item):
         url = "http://www.filmaffinity.com/es/advsearch.php?%s" % params
         data = scrapertools.downloadpage(url)
 
-    devuelve = []
     itemlist = []
     patron = '<div class="mc-poster">.*?<img.*?src="([^"]+)".*?' \
              '<div class="mc-title"><a  href="/es/film(\d+).html"[^>]+>(.*?)<img'
@@ -364,7 +359,7 @@ def filmaffinity_search(item):
         item.thumbnail = matches[0][0]
         if not item.thumbnail.startswith("http"):
             item.thumbnail = "http://www.filmaffinity.com" + item.thumbnail
-        devuelve = search_links_filmaff(item)
+        itemlist = search_links_filmaff(item)
     elif len(matches) > 1:
         for scrapedthumbnail, id, scrapedtitle in matches:
             if not scrapedthumbnail.startswith("http"):
@@ -372,8 +367,8 @@ def filmaffinity_search(item):
             scrapedurl = "http://www.filmaffinity.com/es/evideos.php?movie_id=%s" % id
             scrapedtitle = unicode(scrapedtitle, encoding="utf-8", errors="ignore")
             scrapedtitle = scrapertools.htmlclean(scrapedtitle)
-            itemlist.append(item.clone(title=scrapedtitle, url=scrapedurl,
-                                       action="search_links_filmaff", thumbnail=scrapedthumbnail, text_color="white"))
+            itemlist.append(item.clone(title=scrapedtitle, url=scrapedurl, text_color="white",
+                                       action="search_links_filmaff", thumbnail=scrapedthumbnail))
 
         next_page = scrapertools.find_single_match(data, '<a href="([^"]+)">&gt;&gt;</a>')
         if next_page != "":
@@ -381,34 +376,19 @@ def filmaffinity_search(item):
             itemlist.append(item.clone(title=">> Siguiente", page=next_page, action="filmaffinity_search", thumbnail="",
                                        text_color=""))
 
-        if item.contextual:
-            opciones = []
-            for item_film in itemlist:
-                opciones.append(item_film.title)
-            seleccion = platformtools.dialog_select("Buscando: "+item.contentTitle, opciones)
-            logger.info("seleccion=%d" % seleccion)
-            logger.info("seleccion=%s" % opciones[seleccion])
-            if seleccion < 0:
-                return
-            else:
-                item_film = itemlist[seleccion]
-                if item_film.title == ">> Siguiente":
-                    return buscartrailer(item_film)
-                else:
-                    devuelve = search_links_filmaff(item_film)
-        else:
-            devuelve = itemlist
-
-    if not devuelve:
-        devuelve.append(item.clone(title="La búsqueda no ha dado resultados (%s)" % item.contentTitle,
+    if not itemlist:
+        itemlist.append(item.clone(title="La búsqueda no ha dado resultados (%s)" % item.contentTitle,
                                    action="", thumbnail="", text_color=""))
 
         if keyboard:
-            title = "[COLOR green]%s[/COLOR]" if item.contextual else "%s"
-            devuelve.append(item.clone(title=title % "Búsqueda Manual en Filmaffinity",
+            if item.contextual:
+                title = "[COLOR green]%s[/COLOR]"
+            else: 
+                title = "%s"
+            itemlist.append(item.clone(title=title % "Búsqueda Manual en Filmaffinity",
                                        action="manual_search", text_color="green", thumbnail="", extra="filmaffinity"))
         
-    return devuelve
+    return itemlist
 
 
 def search_links_filmaff(item):
@@ -416,24 +396,35 @@ def search_links_filmaff(item):
     
     itemlist = []
     data = scrapertools.downloadpage(item.url)
-    if not "iframe" in data:
+    if not '<a class="lnkvvid"' in data:
         itemlist.append(item.clone(title="No hay ningún vídeo disponible", action="", text_color=""))
     else:
         patron = '<a class="lnkvvid".*?<b>(.*?)</b>.*?iframe.*?src="([^"]+)"'
         matches = scrapertools.find_multiple_matches(data, patron)
         for scrapedtitle, scrapedurl in matches:
-            trailer_url = urlparse.urljoin("http:", scrapedurl).replace("embed/", "watch?v=")
-            server = servertools.get_server_from_url(trailer_url)
+            if not scrapedurl.startswith("http:"):
+                scrapedurl = urlparse.urljoin("http:", scrapedurl)
+            trailer_url = scrapedurl.replace("-nocookie.com/embed/", ".com/watch?v=")
+            if "youtube" in trailer_url:
+                server = "youtube"
+                code = scrapertools.find_single_match(trailer_url, 'v=([A-z0-9\-_]+)')
+                thumbnail = "https://img.youtube.com/vi/%s/0.jpg" % code
+            else:
+                server = servertools.get_server_from_url(trailer_url)
+                thumbnail = item.thumbnail
             scrapedtitle = unicode(scrapedtitle, encoding="utf-8", errors="ignore")
             scrapedtitle = scrapertools.htmlclean(scrapedtitle)
             scrapedtitle += "  [" + server + "]"
             if item.contextual:
                 scrapedtitle = "[COLOR white]%s[/COLOR]" % scrapedtitle            
-            itemlist.append(item.clone(title=scrapedtitle, url=trailer_url, server=server,
-                                       action="play", text_color="white"))
+            itemlist.append(item.clone(title=scrapedtitle, url=trailer_url, server=server, action="play",
+                                       thumbnail=thumbnail, text_color="white"))
 
     if keyboard:
-        title = "[COLOR green]%s[/COLOR]" if item.contextual else "%s"
+        if item.contextual:
+            title = "[COLOR green]%s[/COLOR]"
+        else: 
+            title = "%s"
         itemlist.append(item.clone(title=title % "Búsqueda Manual en Filmaffinity",
                                    action="manual_search", thumbnail="", text_color="green", extra="filmaffinity"))
     return itemlist
@@ -441,7 +432,6 @@ def search_links_filmaff(item):
 
 def jayhap_search(item):
     logger.info("streamondemand.channels.trailertools jayhap_search")
-    logger.info("adasd "+item.contentTitle)
     itemlist = []
 
     if item.extra != "jayhap":
@@ -480,8 +470,108 @@ def jayhap_search(item):
                                    thumbnail="", text_color=""))
 
     if keyboard:
-        title = "[COLOR green]%s[/COLOR]" if item.contextual else "%s"
+        if item.contextual:
+            title = "[COLOR green]%s[/COLOR]"
+        else: 
+            title = "%s"
         itemlist.append(item.clone(title=title % "Búsqueda Manual en Jayhap", action="manual_search",
                                    text_color="green", thumbnail="", extra="jayhap"))
 
     return itemlist
+
+try:
+    import xbmcgui
+    import xbmc
+    class Select(xbmcgui.WindowXMLDialog):
+        def __init__(self, *args, **kwargs):
+            self.item = kwargs.get('item')
+            self.itemlist = kwargs.get('itemlist')
+            self.caption = kwargs.get('caption')
+            self.result = None
+
+        def onInit(self):
+            try:
+                self.control_list = self.getControl(6)
+                self.getControl(5).setNavigation(self.control_list, self.control_list, self.control_list, self.control_list)
+                self.getControl(3).setEnabled(0)
+                self.getControl(3).setVisible(0)
+            except:
+                pass
+
+            try:
+                self.getControl(99).setVisible(False)
+            except:
+                pass
+            self.getControl(1).setLabel("[COLOR orange]"+self.caption+"[/COLOR]")
+            self.getControl(5).setLabel("[COLOR tomato][B]Cerrar[/B][/COLOR]")
+            self.items = []
+            for item in self.itemlist:
+                item_l = xbmcgui.ListItem(item.title)
+                item_l.setArt({'thumb': item.thumbnail})
+                item_l.setProperty('item_copy', item.tourl())
+                self.items.append(item_l)
+            self.control_list.reset()
+            self.control_list.addItems(self.items)
+            self.setFocus(self.control_list)
+
+        def onClick(self, id):
+            # Boton Cancelar y [X]
+            if id == 5:
+                global window_select, result
+                self.result = "_no_video"
+                result = "no_video"
+                self.close()
+                window_select.pop()
+                if not window_select:
+                    if not self.item.windowed:
+                        del window_select
+                else:
+                    window_select[-1].doModal()
+
+
+        def onAction(self,action):
+            global window_select, result
+            if action == 92 or action == 110:
+                self.result = "no_video"
+                result = "no_video"
+                self.close()
+                window_select.pop()
+                if not window_select:
+                    if not self.item.windowed:
+                        del window_select
+                else:
+                    window_select[-1].doModal()
+
+            try:
+                if (action == 7 or action == 100) and self.getFocusId() == 6:
+                    selectitem = self.control_list.getSelectedItem()
+                    item = Item().fromurl(selectitem.getProperty("item_copy"))
+                    if item.action == "play" and self.item.windowed:
+                        video_urls, puede, motivo = servertools.resolve_video_urls_for_playing(item.server, item.url)
+                        self.close()
+                        xbmc.sleep(200)
+                        if puede:
+                            result = video_urls[-1][1]
+                            self.result = video_urls[-1][1]
+                        else:
+                            result = None
+                            self.result = None
+                            
+                    elif item.action == "play" and not self.item.windowed:
+                        for window in window_select:
+                            window.close()
+                        retorna = platformtools.play_video(item)
+                        if not retorna:
+                            while True:
+                                xbmc.sleep(1000)
+                                if not xbmc.Player().isPlaying():
+                                    break
+                        window_select[-1].doModal()
+                    else:
+                        self.close()
+                        buscartrailer(item)
+            except:
+                import traceback
+                logger.info(traceback.format_exc())
+except:
+    pass

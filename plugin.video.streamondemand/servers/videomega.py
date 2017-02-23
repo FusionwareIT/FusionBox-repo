@@ -29,12 +29,8 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
     data = scrapertools.find_single_match(data, patron)
     if data != '':
         data = jsunpack.unpack(data)
-
         location = scrapertools.find_single_match(data, r'"src"\s*,\s*"([^"]+)')
-        location += '|' + urllib.urlencode(dict(headers))
-        logger.info("streamondemand.videomega location=" + location)
-
-        video_urls.append([scrapertools.get_filename_from_url(location)[-4:] + " [videomega]", location])
+        video_urls.append([scrapertools.get_filename_from_url(location)[-4:] + " [videomega]", location + '|' + urllib.urlencode(dict(headers))])
 
     for video_url in video_urls:
         logger.info("streamondemand.videomega %s - %s" % (video_url[0], video_url[1]))
@@ -54,7 +50,7 @@ def find_videos(data):
 
     for media_id in matches:
         titulo = "[videomega]"
-        url = 'http://videomega.tv/cdn.php?ref=%s' % media_id
+        url = 'http://videomega.tv/view.php?ref=%s' % media_id
         if url not in encontrados:
             logger.info("  url=" + url)
             devuelve.append([titulo, url, 'videomega'])

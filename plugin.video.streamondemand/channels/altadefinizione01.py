@@ -20,7 +20,7 @@ __type__ = "generic"
 __title__ = "AltaDefinizione01"
 __language__ = "IT"
 
-host = "http://www.altadefinizione01.black"
+host = "http://www.altadefinizione01.cool"
 
 headers = [
     ['User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0'],
@@ -128,7 +128,7 @@ def peliculas(item):
 
 def HomePage(item):
     import xbmc
-    xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand)")
+    xbmc.executebuiltin("ReplaceWindow(10024,plugin://plugin.video.streamondemand/)")
 
 
 def categorias(item):

@@ -22,7 +22,7 @@
 # You should have received a copy of the GNU General Public License
 # along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------
-# Herramientas de integraciï¿½n con xbmc subtitles
+# Herramientas de integración con xbmc subtitles
 # Autor: bandavi
 # Este archivo utiliza el Script XBMC SUBTITLES y el modulo "regex_tvshow()"
 # cuyos autores son: amet,mr_blobby

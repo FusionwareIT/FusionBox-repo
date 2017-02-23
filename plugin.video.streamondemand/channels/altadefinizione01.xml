@@ -12,9 +12,9 @@
 	<bannermenu>https://raw.githubusercontent.com/Zanzibar82/images/master/posters/altadefinizione01.png</bannermenu>
 
 	<update_url>https://raw.githubusercontent.com/streamondemand/plugin.video.streamondemand/master/channels/</update_url>
-	<version>3</version>
-	<date>16/06/2016</date>
-	<changes>update</changes>
+	<version>4</version>
+	<date>03/02/2017</date>
+	<changes>update host</changes>
 
 	<categories>
 		<category>movie</category>

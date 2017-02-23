@@ -34,18 +34,120 @@ from HTMLParser import HTMLParser
 from core import jsontools as json
 
 
+class InfoLabels(dict):
+    def __str__(self):
+        return self.tostring(separador=',\r\t')
+
+    def __setitem__(self, name, value):
+        if name in ["season", "episode"]:
+            # forzamos int() en season y episode
+            try:
+                super(InfoLabels, self).__setitem__(name, int(value))
+            except:
+                pass
+            
+        elif name in ['IMDBNumber', 'imdb_id']:
+            # Por compatibilidad hemos de guardar el valor en los tres campos
+            super(InfoLabels, self).__setitem__('IMDBNumber', value)
+            #super(InfoLabels, self).__setitem__('code', value)
+            super(InfoLabels, self).__setitem__('imdb_id', value)
+
+        elif name == "mediatype" and value not in ["list", "movie", "tvshow", "season", "episode"]:
+            super(InfoLabels, self).__setitem__('mediatype', 'list')
+
+        else:
+            super(InfoLabels, self).__setitem__(name, value)
+    
+      
+    #Python 2.4
+    def __getitem__(self, key):
+        try:
+          return super(InfoLabels, self).__getitem__(key)
+        except:
+          return self.__missing__(key)
+          
+    def __missing__(self, key):
+        '''
+        Valores por defecto en caso de que la clave solicitada no exista.
+        El parametro 'default' en la funcion obj_infoLabels.get(key,default) tiene preferencia sobre los aqui definidos.
+        '''
+        if key in ['rating']:
+            # Ejemplo de clave q devuelve un str formateado como float por defecto
+            return '0.0'
+
+        elif key == 'code':
+            if 'imdb_id' in super(InfoLabels,self).keys() and super(InfoLabels,self).__getitem__('imdb_id') !="":
+                return super(InfoLabels,self).__getitem__('imdb_id')
+            else:
+                return ""
+
+        elif key == 'mediatype':
+            # "list", "movie", "tvshow", "season", "episode"
+            if 'tvshowtitle' in super(InfoLabels,self).keys() and super(InfoLabels,self).__getitem__('tvshowtitle') !="":
+                if 'episode' in super(InfoLabels,self).keys() and super(InfoLabels,self).__getitem__('episode') !="":
+                    return 'episode'
+
+                if 'episodeName' in super(InfoLabels,self).keys() and super(InfoLabels,self).__getitem__('episodeName') !="":
+                    return 'episode'
+
+                if 'season' in super(InfoLabels,self).keys() and super(InfoLabels,self).__getitem__('season') !="":
+                    return 'season'
+                else:
+                    return 'tvshow'
+
+            elif 'title' in super(InfoLabels,self).keys() and super(InfoLabels,self).__getitem__('title') !="":
+                return 'movie'
+                
+            else:
+                return 'list'
+
+        else:
+            # El resto de claves devuelven cadenas vacias por defecto
+            return ""
+
+    def tostring(self, separador=', '):
+        ls = []
+        dic =  dict(super(InfoLabels, self).items())
+        if 'mediatype' not in dic.keys():
+            dic['mediatype'] = self.__missing__('mediatype')
+
+        for i in sorted(dic.items()):
+            i_str = str(i)[1:-1]
+            if isinstance(i[0], str):
+                old = i[0] + "',"
+                new = i[0] + "':"
+            else:
+                old = str(i[0]) + ","
+                new = str(i[0]) + ":"
+            ls.append(i_str.replace(old, new, 1))
+
+        return "{%s}" % separador.join(ls)
+
+
+
 class Item(object):
     def __init__(self, **kwargs):
         '''
         Inicializacion del item
         '''
+
+        # Creamos el atributo infoLabels
+        self.__dict__["infoLabels"] = InfoLabels()
+        if kwargs.has_key("infoLabels"):
+            if isinstance(kwargs["infoLabels"], dict):
+                self.__dict__["infoLabels"].update(kwargs["infoLabels"])
+            del kwargs["infoLabels"]
+
         if kwargs.has_key("parentContent"):
             self.set_parent_content(kwargs["parentContent"])
             del kwargs["parentContent"]
 
-        # Creamos el atributo infoLabels si no existe
-        if not type(self.__dict__.get("infoLabels", "")) == dict:
-            self.__dict__["infoLabels"] = {}
+        kw = copy.copy(kwargs)
+        for k in kw:
+            if k in ["contentTitle", "contentPlot", "contentSerieName", "show", "contentType", "contentEpisodeTitle",
+                    "contentSeason", "contentEpisodeNumber", "contentThumbnail", "plot", "duration"]:
+                self.__setattr__(k, kw[k])
+                del kwargs[k]
 
         self.__dict__.update(kwargs)
         self.__dict__ = self.toutf8(self.__dict__)
@@ -60,25 +162,27 @@ class Item(object):
         '''
         Función llamada al modificar cualquier atributo del item, modifica algunos atributos en función de los datos modificados
         '''
+        value = self.toutf8(value)
         if name == "__dict__":
             for key in value:
                 self.__setattr__(key, value[key])
             return
 
+
         # Descodificamos los HTML entities
         if name in ["title", "plot", "fulltitle", "contentPlot", "contentTitle"]: value = self.decode_html(value)
 
-        # Al modificar cualquiera de estos atributos content...
+       # Al modificar cualquiera de estos atributos content...
         if name in ["contentTitle", "contentPlot", "contentSerieName", "contentType", "contentEpisodeTitle",
-                    "contentSeason", "contentEpisodeNumber", "contentThumbnail"]:
-            # ... marcamos hasContentDetails como "true"...
+                    "contentSeason", "contentEpisodeNumber", "contentThumbnail", "show"]:
+            #... marcamos hasContentDetails como "true"...
             self.__dict__["hasContentDetails"] = "true"
-            # ...y actualizamos infoLables
+            #...y actualizamos infoLables
             if name == "contentTitle":
                 self.__dict__["infoLabels"]["title"] = value
             elif name == "contentPlot":
                 self.__dict__["infoLabels"]["plot"] = value
-            elif name == "contentSerieName":
+            elif name == "contentSerieName" or name == "show":
                 self.__dict__["infoLabels"]["tvshowtitle"] = value
             elif name == "contentType":
                 self.__dict__["infoLabels"]["mediatype"] = value
@@ -91,8 +195,23 @@ class Item(object):
             elif name == "contentThumbnail":
                 self.__dict__["infoLabels"]["thumbnail"] = value
 
-        else:
+        elif name == "plot":
+            self.__dict__["infoLabels"]["plot"] = value
 
+        elif name == "duration":
+            # String q representa la duracion del video en segundos
+            self.__dict__["infoLabels"]["duration"] = str(value)
+
+        elif name == "viewcontent" and value not in ["files", "movies", "tvshows", "seasons", "episodes"]:
+            super(Item, self).__setattr__("viewcontent", "files")
+
+        # Al asignar un valor a infoLables
+        elif name == "infoLabels":
+            if isinstance(value, dict):
+                value_defaultdict = InfoLabels(value)
+                self.__dict__["infoLabels"] = value_defaultdict
+
+        else:
             super(Item, self).__setattr__(name, value)
 
     def __getattr__(self, name):
@@ -105,36 +224,61 @@ class Item(object):
         if name == "folder":
             return True
 
-        # valor por defecto para viewmode y contentChannel
-        elif name in ["viewmode", "contentChannel"]:
+        # valor por defecto para contentChannel
+        elif name == "contentChannel":
             return "list"
+
+        # valor por defecto para viewcontent
+        elif name == "viewcontent":
+            # intentamos fijarlo segun el tipo de contenido...
+            if self.__dict__["infoLabels"]["mediatype"] == 'movie':
+                viewcontent = 'movies'
+                '''elif item.contentType in ["tvshow"]:
+                viewcontent = "seasons"'''
+            elif self.__dict__["infoLabels"]["mediatype"] in ["tvshow", "season", "episode"]:
+                viewcontent = "episodes"
+            else:
+                viewcontent = "files"
+
+            self.__dict__["viewcontent"] = viewcontent
+            return viewcontent
 
         # Valor por defecto para hasContentDetails
         elif name == "hasContentDetails":
             return "false"
 
-        elif name in ["contentTitle", "contentPlot", "contentSerieName", "contentType", "contentEpisodeTitle",
-                      "contentSeason", "contentEpisodeNumber", "contentThumbnail"]:
+        # valores guardados en infoLabels
+        elif name in ["contentTitle", "contentPlot", "contentSerieName", "show", "contentType", "contentEpisodeTitle",
+                    "contentSeason", "contentEpisodeNumber", "contentThumbnail", "plot", "duration"]:
             if name == "contentTitle":
-                return self.__dict__["infoLabels"].get("title", "")
-            elif name == "contentPlot":
-                return self.__dict__["infoLabels"].get("plot", "")
-            elif name == "contentSerieName":
-                return self.__dict__["infoLabels"].get("tvshowtitle", "")
+                return self.__dict__["infoLabels"]["title"]
+            elif name == "contentPlot" or name == "plot":
+                return self.__dict__["infoLabels"]["plot"]
+            elif name == "contentSerieName" or name == "show":
+                return self.__dict__["infoLabels"]["tvshowtitle"]
             elif name == "contentType":
-                return self.__dict__["infoLabels"].get("mediatype", "")
+                ret = self.__dict__["infoLabels"]["mediatype"]
+                if ret == 'list' and self.__dict__.get("fulltitle", None): # retrocompatibilidad
+                    ret = 'movie'
+                    self.__dict__["infoLabels"]["mediatype"] = ret
+                return ret
             elif name == "contentEpisodeTitle":
-                return self.__dict__["infoLabels"].get("episodeName", "")
+                return self.__dict__["infoLabels"]["episodeName"]
             elif name == "contentSeason":
-                return self.__dict__["infoLabels"].get("season", "")
+                return self.__dict__["infoLabels"]["season"]
             elif name == "contentEpisodeNumber":
-                return self.__dict__["infoLabels"].get("episode", "")
+                return self.__dict__["infoLabels"]["episode"]
             elif name == "contentThumbnail":
-                return self.__dict__["infoLabels"].get("thumbnail", "")
+                return self.__dict__["infoLabels"]["thumbnail"]
+            else:
+                return self.__dict__["infoLabels"][name]
 
         # valor por defecto para el resto de atributos
         else:
             return ""
+
+    def __str__(self):
+        return '\r\t' + self.tostring('\r\t')
 
     def set_parent_content(self, parentContent):
         '''
@@ -145,7 +289,6 @@ class Item(object):
             return
         # Copia todos los atributos que empiecen por "content" y esten declarados y los infoLabels
         for attr in parentContent.__dict__:
-
             if attr.startswith("content") or attr == "infoLabels":
                 self.__setattr__(attr, parentContent.__dict__[attr])
 
@@ -154,39 +297,70 @@ class Item(object):
         Genera una cadena de texto con los datos del item para el log
         Uso: logger.info(item.tostring())
         '''
-        dic = self.__dict__.copy()
+        dic= self.__dict__.copy()
 
         # Añadimos los campos content... si tienen algun valor
-        for key in ["contentTitle", "contentPlot", "contentSerieName", "contentType",
-                    "contentSeason", "contentEpisodeNumber", "contentThumbnail"]:
+        for key in ["contentTitle", "contentPlot", "contentSerieName", "contentType", "contentEpisodeTitle",
+                    "contentSeason", "contentEpisodeNumber", "contentThumbnail", "plot"]:
             value = self.__getattr__(key)
-            if value: dic[key] = value
+            if value: dic[key]= value
 
-        return separator.join([var + "=[" + str(dic[var]) + "]" for var in sorted(dic)])
+        ls = []
+        for var in sorted(dic):
+            if isinstance(dic[var],str):
+                valor = "'%s'" %dic[var]
+            elif isinstance(dic[var],InfoLabels):
+                if separator == '\r\t':
+                    valor = dic[var].tostring(',\r\t\t')
+                else:
+                    valor = dic[var].tostring()
+            else:
+                valor = str(dic[var])
+
+            ls.append(var + "= " + valor)
+
+        return separator.join(ls)
 
     def tourl(self):
-        '''
-        Genera una cadena de texto con los datos del item para crear una url, para volver generar el Item usar item.fromurl()
+        """
+        Genera una cadena de texto con los datos del item para crear una url, para volver generar el Item usar
+        item.fromurl().
+
         Uso: url = item.tourl()
-        '''
-        return urllib.quote(base64.b64encode(json.dumps(self.__dict__)))
+        """
+        dump = json.dump_json(self.__dict__)
+        # if empty dict
+        if not dump:
+            # set a str to avoid b64encode fails
+            dump = ""
+        return urllib.quote(base64.b64encode(dump))
 
     def fromurl(self, url):
         '''
         Genera un item a partir de una cadena de texto. La cadena puede ser creada por la funcion tourl() o tener
-        el formato antiguo: plugin://plugin.video.streamondemand/?channel=... (+ otros parametros)
+        el formato antiguo: plugin://plugin.video.pelisalacarta/?channel=... (+ otros parametros)
         Uso: item.fromurl("cadena")
         '''
         if "?" in url: url = url.split("?")[1]
+        decoded = False
         try:
             STRItem = base64.b64decode(urllib.unquote(url))
-            JSONItem = json.loads(STRItem, object_hook=self.toutf8)
-            self.__dict__.update(JSONItem)
+            JSONItem = json.load_json(STRItem, object_hook=self.toutf8)
+            if not JSONItem is None and len(JSONItem) > 0:
+                self.__dict__.update(JSONItem)
+                decoded = True
         except:
+            pass
+
+        if not decoded:
             url = urllib.unquote_plus(url)
             dct = dict([[param.split("=")[0], param.split("=")[1]] for param in url.split("&") if "=" in param])
             self.__dict__.update(dct)
             self.__dict__ = self.toutf8(self.__dict__)
+
+        if 'infoLabels' in self.__dict__ and not isinstance(self.__dict__['infoLabels'],InfoLabels):
+            self.__dict__['infoLabels'] = InfoLabels(self.__dict__['infoLabels'])
+
         return self
 
     def tojson(self, path=""):
@@ -197,9 +371,9 @@ class Item(object):
               file.write(item.tojson())
         '''
         if path:
-            open(path, "wb").write(json.dumps(self.__dict__, indent=4, sort_keys=True))
+            open(path, "wb").write(json.dump_json(self.__dict__))
         else:
-            return json.dumps(self.__dict__, indent=4, sort_keys=True)
+            return json.dump_json(self.__dict__)
 
     def fromjson(self, STRItem={}, path=""):
         '''
@@ -214,8 +388,12 @@ class Item(object):
             else:
                 STRItem = {}
 
-        JSONItem = json.loads(STRItem, object_hook=self.toutf8)
+        JSONItem = json.load_json(STRItem, object_hook=self.toutf8)
         self.__dict__.update(JSONItem)
+
+        if 'infoLabels' in self.__dict__ and not isinstance(self.__dict__['infoLabels'], InfoLabels):
+            self.__dict__['infoLabels'] = InfoLabels(self.__dict__['infoLabels'])
+
         return self
 
     def clone(self, **kwargs):
@@ -225,7 +403,10 @@ class Item(object):
               NuevoItem = item.clone(title="Nuevo Titulo", action = "Nueva Accion")
         '''
         newitem = copy.deepcopy(self)
-        newitem.__dict__.update(kwargs)
+        if kwargs.has_key("infoLabels"):
+            kwargs["infoLabels"] = InfoLabels(kwargs["infoLabels"])
+        for kw in kwargs:
+          newitem.__setattr__(kw, kwargs[kw])
         newitem.__dict__ = newitem.toutf8(newitem.__dict__)
         return newitem
 
@@ -259,15 +440,20 @@ class Item(object):
                 value[x] = self.toutf8(value[x])
             return value
 
-        elif type(value) == dict:
+        elif isinstance(value,dict):
             newdct = {}
             for key in value:
+                v = self.toutf8(value[key])
                 if type(key) == unicode:
                     key = key.encode("utf8")
 
-                newdct[key] = self.toutf8(value[key])
+                newdct[key] = v
 
-            if len(args) > 0: return newdct
+            if len(args) > 0:
+                if isinstance(value, InfoLabels):
+                    return InfoLabels(newdct)
+                else:
+                    return newdct
 
         else:
             return value

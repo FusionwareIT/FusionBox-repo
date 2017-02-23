@@ -23,7 +23,7 @@
 # along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------------------------------------------------------------
 # Server management
-#------------------------------------------------------------
+# ------------------------------------------------------------
 
 import os
 
@@ -40,7 +40,7 @@ def find_video_items(item=None, data=None, channel=""):
     if data is None:
         from core import scrapertools
         data = scrapertools.cache_page(item.url)
-        #logger.info(data)
+        # logger.info(data)
 
     # Busca los enlaces a los videos
     from core.item import Item
@@ -68,8 +68,9 @@ def find_video_items(item=None, data=None, channel=""):
 
     return itemlist
 
+
 def guess_server_thumbnail(title):
-    logger.info("streamondemand.core.servertools guess_server_thumbnail title="+title)
+    logger.info("streamondemand.core.servertools guess_server_thumbnail title=" + title)
 
     lowcase_title = title.lower()
 
@@ -92,31 +93,33 @@ def guess_server_thumbnail(title):
     servers = get_servers_list()
     for serverid in servers:
         if serverid in lowcase_title:
-            logger.info("streamondemand.core.servertools guess_server_thumbnail encontrado "+serverid)
-            return "http://media.tvalacarta.info/servers/server_"+serverid+".png"
+            logger.info("streamondemand.core.servertools guess_server_thumbnail encontrado " + serverid)
+            return "http://media.tvalacarta.info/servers/server_" + serverid + ".png"
 
     return ""
+
 
 def findvideosbyserver(data, serverid):
     logger.info("streamondemand.core.servertools findvideosbyserver")
     encontrados = set()
     devuelve = []
     try:
-        exec "from servers import "+serverid
-        exec "devuelve.extend("+serverid+".find_videos(data))"
+        exec "from servers import " + serverid
+        exec "devuelve.extend(" + serverid + ".find_videos(data))"
     except ImportError:
-        logger.info("Non esiste il connettore per #"+serverid+"#")
-        #import traceback
-        #logger.info(traceback.format_exc())
+        logger.info("Non esiste il connettore per #" + serverid + "#")
+        # import traceback
+        # logger.info(traceback.format_exc())
     except:
-        logger.info("Errore del connettore #"+serverid+"#")
+        logger.info("Errore del connettore #" + serverid + "#")
         import traceback
         logger.info(traceback.format_exc())
 
     return devuelve
 
+
 def findvideos(data, skip=False):
-    logger.info("streamondemand.core.servertools findvideos") # en #"+data+"#")
+    logger.info("streamondemand.core.servertools findvideos")  # en #"+data+"#")
     encontrados = set()
     devuelve = []
 
@@ -125,70 +128,75 @@ def findvideos(data, skip=False):
     for serverid in server_list:
         try:
             # Sustituye el código por otro "Plex compatible"
-            #exec "from servers import "+serverid
-            #exec "devuelve.extend("+serverid+".find_videos(data))"
-            servers_module = __import__("servers."+serverid)
-            server_module = getattr(servers_module,serverid)
-            #devuelve.extend( server_module.find_videos(data) )
+            # exec "from servers import "+serverid
+            # exec "devuelve.extend("+serverid+".find_videos(data))"
+            servers_module = __import__("servers." + serverid)
+            server_module = getattr(servers_module, serverid)
             result = server_module.find_videos(data)
             if result and skip: return result
             devuelve.extend(result)
         except ImportError:
-            logger.info("No existe conector para #"+serverid+"#")
-            #import traceback
-            #logger.info(traceback.format_exc())
+            logger.info("No existe conector para #" + serverid + "#")
+            # import traceback
+            # logger.info(traceback.format_exc())
         except:
-            logger.info("Error en el conector #"+serverid+"#")
+            logger.info("Error en el conector #" + serverid + "#")
             import traceback
             logger.info(traceback.format_exc())
 
     return devuelve
 
-def get_video_urls(server,url):
+
+def get_video_urls(server, url):
     '''
     servers_module = __import__("servers."+server)
     server_module = getattr(servers_module,server)
     return server_module.get_video_url( page_url=url)
     '''
 
-    video_urls,puede,motivo = resolve_video_urls_for_playing(server,url)
+    video_urls, puede, motivo = resolve_video_urls_for_playing(server, url)
     return video_urls
 
+
 def get_channel_module(channel_name):
-    channels_module = __import__("channels."+channel_name)
-    channel_module = getattr(channels_module,channel_name)
+    if not "." in channel_name:
+        channel_module = __import__('channels.%s' % channel_name, None, None, ["channels.%s" % channel_name])
+    else:
+        channel_module = __import__(channel_name, None, None, [channel_name])
     return channel_module
 
-def get_server_from_url(url, True):
-    encontrado = findvideos(url)
-    if len(encontrado)>0:
+
+def get_server_from_url(url):
+    encontrado = findvideos(url, True)
+    if len(encontrado) > 0:
         devuelve = encontrado[0][2]
     else:
         devuelve = "directo"
 
     return devuelve
 
-def resolve_video_urls_for_playing(server,url,video_password="",muestra_dialogo=False):
-    logger.info("streamondemand.core.servertools resolve_video_urls_for_playing, server="+server+", url="+url)
+
+def resolve_video_urls_for_playing(server, url, video_password="", muestra_dialogo=False):
+    logger.info("streamondemand.core.servertools resolve_video_urls_for_playing, server=" + server + ", url=" + url)
     video_urls = []
     torrent = False
 
     server = server.lower()
 
     # Si el vídeo es "directo", no hay que buscar más
-    if server=="directo" or server=="local":
+    if server == "directo" or server == "local":
         logger.info("streamondemand.core.servertools server=directo, la url es la buena")
 
         try:
             import urlparse
             parsed_url = urlparse.urlparse(url)
-            logger.info("parsed_url="+str(parsed_url))
+            logger.info("parsed_url=" + str(parsed_url))
             extension = parsed_url.path[-4:]
         except:
             extension = url[-4:]
 
-        video_urls = [[ "%s [%s]" % (extension,server) , url ]]
-        return video_urls,True,""
+        video_urls = [["%s [%s]" % (extension, server), url]]
+        return video_urls, True, ""
 
     # Averigua las URL de los vídeos
     else:
@@ -198,74 +206,93 @@ def resolve_video_urls_for_playing(server,url,video_password="",muestra_dialogo=
             # Muestra un diágo de progreso
             if muestra_dialogo:
                 from platformcode import platformtools
-                progreso = platformtools.dialog_progress( "streamondemand" , "Connessione con "+server)
+                progreso = platformtools.dialog_progress("streamondemand", "Connessione con " + server)
             server_parameters = get_server_parameters(server)
 
-            #Cuenta las opciones disponibles, para calcular el porcentaje
+            # Cuenta las opciones disponibles, para calcular el porcentaje
             opciones = []
             if server_parameters["free"] == "true":
-              opciones.append("free")
-            opciones.extend([premium for premium in server_parameters["premium"] if config.get_setting(premium+"premium")=="true"])
-            logger.info("streamondemand.core.servertools opciones disponibles para " + server + ": " + str(len(opciones)) + " "+str(opciones))
+                opciones.append("free")
+            opciones.extend([premium for premium in server_parameters["premium"] if
+                             config.get_setting(premium + "premium") == "true"])
+            logger.info("streamondemand.core.servertools opciones disponibles para " + server + ": " + str(
+                len(opciones)) + " " + str(opciones))
 
             # Sustituye el código por otro "Plex compatible"
-            #exec "from servers import "+server+" as server_connector"
-            servers_module = __import__("servers."+server)
-            server_connector = getattr(servers_module,server)
+            # exec "from servers import "+server+" as server_connector"
+            servers_module = __import__("servers." + server)
+            server_connector = getattr(servers_module, server)
 
-            logger.info("streamondemand.core.servertools servidor de "+server+" importado")
+            logger.info("streamondemand.core.servertools servidor de " + server + " importado")
 
             # Si tiene una función para ver si el vídeo existe, lo comprueba ahora
             if hasattr(server_connector, 'test_video_exists'):
-                logger.info("streamondemand.core.servertools invocando a "+server+".test_video_exists")
-                puedes,motivo = server_connector.test_video_exists( page_url=url )
+                logger.info("streamondemand.core.servertools invocando a " + server + ".test_video_exists")
+                puedes, motivo = server_connector.test_video_exists(page_url=url)
 
                 # Si la funcion dice que no existe, fin
                 if not puedes:
                     logger.info("streamondemand.core.servertools test_video_exists dice que el video no existe")
                     if muestra_dialogo: progreso.close()
-                    return video_urls,puedes,motivo
+                    return video_urls, puedes, motivo
                 else:
                     logger.info("streamondemand.core.servertools test_video_exists dice que el video SI existe")
 
             # Obtiene enlaces free
-            if server_parameters["free"]=="true":
+            if server_parameters["free"] == "true":
                 if muestra_dialogo:
-                  progreso.update((100 / len(opciones)) * opciones.index("free")  , "Connessione con "+server)
+                    progreso.update((100 / len(opciones)) * opciones.index("free"), "Connessione con " + server)
 
-                logger.info("streamondemand.core.servertools invocando a "+server+".get_video_url")
-                video_urls = server_connector.get_video_url( page_url=url , video_password=video_password )
+                logger.info("streamondemand.core.servertools invocando a " + server + ".get_video_url")
+                video_urls = server_connector.get_video_url(page_url=url, video_password=video_password)
 
                 # Si no se encuentran vídeos en modo free, es porque el vídeo no existe
-                if len(video_urls)==0:
+                if len(video_urls) == 0:
                     if muestra_dialogo: progreso.close()
-                    return video_urls,False,"Non trovo il video su "+server
+                    return video_urls, False, "Non trovo il video su " + server
 
             # Obtiene enlaces para las diferentes opciones premium
+            error_message = []
             for premium in server_parameters["premium"]:
-              if config.get_setting(premium+"premium")=="true":
-                if muestra_dialogo:
-                  progreso.update((100 / len(opciones)) * opciones.index(premium)  , "Connessione con "+premium)
-                exec "from servers import "+premium+" as premium_conector"
-                if premium == "realdebrid":
-                    if config.is_xbmc() or config.get_platform() == "mediaserver":
-                        debrid_urls = premium_conector.get_video_url( page_url=url , premium=True , video_password=video_password )
+                if config.get_setting(premium + "premium") == "true":
+                    if muestra_dialogo:
+                        progreso.update((100 / len(opciones)) * opciones.index(premium), "Connessione con " + premium)
+                    exec "from servers import " + premium + " as premium_conector"
+                    if premium == "realdebrid":
+                        debrid_urls = premium_conector.get_video_url(page_url=url, premium=True,
+                                                                     video_password=video_password)
                         if not "REAL-DEBRID:" in debrid_urls[0][0]:
                             video_urls.extend(debrid_urls)
                         else:
-                            if len(video_urls) == 0:
-                                return video_urls, False, debrid_urls[0][0]
-                else:
-                    video_urls.extend(premium_conector.get_video_url( page_url=url , premium=True , user=config.get_setting(premium+"user") , password=config.get_setting(premium+"password"), video_password=video_password ))
+                            error_message.append(debrid_urls[0][0])
+                    elif premium == "alldebrid":
+                        alldebrid_urls = premium_conector.get_video_url(page_url=url, premium=True,
+                                                                        user=config.get_setting(premium + "user"),
+                                                                        password=config.get_setting(
+                                                                            premium + "password"),
+                                                                        video_password=video_password)
+                        if not "Alldebrid:" in alldebrid_urls[0][0]:
+                            video_urls.extend(alldebrid_urls)
+                        else:
+                            error_message.append(alldebrid_urls[0][0])
+                    else:
+                        video_urls.extend(premium_conector.get_video_url(page_url=url, premium=True,
+                                                                         user=config.get_setting(premium + "user"),
+                                                                         password=config.get_setting(
+                                                                             premium + "password"),
+                                                                         video_password=video_password))
+
+            if not video_urls and error_message:
+                return video_urls, False, " || ".join(error_message)
 
             if muestra_dialogo:
-                progreso.update( 100 , "Processo terminato")
+                progreso.update(100, "Processo terminato")
 
             # Cierra el diálogo de progreso
             if muestra_dialogo: progreso.close()
 
             # Llegas hasta aquí y no tienes ningún enlace para ver, así que no vas a poder ver el vídeo
-            if len(video_urls)==0:
+            if len(video_urls) == 0:
                 # ¿Cual es el motivo?
 
                 # 1) No existe -> Ya está controlado
@@ -274,28 +301,31 @@ def resolve_video_urls_for_playing(server,url,video_password="",muestra_dialogo=
                 # Lista de las cuentas que soportan este servidor
                 listapremium = []
                 for premium in server_parameters["premium"]:
-                  listapremium.append(get_server_parameters(premium)["name"])
+                    listapremium.append(get_server_parameters(premium)["name"])
 
-                return video_urls,False,"Per il video su "+server+" è necessario<br/>un account "+" o ".join(listapremium)
+                return video_urls, False, "Per il video su " + server + " è necessario<br/>un account " + " o ".join(
+                    listapremium)
 
         except:
             if muestra_dialogo: progreso.close()
             import traceback
             logger.info(traceback.format_exc())
-            return video_urls,False,"Si è verificato un errore<br/>con il connettore "+server
+            return video_urls, False, "Si è verificato un errore<br/>con il connettore " + server
 
-    return video_urls,True,""
+    return video_urls, True, ""
+
 
 def is_server_enabled(server):
     try:
         server_parameters = get_server_parameters(server)
         if server_parameters["active"] == "true":
-            if not config.get_setting("hidepremium")=="true":
+            if not config.get_setting("hidepremium") == "true":
                 return True
             else:
                 if server_parameters["free"] == "true":
                     return True
-                if [premium for premium in server_parameters["premium"] if config.get_setting(premium+"premium")=="true"]:
+                if [premium for premium in server_parameters["premium"] if
+                    config.get_setting(premium + "premium") == "true"]:
                     return True
                 else:
                     return False
@@ -306,63 +336,92 @@ def is_server_enabled(server):
         logger.info(traceback.format_exc())
         return False
 
+
 def get_server_parameters(server):
-    server=scrapertools.find_single_match(server,'([^\.]+)')
+    server = scrapertools.find_single_match(server, '([^\.]+)')
     try:
-      JSONFile =  xml2dict(os.path.join(config.get_runtime_path(),"servers", server + ".xml"))["server"]
-      if type(JSONFile["premium"]) == dict: JSONFile["premium"]=JSONFile["premium"]["value"]
-      if JSONFile["premium"] == "": JSONFile["premium"]=[]
-      if type(JSONFile["premium"]) == str and not JSONFile["premium"] == "": JSONFile["premium"]=[JSONFile["premium"]]
-      return JSONFile
+        JSONFile = xml2dict(os.path.join(config.get_runtime_path(), "servers", server + ".xml"))["server"]
+        if type(JSONFile["premium"]) == dict: JSONFile["premium"] = JSONFile["premium"]["value"]
+        if JSONFile["premium"] == "": JSONFile["premium"] = []
+        if type(JSONFile["premium"]) == str and not JSONFile["premium"] == "": JSONFile["premium"] = [
+            JSONFile["premium"]]
+        return JSONFile
     except:
-      logger.info("Error al cargar el servidor: " + server)
-      import traceback
-      logger.info(traceback.format_exc())
-      return {}
+        logger.info("Error al cargar el servidor: " + server)
+        import traceback
+        logger.info(traceback.format_exc())
+        return {}
+
 
 def get_servers_list():
-  logger.info("streamondemand.core.servertools get_servers_list")
-  ServersPath = os.path.join(config.get_runtime_path(),"servers")
-  ServerList={}
-  for server in os.listdir(ServersPath):
-    if server.endswith(".xml"):
-        if is_server_enabled(server):
-            server_parameters = get_server_parameters(server)
-            ServerList[server_parameters["id"]] = server_parameters
+    logger.info("streamondemand.core.servertools get_servers_list")
+    ServersPath = os.path.join(config.get_runtime_path(), "servers")
+    ServerList = {}
+    for server in os.listdir(ServersPath):
+        if server.endswith(".xml"):
+            if is_server_enabled(server):
+                server_parameters = get_server_parameters(server)
+                ServerList[server_parameters["id"]] = server_parameters
 
-  return ServerList
+    return ServerList
 
-def xml2dict(file = None, xmldata = None):
-  import re, sys, os
-  parse = globals().get(sys._getframe().f_code.co_name)
 
-  if xmldata == None and file == None:  raise Exception("Non è possibile convertirlo!")
-  if xmldata == None:
-    if not os.path.exists(file): raise Exception("Il file non esiste!")
-    xmldata = open(file, "rb").read()
+def xml2dict(file=None, xmldata=None):
+    import re, sys, os
+    parse = globals().get(sys._getframe().f_code.co_name)
 
-  matches = re.compile("<(?P<tag>[^>]+)>[\n]*[\s]*[\t]*(?P<value>.*?)[\n]*[\s]*[\t]*<\/(?P=tag)\s*>",re.DOTALL).findall(xmldata)
+    if xmldata is None and file is None: raise Exception("Non è possibile convertirlo!")
+    if xmldata is None:
+        if not os.path.exists(file): raise Exception("Il file non esiste!")
+        with open(file, "rb") as f:
+            xmldata = f.read()
 
-  return_dict = {}
-  for tag, value in matches:
-    #Si tiene elementos
-    if "<" and "</" in value:
-      if tag in return_dict:
-        if type(return_dict[tag])== list:
-          return_dict[tag].append(parse(xmldata=value))
+    matches = re.compile("<(?P<tag>[^>]+)>[\n]*[\s]*[\t]*(?P<value>.*?)[\n]*[\s]*[\t]*<\/(?P=tag)\s*>",
+                         re.DOTALL).findall(xmldata)
+
+    return_dict = {}
+    for tag, value in matches:
+        # Si tiene elementos
+        if "<" and "</" in value:
+            if tag in return_dict:
+                if type(return_dict[tag]) == list:
+                    return_dict[tag].append(parse(xmldata=value))
+                else:
+                    return_dict[tag] = [dct[tags[x]]]
+                    return_dict[tag].append(parse(xmldata=value))
+            else:
+                return_dict[tag] = parse(xmldata=value)
+
         else:
-          return_dict[tag] = [dct[tags[x]]]
-          return_dict[tag].append(parse(xmldata=value))
-      else:
-          return_dict[tag] = parse(xmldata=value)
+            if tag in return_dict:
+                if type(return_dict[tag]) == list:
+                    return_dict[tag].append(value)
+                else:
+                    return_dict[tag] = [return_dict[tag]]
+                    return_dict[tag].append(value)
+            else:
+                return_dict[tag] = value
+    return return_dict
 
-    else:
-      if tag in return_dict:
-        if type(return_dict[tag])== list:
-          return_dict[tag].append(value)
-        else:
-          return_dict[tag] = [return_dict[tag]]
-          return_dict[tag].append(value)
-      else:
-        return_dict[tag] = value
-  return return_dict
+
+def get_server_remote_url(server_name):
+    server_parameters = get_server_parameters(server_name)
+    remote_server_url = server_parameters["update_url"] + server_name + ".py"
+    remote_version_url = server_parameters["update_url"] + server_name + ".xml"
+
+    logger.info("streamondemand.core.servertools remote_server_url=" + remote_server_url)
+    logger.info("streamondemand.core.servertools remote_version_url=" + remote_version_url)
+
+    return remote_server_url, remote_version_url
+
+
+def get_server_local_path(server_name):
+    local_server_path = os.path.join(config.get_runtime_path(), 'servers', server_name + ".py")
+    local_version_path = os.path.join(config.get_runtime_path(), 'servers', server_name + ".xml")
+    local_compiled_path = os.path.join(config.get_runtime_path(), 'servers', server_name + ".pyo")
+
+    logger.info("streamondemand.core.servertools local_servers_path=" + local_server_path)
+    logger.info("streamondemand.core.servertools local_version_path=" + local_version_path)
+    logger.info("streamondemand.core.servertools local_compiled_path=" + local_compiled_path)
+
+    return local_server_path, local_version_path, local_compiled_path

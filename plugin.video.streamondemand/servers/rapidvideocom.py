@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # pelisalacarta - XBMC Plugin
 # Conector para rapidvideo
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
 # ------------------------------------------------------------
 import random
 import re
@@ -54,7 +54,7 @@ def find_videos(text):
     devuelve = []
 
     # http://www.rapidvideo.org/ttsvqng2qp2v/Scooby-Doo_e_la_Maschera_di_Blue_Falcon_720p.mp4.html
-    patronvideos = '(?://|\.)(?:rapidvideo\.com)/(?:embed/|\?v=)?([0-9A-Za-z]+)'
+    patronvideos = '(?://|\.)(?:rapidvideo|raptu)\.com/(?:embed/|\?v=)?([0-9A-Za-z]+)'
     logger.info("[rapidvideocom.py] find_videos #" + patronvideos + "#")
     matches = re.compile(patronvideos, re.DOTALL).findall(text)
 

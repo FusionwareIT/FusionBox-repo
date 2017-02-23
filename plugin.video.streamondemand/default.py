@@ -27,6 +27,7 @@
 
 import os
 import sys
+import xbmc
 
 from core import config
 from core import logger
@@ -39,7 +40,6 @@ sys.path.append(librerias)
 from platformcode import launcher
 
 if sys.argv[1] == "1":
-    # Esto solo se ejecuta la primera vez que entramos en el plugin
     launcher.start()
 
 launcher.run()

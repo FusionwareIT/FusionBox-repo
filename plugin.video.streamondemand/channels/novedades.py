@@ -52,24 +52,53 @@ def mainlist(item,thumbnail_type="squares"):
 
     if list_canales['peliculas']:
         thumbnail = thumbnail_base + "/thumb_canales_peliculas.png"
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="peliculas", title="Film", thumbnail=thumbnail))
+    new_item = Item(channel=item.channel, action="novedades", extra="peliculas", title="Film", thumbnail=thumbnail)
+    new_item.context = [{"title": "Canali inclusi in: %s" %new_item.title,
+                         "extra": new_item.extra,
+                         "action": "settingCanal",
+                         "channel": new_item.channel}]
+    new_item.category = "Novità in %s" % new_item.extra
+    itemlist.append(new_item)
 
     if list_canales['infantiles']:
         thumbnail = thumbnail_base + "/thumb_canales_infantiles.png"
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="infantiles", title="PCartoni Animati", thumbnail=thumbnail))
+    new_item = Item(channel=item.channel, action="novedades", extra="infantiles", title="Cartoni Animati", thumbnail=thumbnail)
+    new_item.context = [{"title": "Canali inclusi in: %s" %new_item.title,
+                         "extra": new_item.extra,
+                         "action": "settingCanal",
+                         "channel": new_item.channel}]
+    new_item.category = "Novità in %s" % new_item.extra
+    itemlist.append(new_item)
 
     if list_canales['series']:
         thumbnail = thumbnail_base + "/thumb_canales_series.png"
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="series", title="Episodi Servie Tv", thumbnail=thumbnail))
+    new_item = Item(channel=item.channel, action="novedades", extra="series", title="Episodi Serie Tv", thumbnail=thumbnail)
+    new_item.context = [{"title": "Canali inclusi in: %s" %new_item.title,
+                         "extra": new_item.extra,
+                         "action": "settingCanal",
+                         "channel": new_item.channel}]
+    new_item.category = "Novità in %s" % new_item.extra
+    itemlist.append(new_item)
 
     if list_canales['anime']:
         thumbnail = thumbnail_base + "/thumb_canales_anime.png"
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="anime", title="Episodi Anime", thumbnail=thumbnail))
+    new_item = Item(channel=item.channel, action="novedades", extra="anime", title="Episodi Anime", thumbnail=thumbnail)
+    new_item.context = [{"title": "Canali inclusi in: %s" %new_item.title,
+                         "extra": new_item.extra,
+                         "action": "settingCanal",
+                         "channel": new_item.channel}]
+    new_item.category = "Novità in %s" % new_item.extra
+    itemlist.append(new_item)
 
     if list_canales['documentales']:
         thumbnail = thumbnail_base + "/thumb_canales_documentales.png"
-
-    itemlist.append(Item(channel=item.channel, action="novedades", extra="documentales", title="Documentari", thumbnail=thumbnail))
+    new_item = Item(channel=item.channel, action="novedades", extra="documentales", title="Documentari", thumbnail=thumbnail)
+    new_item.context = [{"title": "Canali inclusi in: %s" %new_item.title,
+                         "extra": new_item.extra,
+                         "action": "settingCanal",
+                         "channel": new_item.channel}]
+    new_item.category = "Novità in %s" % new_item.extra
+    itemlist.append(new_item)
 
     #itemlist.append(Item(channel=item.channel, action="menu_opciones", title="Opciones", viewmode="list",
     #                     thumbnail=thumbnail_base + "/thumb_configuracion.png"))
@@ -173,7 +202,7 @@ def get_newest(channel_name, categoria):
         if not puede:
             return
 
-        logger.info("pelisalacarta.channels.novedades running channel "+modulo.__name__+" "+modulo.__file__)
+        logger.info("streamondemand.channels.novedades running channel "+modulo.__name__+" "+modulo.__file__)
         list_result = modulo.newest(categoria)
         logger.info("streamondemand.channels.novedades.get_newest canal= %s %d resultados" %(channel_name, len(list_result)))
 
@@ -374,8 +403,9 @@ def settingCanal(item):
 
         list_controls.append(control)
 
+    caption = "Canali inclusi in novità " + item.title.replace("Canali inclusi in: ","- ").strip()
     return platformtools.show_channel_settings(list_controls=list_controls, callback="save_settings", item=item,
-                                               caption= "Calani inclusi in novità " + item.title.strip())
+                                               caption= caption)
 
 
 def save_settings(item,dict_values):

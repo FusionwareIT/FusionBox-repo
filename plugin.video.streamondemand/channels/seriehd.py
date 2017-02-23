@@ -232,6 +232,9 @@ def findvideos(item):
             for media_label, media_url in re.compile(patron_media).findall(data):
                 media_label = scrapertools.decodeHtmlentities(media_label)
 
+                if media_label == 'videomega':
+                    media_label = 'rapidvideocom'
+
                 itemlist.append(
                     Item(channel=__channel__,
                          server=media_label,

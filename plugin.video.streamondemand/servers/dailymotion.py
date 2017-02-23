@@ -21,19 +21,28 @@ def get_video_url(page_url, premium=False, user="", password="", video_password=
     '''
     "240":[{"type":"video/mp4","url":"http://www.dailymotion.com/cdn/H264-320x240/video/x33mvht.mp4?auth=1441130963-2562-u49z9kdc-84796332ccab3c7ce84e01c67a18b689"}]
     '''
-    patron = '"([^"]+)":\[\{"type":"video/([^"]+)","url":"([^"]+)"\}\]'
-    matches = scrapertools.find_multiple_matches(data, patron)
-    subtitle = scrapertools.find_single_match(data, '"subtitles":.*?"es":.*?urls":\["([^"]+)"')
 
     for cookie in headers:
         if cookie[0] == "set-cookie":
             header_cookie = cookie[1]
     DEFAULT_HEADERS.append(['Cookie', header_cookie])
 
-    for stream_name, stream_type, stream_url in matches:
-        stream_url = scrapertools.get_header_from_response(stream_url, header_to_get="location",
-                                                           headers=DEFAULT_HEADERS)
-        video_urls.append([stream_name + "p ." + stream_type + " [dailymotion]", stream_url, 0, subtitle])
+    subtitle = scrapertools.find_single_match(data, '"subtitles":.*?"it":.*?urls":\["([^"]+)"')
+    qualities = scrapertools.find_multiple_matches(data, '"([^"]+)":(\[\{"type":".*?\}\])')
+    for calidad, urls in qualities:
+        if calidad == "auto":
+            continue
+        patron = '"type":"(?:video|application)/([^"]+)","url":"([^"]+)"'
+        matches = scrapertools.find_multiple_matches(urls, patron)
+        for stream_type, stream_url in matches:
+            stream_type = stream_type.replace('x-mpegURL', 'm3u8')
+            if stream_type == "mp4":
+                stream_url = scrapertools.get_header_from_response(stream_url, header_to_get="location",
+                                                                   headers=DEFAULT_HEADERS)
+            else:
+                data_m3u8 = scrapertools.downloadpage(stream_url)
+                stream_url = scrapertools.find_single_match(data_m3u8, '(http:.*?\.m3u8)')
+            video_urls.append([calidad + "p ." + stream_type + " [dailymotion]", stream_url, 0, subtitle])
 
     for video_url in video_urls:
         logger.info("streamondemand.servers.dailymotion %s - %s" % (video_url[0], video_url[1]))

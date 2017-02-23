@@ -28,13 +28,18 @@ TIMEOUT_TOTAL = 75
 def mainlist(item, preferred_thumbnail="squares"):
     logger.info("streamondemand.channels.buscador mainlist")
 
+    context = [{"title": "Scegli i canali da includere",
+                "action": "settingCanal",
+                "channel": item.channel}]
     itemlist = [
         Item(channel=item.channel,
+             context=context,
              action="search",
              extra="movie",
              thumbnail="http://i.imgur.com/pE5WSZp.png",
              title="[COLOR yellow]Nuova ricerca film...[/COLOR]"),
         Item(channel=item.channel,
+             context=context,
              action="search",
              extra="serie",
              thumbnail="http://i.imgur.com/pE5WSZp.png",
@@ -47,10 +52,14 @@ def mainlist(item, preferred_thumbnail="squares"):
 
     saved_searches_list = get_saved_searches()
 
+    context2 = context[:]
+    context2.append({"title": "Cancella ricerche salvate",
+                     "action": "clear_saved_searches",
+                     "channel": item.channel})
     for saved_search_text in saved_searches_list:
         itemlist.append(
             Item(channel=item.channel, action="do_search", title=' "' + saved_search_text.split('{}')[0] + '"',
-                 extra=saved_search_text))
+                 extra=saved_search_text, context=context2, category=saved_search_text))
 
     if len(saved_searches_list) > 0:
         itemlist.append(
@@ -67,6 +76,10 @@ def opciones(item):
                 Item(channel=item.channel, action="clear_saved_searches", title="Cancella ricerche salvate"),
                 Item(channel=item.channel, action="settings", title="Altre opzioni")]
     return itemlist
+
+
+def settings(item):
+    return platformtools.show_channel_settings()
 
 
 def settingCanal(item):
@@ -94,9 +107,16 @@ def settingCanal(item):
             continue
 
         # No incluir si en la configuracion del canal no existe "include_in_global_search"
-        include_in_global_search = config.get_setting("include_in_global_search", channel_name)
-        if include_in_global_search == "":
+        include = channel_parameters["include_in_global_search"]
+        if include not in ["", "true"]:
             continue
+        else:
+            # Se busca en la configuración del canal el valor guardado
+            include_in_global_search = config.get_setting("include_in_global_search", channel_name)
+
+        # Si no hay valor en la configuración del canal se coloca como True ya que así estaba por defecto
+        if include_in_global_search == "":
+            include_in_global_search = True
 
         control = {'id': channel_name,
                    'type': "bool",
@@ -115,10 +135,6 @@ def settingCanal(item):
 def save_settings(item, dict_values):
     for v in dict_values:
         config.set_setting("include_in_global_search", dict_values[v], v)
-
-
-def settings(item):
-    return platformtools.show_channel_settings()
 
 
 def search(item, tecleado):
@@ -212,9 +228,12 @@ def do_search(item):
 
         # No busca si es un canal excluido de la busqueda global
         include_in_global_search = channel_parameters["include_in_global_search"]
-        if include_in_global_search == "":
+        if include_in_global_search in ["", "true"]:
             # Buscar en la configuracion del canal
             include_in_global_search = str(config.get_setting("include_in_global_search", basename_without_extension))
+            # Si no hay valor en la configuración del canal se incluye ya que así estaba por defecto
+            '''if include_in_global_search == "":
+                include_in_global_search = "true"'''
         if include_in_global_search.lower() != "true":
             continue
 
@@ -253,9 +272,14 @@ def do_search(item):
 
 
 def save_search(text):
-    saved_searches_limit = int((10, 20, 30, 40,)[int(config.get_setting("saved_searches_limit", "buscador"))])
 
-    saved_searches_list = list(config.get_setting("saved_searches_list", "buscador"))
+    saved_searches_limit = int((10, 20, 30, 40, )[int(config.get_setting("saved_searches_limit", "buscador"))])
+
+    current_saved_searches_list = config.get_setting("saved_searches_list", "buscador")
+    if current_saved_searches_list is None:
+        saved_searches_list = []
+    else:
+        saved_searches_list = list(current_saved_searches_list)
 
     if text in saved_searches_list:
         saved_searches_list.remove(text)
@@ -271,4 +295,10 @@ def clear_saved_searches(item):
 
 
 def get_saved_searches():
-    return list(config.get_setting("saved_searches_list", "buscador"))
+    current_saved_searches_list = config.get_setting("saved_searches_list", "buscador")
+    if current_saved_searches_list is None:
+        saved_searches_list = []
+    else:
+        saved_searches_list = list(current_saved_searches_list)
+    
+    return saved_searches_list

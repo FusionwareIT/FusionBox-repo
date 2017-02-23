@@ -1,4 +1,34 @@
-import libtorrent as lt
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------
+# streamondemand 5
+# Copyright 2015 tvalacarta@gmail.com
+# http://www.mimediacenter.info/foro/viewforum.php?f=36
+#
+# Distributed under the terms of GNU General Public License v3 (GPLv3)
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ------------------------------------------------------------
+# This file is part of streamondemand 5.
+#
+# streamondemand 5 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# streamondemand 5 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with streamondemand 5.  If not, see <http://www.gnu.org/licenses/>.
+# ------------------------------------------------------------
+
+try:
+    from python_libtorrent import get_libtorrent
+    lt = get_libtorrent()
+except Exception, e:
+    import libtorrent as lt
+
 import sys
 import os
 import random
@@ -13,6 +43,7 @@ from cache import Cache
 import time
 import pickle
 from threading import Thread
+from core import logger
 
 class Client(object):
     INITIAL_TRACKERS=['udp://tracker.openbittorrent.com:80',
@@ -30,19 +61,29 @@ class Client(object):
     def __init__(self, url = None, port=None, ip=None, auto_shutdown=True, wait_time=20, timeout=5, auto_delete=True, temp_path=None, is_playing_fnc=None, print_status = False):
 
         #server
-        self.port = port if port else random.randint(8000,8099)
-        self.ip = ip if ip else "127.0.0.1"
+        if port:
+          self.port = port
+        else:
+          self.port = random.randint(8000,8099)
+        if ip:
+          self.ip = ip
+        else:
+          self.ip = "127.0.0.1"
         self.server = Server((self.ip,self.port), Handler, client=self)
 
 
         #Options
-        self.temp_path = temp_path if temp_path else os.path.join(os.path.dirname(__file__),"tmp")
+        if temp_path:
+          self.temp_path = temp_path  
+        else:
+          self.temp_path = os.path.join(os.path.dirname(__file__),"tmp")
         self.is_playing_fnc = is_playing_fnc
         self.timeout = timeout
         self.auto_delete = auto_delete
         self.wait_time= wait_time
         self.auto_shutdown = auto_shutdown
-        self.buffer_size = 10
+        self.buffer_size = 15 
+        self.last_pieces_priorize = 5
         self.state_file="state"
         self.torrent_paramss={'save_path':self.temp_path,'storage_mode':lt.storage_mode_t.storage_mode_sparse}
 
@@ -67,9 +108,10 @@ class Client(object):
         #Cargamos el archivo de estado (si esxiste)
         if os.path.exists(os.path.join(self.temp_path,self.state_file)):
             try:
-                with open(os.path.join(self.temp_path,self.state_file), "rb") as f:
-                    state=pickle.load(f)
-                    self._ses.load_state(state)
+                f =  open(os.path.join(self.temp_path,self.state_file), "rb")
+                state=pickle.load(f)
+                self._ses.load_state(state)
+                f.close()
             except:
                 pass
                 
@@ -87,6 +129,7 @@ class Client(object):
         
         if self.auto_shutdown:
             self._monitor.add_listener(self._auto_shutdown)
+            
         self._dispatcher=Dispatcher(self)
         self._dispatcher.add_listener(self._update_ready_pieces)
 
@@ -95,6 +138,9 @@ class Client(object):
             self.start_url(url)
 
     def get_play_list(self):
+        """
+        Función encargada de generar el playlist
+        """
         #Esperamos a lo metadatos
         while not self.has_meta:
             time.sleep(1)
@@ -107,6 +153,9 @@ class Client(object):
                 return "http://" + self.ip + ":" + str(self.port) + "/" + urllib.quote(self.files[0].path)
 
     def get_files(self):
+        """
+        Función encargada de genera el listado de archivos
+        """
         #Esperamos a lo metadatos
         while not self.has_meta:
             time.sleep(1)
@@ -123,73 +172,11 @@ class Client(object):
 
         return files
 
-    def announce_torrent(self):
-        self._th.force_reannounce()
-        self._th.force_dht_announce()
 
-    def _auto_shutdown(self, *args, **kwargs):
-        if self.file and self.file.cursor:
-            self.last_connect = time.time()
-            self.connected = True
-
-        if self.is_playing_fnc and self.is_playing_fnc():
-            self.last_connect = time.time()
-            self.connected = True
-
-        if self.auto_shutdown:
-            #shudown por haber cerrado el reproductor
-            if self.connected and self.is_playing_fnc and not self.is_playing_fnc():
-                if time.time() - self.last_connect - 1 > self.timeout:
-                    self.stop()
-
-            #shutdown por no realizar ninguna conexion
-            if (not self.file or not self.file.cursor) and self.start_time and self.wait_time and not self.connected:
-                if time.time() - self.start_time - 1 > self.wait_time:
-                    self.stop()
-
-            #shutdown tras la ultima conexion
-            if (not self.file or not self.file.cursor) and self.timeout and self.connected and not self.is_playing_fnc:
-                if time.time() - self.last_connect - 1 > self.timeout:
-                    self.stop()
-
-    def save_state(self):
-        state=self._ses.save_state()
-        with open(os.path.join(self.temp_path,self.state_file), 'wb') as f:
-            pickle.dump(state,f)
-
-     
-    def _update_ready_pieces(self, alert_type, alert):
-        if alert_type == 'read_piece_alert' and self.file:
-            self.file.update_piece(alert.piece, alert.buffer)
-            
-            
-    def _check_meta(self):
-        if self.status.state>=3 and  self.status.state <= 5 and not self.has_meta:
-
-            #Guardamos los metadatos
-            self.meta = self._th.get_torrent_info()
-
-            #Obtenemos la lista de archivos del meta
-            fs=self.meta.files()
-            files=fs if isinstance(fs, list) else [fs.at(i) for i in xrange(fs.num_files())]
-
-            #Guardamos la lista de archivos
-            self.files=self._choose_files(files)
-
-            #Marcamos el primer archivo como activo
-            self.set_file(self.files[0])
-
-            #Damos por iniciada la descarga
-            self.start_time = time.time()
-
-            #Guardamos el .torrent en el cahce
-            self._cache.file_complete(self._th.get_torrent_info())
-
-            self.has_meta = True
-
-
-
-    def _choose_files(self, files, search=None):
+    def _find_files(self, files, search=None):
+        """
+        Función encargada de buscar los archivos reproducibles del torrent
+        """
         #Obtenemos los archivos que la extension este en la lista
         videos=filter(lambda f: self.VIDEO_EXTS.has_key(os.path.splitext(f.path)[1]), files)
 
@@ -201,56 +188,53 @@ class Client(object):
 
 
     def set_file(self, f):
+        """
+        Función encargada de seleccionar el archivo que vamos a servir y por tanto, priorizar su descarga
+        """
         #Seleccionamos el archivo que vamos a servir
         fmap=self.meta.map_file(f.index, 0,1)
         self.file=File(f.path, self.temp_path, f.index, f.size, fmap, self.meta.piece_length(), self)
         self.prioritize_file()
         
-    def priorize_start_file(self):
-        #Si tenemos un archivo seleccionado, pero no hay conexion, priorizamos el inicio del archivo
-        if self.file and not self.file.cursor:
-          for x in range(self.file.first_piece,self.file.last_piece):
-
-            if not self._th.have_piece(x):
-                for y in range(x,x+self.buffer_size):
-                  if y == x+self.buffer_size-1 and not self._th.have_piece(self.file.last_piece):
-                    self.prioritize_piece(self.file.last_piece,y-x)
-                  else:
-                    self.prioritize_piece(y,y-x)
-                break
-            
-        
-
-
 
     def prioritize_piece(self, pc, idx):
+        """
+        Función encargada de priorizar una determinada pieza
+        """
         piece_duration=1000
         min_deadline=2000
         dl=idx*piece_duration+min_deadline
         self._th.set_piece_deadline(pc, dl,lt.deadline_flags.alert_when_available)
         
-        if idx==0:  # it enough when first piece if prioritize, no need to repeat it for following pieces
-            # we do not need to download pieces that are lower then current index, 
-            # but last x pieces are special because players often  look at end of file
-            # for mp4 metadata - so in this case,  we do not want to stop download of previous pieces
+        if idx==0: 
             tail_pieces=9
+            #Piezas anteriores a la primera se desactivan
             if (self.file.last_piece - pc) > tail_pieces:
                 for i in xrange(self.file.first_piece,pc):
                     self._th.piece_priority(i,0)
                     self._th.reset_piece_deadline(i)
-                
-            # If we are skipping back we'd like to re-enable all pieces after this one
-            # e.g. give them at least priority 1
+                    
+            #Piezas siguientes a la primera se activan
             for i in xrange(pc+1, self.file.last_piece+1):
                 self._th.piece_priority(i,1)
 
     def prioritize_file(self):
-        priorities=[1 if i>= self.file.first_piece and i<= self.file.last_piece else 0 \
-                    for i in xrange(self.meta.num_pieces())]
+        """
+        Función encargada de priorizar las piezas correspondientes al archivo seleccionado en la funcion set_file()
+        """
+        priorities = []
+        for i in xrange(self.meta.num_pieces()):
+          if i>= self.file.first_piece and i<= self.file.last_piece:
+            priorities.append(1)
+          else:
+            priorities.append(0)
         self._th.prioritize_pieces(priorities)
 
 
     def download_torrent(self,url):
+        """
+        Función encargada de descargar un archivo .torrent
+        """
         from core import scrapertools
         
         data = scrapertools.downloadpage(url)
@@ -258,6 +242,13 @@ class Client(object):
 
 
     def start_url(self, uri):
+        """
+        Función encargada iniciar la descarga del torrent desde la url, permite:
+          - Url apuntando a un .torrent
+          - Url magnet
+          - Archivo .torrent local
+        """
+
         if self._th:
             raise Exception('Torrent is already started')
 
@@ -304,6 +295,9 @@ class Client(object):
 
         
     def stop(self):
+        """
+        Función encargada de de detener el torrent y salir
+        """
         self._dispatcher.stop()
         self._dispatcher.join()
         self._monitor.stop()
@@ -320,6 +314,9 @@ class Client(object):
         self.closed = True
 
     def _start_services(self):
+        """
+        Función encargada de iniciar los servicios de libtorrent: dht, lsd, upnp, natpnp
+        """
         self._ses.add_dht_router("router.bittorrent.com",6881)
         self._ses.add_dht_router("router.bitcomet.com",554)
         self._ses.add_dht_router("router.utorrent.com",6881)
@@ -330,6 +327,9 @@ class Client(object):
         
         
     def _stop_services(self):
+        """
+        Función encargada de detener los servicios de libtorrent: dht, lsd, upnp, natpnp
+        """
         self._ses.stop_natpmp()
         self._ses.stop_upnp()
         self._ses.stop_lsd()
@@ -337,6 +337,9 @@ class Client(object):
 
 
     def save_resume(self):
+        """
+        Función encargada guardar los metadatos para continuar una descarga mas rapidamente
+        """
         if self._th.need_save_resume_data() and self._th.is_valid() and self.meta:
             r = ResumeData(self)
             start=time.time()
@@ -349,10 +352,15 @@ class Client(object):
 
     @property
     def status(self):
+        """
+        Función encargada de devolver el estado del torrent
+        """
         if self._th:
             s = self._th.status()
+            #Download Rate
             s._download_rate = s.download_rate / 1000
-
+            
+            #Progreso del archivo
             if self.file:
                 pieces=s.pieces[self.file.first_piece:self.file.last_piece]
                 progress= float(sum(pieces))/len(pieces)
@@ -360,55 +368,84 @@ class Client(object):
                 progress=0
 
             s.progress_file=progress * 100
-            s.file_size=self.file.size / 1048576.0 if self.file else 0
-
-            if self.file and self.file.cursor:
+            
+            #Tamaño del archivo
+            if self.file:
+              s.file_size=self.file.size / 1048576.0 
+            else: 
+              s.file_size=0
+            
+            #Estado del buffer
+            if self.file and self.file.cursor: #Con una conexion activa: Disponible vs Posicion del reproductor
                 percent = len(self.file.cursor.cache)
                 percent = percent * 100 / self.buffer_size
                 s.buffer = int(percent)
 
-            elif self.file:
-                bp = [True if (x == self.buffer_size -1 and self._th.have_piece(self.file.last_piece)) or (x < self.buffer_size -1 and self._th.have_piece(x)) else False for x in range(self.buffer_size ) ]
-                percent = len([a for a in bp if a == True])
-                percent = percent * 100 / self.buffer_size
-                s.buffer = int(percent)
+            elif self.file: #Sin una conexion activa: Pre-buffer antes de iniciar
+                #El Pre-buffer consta de dos partes_
+                # 1. Buffer al inicio del archivo para que el reproductor empieze sin cortes
+                # 2. Buffer al final del archivo (en algunos archivos el reproductor mira el final del archivo antes de comenzar)
+                bp = []
+                
+                #El tamaño del buffer de inicio es el tamaño del buffer menos el tamaño del buffer del final
+                first_pieces_priorize = self.buffer_size - self.last_pieces_priorize
+                
+                #Comprobamos que partes del buffer del inicio estan disponibles
+                for x in range(first_pieces_priorize):
+                  if self._th.have_piece(self.file.first_piece + x):
+                    bp.append(True)
+                  else:
+                    bp.append(False)
+                    
+                #Comprobamos que partes del buffer del final estan disponibles
+                for x in range(self.last_pieces_priorize):       
+                  if self._th.have_piece(self.file.last_piece - x):
+                    bp.append(True)
+                  else:
+                    bp.append(False)
+                
+                s.buffer = int(sum(bp) * 100 / self.buffer_size)
 
-            else:
+            else: #Si no hay ningun archivo seleccionado: No hay buffer
                 s.buffer = 0
-
+            
+            #Tiempo restante para cerrar en caso de tener el timeout activo
             if self.auto_shutdown:
                 if self.connected:
                     if self.timeout:
                         s.timeout = int(self.timeout - (time.time() - self.last_connect -1))
                         if self.file and self.file.cursor:
                              s.timeout = self.timeout
-                        if s.timeout < 0: s.timeout = "Chiusura"
+                        if s.timeout < 0: s.timeout = "Cerrando"
                     else:
                         s.timeout = "---"
                 else:
                     if self.start_time and self.wait_time:
                         s.timeout = int(self.wait_time - (time.time() - self.start_time -1))
-                        if s.timeout < 0: s.timeout = "Chiusura"
+                        if s.timeout < 0: s.timeout = "Cerrando"
                     else:
                         s.timeout = "---"
 
             else:
                 s.timeout = "Off"
-
-            STATE_STR = ['Coda', 'Test', 'Download metadata', \
-                    'Download', 'Fatto', 'Seeding', 'Assegnazione', 'Controllo fastresume']
-
+            
+            #Estado de la descarga
+            STATE_STR = ['En cola', 'Comprobando', 'Descargando metadata', \
+                    'Descargando', 'Finalizado', 'Seeding', 'Allocating', 'Comprobando fastresume']
             s.str_state = STATE_STR[s.state]
-
+            
+            #Estado DHT
             if self._ses.dht_state() is not None:
                 s.dht_state = "On"
                 s.dht_nodes=self._ses.status().dht_nodes
             else:
                 s.dht_state = "Off"
                 s.dht_nodes = 0
-
+            
+            #Cantidad de Trackers
             s.trackers= len(self._th.trackers())
-
+            
+            #Origen de los peers
             s.dht_peers = 0
             s.trk_peers = 0
             s.pex_peers = 0
@@ -425,26 +462,131 @@ class Client(object):
                     s.lsd_peers +=1
 
             return s
+            
+            
+    """
+    Servicios:
+      - Estas funciones se ejecutan de forma automatica cada x tiempo en otro Thread.
+      - Estas funciones son ejecutadas mientras el torrent esta activo algunas pueden desactivarse 
+        segun la configuracion como por ejemplo la escritura en el log
+    """
+
+    def _auto_shutdown(self, *args, **kwargs):
+        """
+        Servicio encargado de autoapagar el servidor
+        """
+        if self.file and self.file.cursor:
+            self.last_connect = time.time()
+            self.connected = True
+
+        if self.is_playing_fnc and self.is_playing_fnc():
+            self.last_connect = time.time()
+            self.connected = True
+
+        if self.auto_shutdown:
+            #shudown por haber cerrado el reproductor
+            if self.connected and self.is_playing_fnc and not self.is_playing_fnc():
+                if time.time() - self.last_connect - 1 > self.timeout:
+                    self.stop()
+
+            #shutdown por no realizar ninguna conexion
+            if (not self.file or not self.file.cursor) and self.start_time and self.wait_time and not self.connected:
+                if time.time() - self.start_time - 1 > self.wait_time:
+                    self.stop()
+
+            #shutdown tras la ultima conexion
+            if (not self.file or not self.file.cursor) and self.timeout and self.connected and not self.is_playing_fnc:
+                if time.time() - self.last_connect - 1 > self.timeout:
+                    self.stop()
+
+    def announce_torrent(self):
+        """
+        Servicio encargado de anunciar el torrent
+        """
+        self._th.force_reannounce()
+        self._th.force_dht_announce()
+        
+    def save_state(self):
+        """
+        Servicio encargado de guardar el estado
+        """
+        state=self._ses.save_state()
+        f =  open(os.path.join(self.temp_path,self.state_file), 'wb')
+        pickle.dump(state,f)
+        f.close()
+
+     
+    def _update_ready_pieces(self, alert_type, alert):
+        """
+        Servicio encargado de informar que hay una pieza disponible
+        """
+        if alert_type == 'read_piece_alert' and self.file:
+            self.file.update_piece(alert.piece, alert.buffer)
+            
+            
+    def _check_meta(self):
+        """
+        Servicio encargado de comprobar si los metadatos se han descargado
+        """
+        if self.status.state>=3 and  self.status.state <= 5 and not self.has_meta:
+
+            #Guardamos los metadatos
+            self.meta = self._th.get_torrent_info()
+
+            #Obtenemos la lista de archivos del meta
+            fs=self.meta.files()
+            if isinstance(fs, list):
+              files=fs  
+            else:
+              files = [fs.at(i) for i in xrange(fs.num_files())]
+
+            #Guardamos la lista de archivos
+            self.files=self._find_files(files)
+
+            #Marcamos el primer archivo como activo
+            self.set_file(self.files[0])
+
+            #Damos por iniciada la descarga
+            self.start_time = time.time()
+
+            #Guardamos el .torrent en el cahce
+            self._cache.file_complete(self._th.get_torrent_info())
+
+            self.has_meta = True
+
+    def priorize_start_file(self):
+        '''
+        Servicio encargado de priorizar el principio y final de archivo cuando no hay conexion
+        '''
+        if self.file and not self.file.cursor:
+          num_start_pieces = self.buffer_size - self.last_pieces_priorize   #Cantidad de piezas a priorizar al inicio
+          num_end_pieces = self.last_pieces_priorize                        #Canridad de piezas a priorizar al final
+          
+          pieces_count = 0
+          #Priorizamos las ultimas piezas
+          for y in range(self.file.last_piece - num_end_pieces, self.file.last_piece + 1):
+            if not self._th.have_piece(y):
+              self.prioritize_piece(y,pieces_count)
+              pieces_count +=1
+          
+          #Priorizamos las primeras piezas
+          for y in range(self.file.first_piece,self.file.last_piece + 1):
+            if not self._th.have_piece(y):
+              if pieces_count == self.buffer_size:
+                break
+              self.prioritize_piece(y,pieces_count)
+              pieces_count +=1
 
     def print_status(self):
+        '''
+        Servicio encargado de mostrar en el log el estado de la descarga
+        '''
         s = self.status
-
-        archivo = "N/D"
-        percent = s.buffer
-
-        if percent < 75: color= "33"
-        if percent < 40: color= "31"
-        if percent > 75: color= "32"
-
-        buffer = "\033[%sm%s%s\033[39m" % ( color ,u"\u25A0" * (percent/10), u"\u25A1" *(10-percent/10))
-
-        print '\r\033[39;m%.2f%% de %.1fMB %s | %.1f kB/s | #%s %s | AutoClose: %s | S: %d(%d) P: %d(%d)) | TRK: %d DHT: %d PEX: %d LSD %d | DHT:%s (%d) | Trakers: %d' % \
-            (s.progress_file , s.file_size, s.str_state, s._download_rate ,archivo, buffer, s.timeout , s.num_seeds, s.num_complete, s.num_peers, s.num_incomplete, s.trk_peers,s.dht_peers, s.pex_peers, s.lsd_peers, s.dht_state, s.dht_nodes, s.trackers),
-
-
-
-                   
-
-
-
-
+        if self.file:
+          archivo = self.file.index
+        else:
+          archivo = "N/D"
+        logger.info('%.2f%% de %.1fMB %s | %.1f kB/s | #%s %d%% | AutoClose: %s | S: %d(%d) P: %d(%d)) | TRK: %d DHT: %d PEX: %d LSD %d | DHT:%s (%d) | Trakers: %d' % \
+                    (s.progress_file , s.file_size, s.str_state, s._download_rate, archivo, s.buffer, s.timeout , s.num_seeds,\
+                     s.num_complete, s.num_peers, s.num_incomplete, s.trk_peers,s.dht_peers, s.pex_peers, s.lsd_peers, s.dht_state, s.dht_nodes, s.trackers))                   
+                     

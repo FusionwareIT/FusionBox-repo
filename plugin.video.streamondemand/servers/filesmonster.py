@@ -35,6 +35,8 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     
     partes=data2.split('"')
     url=partes[7]
+    filename = scrapertools.get_filename_from_url(url)[-4:]
+    alerta=filename+" "+alerta
     if "http" not in url:alerta="[error de filesmonster premium]: "+url
     
     video_urls.append( [alerta ,url] )
